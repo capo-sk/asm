@@ -1,8 +1,10 @@
 #ifndef EMIT_H
 #define EMIT_H
 
+#include <stdio.h>
 #include "types.h"
 
+void emit_init(FILE *binary);
 void emit_byte(u8 value);
 void emit_word(u16 value);
 void emit_bytes(u8 const *value, u16 count);

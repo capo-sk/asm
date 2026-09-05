@@ -8,6 +8,11 @@
 
 static u16 last_loc = 0xFFFF;
 static u8 flag = 0;
+static FILE *stream;
+
+void emit_init(FILE *binary) {
+	stream = binary;
+}
 
 void emit_byte(u8 value) {
 	if (pass > 1) {
@@ -17,7 +22,7 @@ void emit_byte(u8 value) {
 			location -= 2;
 		}
 
-		putc(value, stdout);
+		putc(value, stream);
 	}
 
 	++location;
