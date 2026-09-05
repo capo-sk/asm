@@ -1,3 +1,10 @@
+/* 6502 Assembler
+
+   Copyright 2026 William Brioschi aka CAPo/Spinning Kids
+
+   See LICENSE file
+*/
+
 #ifndef TKSTREAM_H
 #define TKSTREAM_H
 

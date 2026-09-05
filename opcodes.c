@@ -1,3 +1,10 @@
+/* 6502 Assembler
+
+   Copyright 2026 William Brioschi aka CAPo/Spinning Kids
+
+   See LICENSE file
+*/
+
 /* OPCODES */
 
 #include "opcodes.h"
