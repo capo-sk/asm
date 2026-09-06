@@ -1,12 +1,12 @@
-label = value
+variable = value
 label:
 [label:] command [arguments]
 [label:] command
 
 TOKENS
 command ::= opcode | pseudo-opcode | macro
-opcode ::= LDA | STA | RTS
-pseudo-opcode ::= .BYTE
+opcode ::= LDA | STA | RTS etc.
+pseudo-opcode ::= .BYTE | .WORD | .INCLUDE
 name ::= letter [letter | digit | dot]{0..15}
 label ::= (name) colon
 macro ::= ampersand (name)

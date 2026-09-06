@@ -26,8 +26,8 @@ static void do_pass(void);
 static int do_line(void);
 static int do_opcode(void);
 static int do_pseudo(void);
-static int p1_macrodef(void);
-static int p1_macro(void);
+static int do_macrodef(void);
+static int do_macro(void);
 static void do_labeldef(void);
 static int do_vardef(void);
 static int do_location(void);
@@ -78,9 +78,9 @@ int do_line(void) {
 		case pseudo_opcode:
 			return do_pseudo();
 		case macro_def:
-			return p1_macrodef();
+			return do_macrodef();
 		case macro_ref:
-			return p1_macro();
+			return do_macro();
 		case label_def:
 			do_labeldef();
 			return do_line();
@@ -271,7 +271,7 @@ static int do_pseudo(void) {
 	return expect_newline();
 }
 
-int expect_newline(void) {
+static int expect_newline(void) {
 	token tk;
 
 	ts_read(&stream, &tk);
@@ -284,13 +284,12 @@ int expect_newline(void) {
 	return 1;
 }
 
-int p1_pseudo(void);
-int p1_macrodef(void) {
+int do_macrodef(void) {
 	error("Macros not implemented");
 	return -1;
 }
 
-int p1_macro(void) {
+int do_macro(void) {
 	error("Macros not implemented");
 	return -1;
 }
