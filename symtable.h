@@ -9,6 +9,7 @@
 #define SYM_TABLE
 
 #include "types.h"
+#include "nfile.h"
 
 typedef enum {
 	sym_label,
@@ -19,6 +20,6 @@ typedef enum {
 void sym_new(char const *name, sym_type type, u16 value);
 void sym_add(char const *name, sym_type type, u16 value);
 int sym_get(char const *name, sym_type type, u16 *value);
-void sym_dump(void);
+void sym_dump(nfile_t *where, int format);
 
 #endif

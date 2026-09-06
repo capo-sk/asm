@@ -42,7 +42,6 @@ void first_pass(buffer_ref *in_buf) {
 	ts_init(&stream, in_buf);
 	pass = 1;
 	do_pass();
-	sym_dump();
 }
 
 void second_pass(void) {

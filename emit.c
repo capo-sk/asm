@@ -15,10 +15,10 @@
 
 static u16 last_loc = 0xFFFF;
 static u8 flag = 0;
-static FILE *stream;
+static nfile_t *emit_nfile;
 
-void emit_init(FILE *binary) {
-	stream = binary;
+void emit_init(nfile_t *nfile) {
+	emit_nfile = nfile;
 }
 
 void emit_byte(u8 value) {
@@ -29,7 +29,7 @@ void emit_byte(u8 value) {
 			location -= 2;
 		}
 
-		putc(value, stream);
+		nfputc(emit_nfile, value);
 	}
 
 	++location;

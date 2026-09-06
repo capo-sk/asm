@@ -8,8 +8,10 @@
 #include "symtable.h"
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <ctype.h>
 #include "error.h"
+#include "nfile.h"
+#include "token.h"
 #define DEBUG
 #include "debug.h"
 
@@ -95,11 +97,25 @@ int sym_get(char const *name, sym_type type, u16 *value) {
 	}
 }
 
-void sym_dump(void) {
+void sym_dump(nfile_t *where, int format) {
 	symnode *p;
+	char vice_label[MAX_TOKEN_LENGTH + 1];
+	unsigned i, j;
+	char c;
 
-	fprintf(stderr, "Symbols\n");
+	if (format == 0)
+		nfprintf(where, "Symbols\n");
+
 	for (p = symlist_first; p != null; p = p->next)
-		fprintf(stderr, "%s(%u) = %u $%04X\n", p->name, p->type, p->value, p->value);
-	fprintf(stderr, "\n");
+		if (format == 0)  /* human consumption */
+			nfprintf(where, "%s(%u) = %u $%04X\n", p->name, p->type, p->value, p->value);
+		else { /* VICE monitor format */
+			for (i = 0; i <= MAX_TOKEN_LENGTH + 1; i++) {
+				c = p->name[i];
+				vice_label[i] = tolower(c);
+				if (c == 0)
+					break;
+			}
+			nfprintf(where, "al C:%X .%s\n", p->value, vice_label);
+		}
 }
