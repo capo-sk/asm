@@ -132,3 +132,21 @@ void nfprintf(nfile_t *nfile, char const *fmt, ...) {
 	vfprintf(nfile->file, fmt, params);
 }
 
+size_t nfgetline(nfile_t *nfile, char *line, size_t max) {
+	void *result;
+
+	_nf_notnull(nfile);
+
+	if (feof(nfile->file))
+		return 0;
+
+	result = fgets(line, max, nfile->file);
+	if (result == NULL && ferror(nfile->file))
+		_nf_fail(nfile);
+	else
+		return strlen(line);
+}
+
+void nfrewind(nfile_t *nfile) {
+	rewind(nfile->file);
+}

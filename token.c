@@ -22,21 +22,21 @@ update: in_buf as consumed
 update: ctx with new context if changed
 */
 int get_next_token(buffer_ref *in_buf, token_context *ctx, token *tk) {
-	char c;
-	char literal_delimiter;
-	u8 i;
+	int c;
+	unsigned char literal_delimiter;
+	unsigned i;
 	bool incomplete_token = true;
-	u8 text_len = 0;
+	unsigned text_len = 0;
 	bool inside_string_literal = false;
 	bool inside_comment = false;
 
 	tk->type = invalid;  /* until we know better */
 
 	while (incomplete_token) {
-		c = buf_get_next_char(in_buf);
+		c = buf_get_next(in_buf);
 		debug_var(c, i8);
 
-		if (c == (char) buf_eof) {
+		if (c == buf_eof) {
 			if (text_len == 0) {
 				debug_msg(end of file);
 				tk->type = endline;

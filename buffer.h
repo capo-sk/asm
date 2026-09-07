@@ -10,24 +10,23 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include "types.h"
+#include "nfile.h"
+
+#define _buf_line_max 255
 
 typedef struct {
-	u16 pointer;
-	u16 size;
-	u8 *data;
+	nfile_t *nfile;
+	int replay;
+	char *ptr;
+	int eof;
+	char line[_buf_line_max + 1];
 } buffer_ref;
 
 #define buf_eof -1
 
-void buf_init(buffer_ref *buffer, u8 *content, u16 len);
-
-int buf_get_next_byte(buffer_ref *buffer);
-
-char buf_get_next_char(buffer_ref *buffer);
-
-void buf_rewind_1(buffer_ref *buffer);
-
-void buf_rewind(buffer_ref *buffer);
+extern int buf_get_next(buffer_ref *buffer);
+extern void buf_rewind_1(buffer_ref *buffer);
+extern void buf_rewind(buffer_ref *buffer);
+extern void buf_init(buffer_ref *buffer, nfile_t *nfile);
 
 #endif

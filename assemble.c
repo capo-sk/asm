@@ -54,10 +54,11 @@ int main(int argc, char **argv) {
 */
 
 	input_nfile = nfopen(input_filename, "r");
+/*
 	file_len = nfread(input_nfile, input_buffer, sizeof(input_buffer) - 1);
-	nfclose(input_nfile);
+*/
 
-	buf_init(&in_buf, input_buffer, file_len);
+	buf_init(&in_buf, input_nfile);
 
 	output_nfile = nfopen(output_filename, "wb");
 
@@ -74,10 +75,12 @@ int main(int argc, char **argv) {
 	first_pass(&in_buf);
 
 	sym_dump(symbol_nfile, symdump_format);
+
 	nfclose(symbol_nfile);
 
 	second_pass();
 
+	nfclose(input_nfile);
 	nfclose(output_nfile);
 
 	return 0;

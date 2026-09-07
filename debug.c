@@ -51,7 +51,7 @@ void do_debug_var(char const *_name, char const *_type, void const *_value) {
 			printf("VAR %s (%s) = %lu $%08lX\n", _name, _type, (unsigned long)*(u32 const *)_value, (unsigned long)*(u32 const *)_value);
 			break;
 		case 6:	/* ptr */
-			printf("VAR %s (%s) = $%02X\n", _name, _type, (unsigned)*(void * const *)_value);
+			printf("VAR %s (%s) = $%p\n", _name, _type, *(void * const *)_value);
 			break;
 		case 7: /* str */
 			printf("VAR %s (%s) = '%s'\n", _name, _type, (char const *)_value);

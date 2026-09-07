@@ -1,5 +1,5 @@
 CC=cc
-CFLAGS=
+CFLAGS=-g
 
 all: asm
 

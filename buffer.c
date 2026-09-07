@@ -9,33 +9,42 @@
 
 #include "buffer.h"
 
-int buf_get_next_byte(buffer_ref *buffer) {
-	int byte;
+int buf_get_next(buffer_ref *buffer) {
+	if (buffer->eof)
+		return buf_eof;
 
-	if (buffer->pointer < buffer->size) {
-		byte = (int) (buffer->data[buffer->pointer]);
-		++(buffer->pointer);
-	} else
-		byte = buf_eof;
+	if (buffer->replay > 0xff) {  /* after rewind_1 */
+		buffer->replay &= 0xff;
+	} else {
+		if (*buffer->ptr == 0) {  /* nothing left in the line */
+			if (nfgetline(buffer->nfile, buffer->line, sizeof(buffer->line)) == 0) {  /* EOF */
+				buffer->eof = 1;
+				return buf_eof;
+			}
+			buffer->ptr = buffer->line;
+		}
+		buffer->replay = *(unsigned char *)buffer->ptr++;
+	}
 
-	return byte;
-}
-
-char buf_get_next_char(buffer_ref *buffer) {
-	return (char) buf_get_next_byte(buffer);
+	return buffer->replay;
 }
 
 void buf_rewind_1(buffer_ref *buffer) {
-	if (buffer->pointer != 0)
-		--(buffer->pointer);
+	buffer->replay |= 0x100;
 }
 
 void buf_rewind(buffer_ref *buffer) {
-	buffer->pointer = 0;
+	nfrewind(buffer->nfile);
+	buffer->replay = buf_eof;
+	buffer->line[0] = 0;
+	buffer->ptr = buffer->line;
+	buffer->eof = 0;
 }
 
-void buf_init(buffer_ref *buffer, u8 *content, u16 len) {
-	buffer->data = content;
-	buffer->size = len;
-	buffer->pointer = 0;
+void buf_init(buffer_ref *buffer, nfile_t *nfile) {
+	buffer->nfile = nfile;
+	buffer->replay = buf_eof;
+	buffer->line[0] = 0;
+	buffer->ptr = buffer->line;
+	buffer->eof = 0;
 }
