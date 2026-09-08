@@ -30,6 +30,7 @@ public:
 	void AdvanceLine();
 	char const *getFilename();
 	unsigned getLinenum();
+	void close_file();
 	
 	static const int eofmark = -1;
 };

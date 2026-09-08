@@ -17,6 +17,10 @@ SrcFile::SrcFile(char const *name) {
 	line = 1;
 }
 
+SrcFile::~SrcFile() {
+	delete nfile;
+}
+
 void SrcFile::AdvanceLine() {
 	line++;
 }
@@ -62,8 +66,13 @@ SrcFile *SrcFileList::Find(char const *name) {
 }
 
 void SrcFileList::Pop() {
-	if (top != NULL)
-		top = top->stack_next;
+	SrcFile *p;
+
+	if (top != first) { // do not pop the initial file
+		p = top;
+		top = p->stack_next;
+		delete p;
+	}
 }
 
 void SrcFileList::AdvanceLine() {

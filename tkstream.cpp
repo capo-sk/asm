@@ -65,6 +65,7 @@ int TokenStream::_get_next_token(Token *tk) {
 				tk->type = endline;
 				tk->value[0] = 0;
 				ctx = end_of_file;
+				buf.close_file();
 				return 0;
 			} else {  // EOF terminates word
 				buf.rewind_1();

@@ -239,11 +239,18 @@ int Parser::do_pseudo(void) {
 		case 3: /* .WORD */
 			do_pseudo_word();
 			break;
+		case 4: /* .INCLUDE */
+			do_include();
+			break;
 		default:
 			_error("Internal error - no such pseudo-opcode");
 	}
 
 	return expect_newline();
+}
+
+void Parser::do_include() {
+	_error("Include not implemented");
 }
 
 int Parser::expect_newline(void) {

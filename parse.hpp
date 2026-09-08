@@ -41,6 +41,7 @@ private:
 	[[noreturn]] void _error(char const *txt);
 	[[noreturn]] void _error_fmt(char const *fmt, ...);
 	void make_local_label(char *local_label, char const *global_context, char const *local_part);
+	void do_include();
 
 public:
 	Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtable);

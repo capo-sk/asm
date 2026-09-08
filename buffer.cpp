@@ -16,7 +16,7 @@ int Buffer::get_next() {
 	if (replay > 0xff) {  // after rewind_1
 		replay &= 0xff;
 	} else {
-		if (*ptr == 0) {  //
+		if (*ptr == 0) {  // need new line
 			if (slist.GetNFile()->getline(line, sizeof(line)) == 0) {  // EOF
 				eof = 1;
 				return eofmark;
@@ -58,4 +58,8 @@ char const *Buffer::getFilename() {
 
 unsigned Buffer::getLinenum() {
 	return slist.getLinenum();
+}
+
+void Buffer::close_file() {
+	slist.Pop();
 }

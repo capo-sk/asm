@@ -121,7 +121,8 @@ const pseudo pseudos[] = {
 	{ "MACRO" },
 	{ "ENDM" },
 	{ ".BYTE" },
-	{ ".WORD" }
+	{ ".WORD" },
+	{ ".INCLUDE" }
 };
 const u8 num_pseudos = sizeof(pseudos) / sizeof(pseudo);
 const u8 pseudo_macro = 0;
