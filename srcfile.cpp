@@ -21,7 +21,7 @@ void SrcFile::AdvanceLine() {
 	line++;
 }
 
-char const *SrcFile::GetName() {
+char const *SrcFile::getFilename() {
 	return nfile->GetName();
 }
 
@@ -55,7 +55,7 @@ SrcFile *SrcFileList::Find(char const *name) {
 	SrcFile *p;
 
 	for (p = first; p != NULL; p = p->list_next)
-		if (strcmp(name, p->GetName()) == 0)
+		if (strcmp(name, p->getFilename()) == 0)
 			return p;
 
 	return NULL;
@@ -77,3 +77,18 @@ NFile *SrcFileList::GetNFile() {
 	else
 		return NULL;
 }
+
+char const *SrcFileList::getFilename() {
+	if (top != NULL)
+		return top->getFilename();
+	else
+		return NULL;
+}
+
+unsigned SrcFileList::getLinenum() {
+	if (top != NULL)
+		return top->getLinenum();
+	else
+		return 0;
+}
+	

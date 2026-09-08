@@ -23,6 +23,7 @@ private:
 
 public:
 	Emitter(NFile &a_nfile);
+	u16 get_loc() { return loc; }
 	void set_loc(u16 a_loc) { loc = a_loc; }
 	void set_pass(unsigned a_pass) { pass = a_pass; }
 	void emit_byte(u8 value);

@@ -11,7 +11,7 @@
 #include "srcfile.hpp"
 #include "buffer.hpp"
 #include "emit.hpp"
-#include "parse.h"
+#include "parse.hpp"
 
 int main(int argc, char *argv[]) {
 	char *input_filename, *output_filename, *symbol_filename;
@@ -44,21 +44,25 @@ int main(int argc, char *argv[]) {
 
 	Emitter emit(output_nfile);
 
-	NFile symbol_nfile;
+	NFile *symbol_nfile;
 	int symdump_format;
 	if (symbol_filename != NULL) {
-		symbol_nfile = NFile(symbol_filename, "w");
+		symbol_nfile = new NFile(symbol_filename, "w");
 		symdump_format = 1;
 	} else {
-		symbol_nfile = NFile(2);
+		symbol_nfile = new NFile(2);
 		symdump_format = 0;
 	}
 
-	first_pass(in_buf);
+	SymbolTable symtab;
 
-	sym_dump(symbol_nfile, symdump_format);
+	Parser parser(in_buf, emit, symtab);
 
-	second_pass(in_buf);
+	parser.first_pass();
+
+	symtab.dump(*symbol_nfile, symdump_format);
+
+	parser.second_pass();
 
 	return 0;
 }

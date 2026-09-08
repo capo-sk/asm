@@ -47,3 +47,15 @@ Buffer::Buffer(SrcFileList &srcl) : slist(srcl) {
 	ptr = &line[0];
 	eof = 0;
 }
+
+void Buffer::AdvanceLine() {
+	slist.AdvanceLine();
+}
+
+char const *Buffer::getFilename() {
+	return slist.getFilename();
+}
+
+unsigned Buffer::getLinenum() {
+	return slist.getLinenum();
+}

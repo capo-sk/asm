@@ -9,9 +9,6 @@
 
 #include "opcodes.h"
 
-#define NDEBUG
-#include "debug.h"
-
 const u8 multimode_select[10] =
 	{ 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x14 };
 const u8 multimode2_select[10] =
@@ -23,12 +20,9 @@ const u8 multimode_bits[10] =
 	  absy_bit, absx_bit, rega_bit, zpy_bit };
 
 bool multimode_valid(u8 multi_bits, u8 mode) {
-	DV(mode,u8)
-	DV(multi_bits,u8)
 	if (mode > 9)
 		return false;
 
-	DV(multimode_bits[mode],u8)
 	if ((multi_bits & multimode_bits[mode]) != 0)
 		return true;
 	else

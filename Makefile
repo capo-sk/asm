@@ -1,8 +1,17 @@
-CC=cc
+CC=gcc
 CFLAGS=-g -Wfatal-errors
+
+CPP=g++
+CPPFLAGS=-g -Wfatal-errors
 
 all: asm
 
-asm: assemble.cpp nfile.cpp srcfile.cpp error.c emit.cpp
-	$(CC) $(CFLAGS) -o $@ $^
+%.o: %.c
+	$(CC) $(CFLAGS) -c $^
+
+%o: %.cpp
+	$(CPP) $(CPPFLAGS) -c $^
+
+asm: assemble.o nfile.o srcfile.o error.o emit.o tkstream.o buffer.o opcodes.o symtable.o parse.o
+	$(CPP) -o $@ $^
 

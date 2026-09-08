@@ -6,8 +6,10 @@
 */
 
 #include "emit.hpp"
-#include "opcodes.h"
 #include "error.h"
+extern "C" {
+#include "opcodes.h"
+}
 
 Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile) {
 	nfile = a_nfile;

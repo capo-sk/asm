@@ -5,68 +5,45 @@
    See LICENSE file
 */
 
-#include "parse.h"
-#define NDEBUG
-#include "debug.h"
-#include <string.h>
-#include "tkstream.h"
+#include "parse.hpp"
+#include <cstring>
+#include <cstdarg>
 #include "error.h"
 #include "opcodes.h"
-#include "symtable.h"
-#include "loc.h"
-#include "emit.h"
+#include "emit.hpp"
 
-/* use global variables because it's convenient */
-static tkstream stream;
-static token first;
-
-/* first and second pass */
-
-static void do_pass(void);
-static int do_line(void);
-static int do_opcode(void);
-static int do_pseudo(void);
-static int do_macrodef(void);
-static int do_macro(void);
-static void do_labeldef(void);
-static int do_vardef(void);
-static int do_location(void);
-static u32 parse_expr(void);
-static u16 expr_element(void);
-static u16 parse_dec(char const *text);
-static u16 parse_hex(char const *text);
-static int expect_newline(void);
-
-void first_pass(buffer_ref *in_buf) {
-	DM(first pass)
-	ts_init(&stream, in_buf);
+Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
+	: stream(in_buf), emit(emitter), sym(symtab) {
 	pass = 1;
+}
+	
+void Parser::first_pass() {
+	pass = 1;
+	emit.set_pass(1);
 	do_pass();
 }
 
-void second_pass(void) {
-	DM(second pass)
-	ts_rewind(&stream);
+void Parser::second_pass() {
+	stream.rewind();
 	pass = 2;
+	emit.set_pass(2);
 	do_pass();
 }
 
-void do_pass(void) {
+void Parser::do_pass() {
 	int ret;
 
-	line = 1;
-	while ((ret = do_line()) > 0) {
-		++line;
-	}
+	while ((ret = do_line()) > 0)
+		stream.AdvanceLine();
 
 	if (ret < 0)
-		error("Parse error");
+		_error("Parse error");
 }
 
-int do_line(void) {
+int Parser::do_line() {
 	int ret;
 
-	ret = ts_read(&stream, &first);
+	ret = stream.read(first);
 	if (ret <= 0)
 		return ret;
 
@@ -93,19 +70,19 @@ int do_line(void) {
 	}
 }
 
-int do_opcode(void) {
-	token tk1;
-	token tk2;
+int Parser::do_opcode() {
+	Token tk1;
+	Token tk2;
 	u8 mode;
 	u8 size;
 	u32 value;
 
-	ts_read(&stream, &tk1);
+	stream.read(tk1);
 
 	switch (tk1.type) {
 		case endline:
 			mode = impl_mode; size = 1;
-			ts_back(&stream);
+			stream.rewind_1();
 			break;
 		case '#':
 			mode = imm_mode; size = 2;
@@ -114,42 +91,42 @@ int do_opcode(void) {
 		case '(':
 			mode = ind_mode; size = 3;
 			value = parse_expr();
-			ts_read(&stream, &tk2);
+			stream.read(tk2);
 			if (tk2.type == ',') {
-				ts_read(&stream, &tk2);
+				stream.read(tk2);
 				if (tk2.type == cpu_register)
 					if (tk2.value[0] == 'X') {
 						mode = indx_mode;
 						size = 2;
 					} else
-						error("Invalid index register");
+						_error("Invalid index register");
 				else
-					error("Index mode requires register");
-				ts_read(&stream, &tk2);
+					_error("Index mode requires register");
+				stream.read(tk2);
 			}
 			if (tk2.type != ')') {
-				error("Missing )");
+				_error("Missing )");
 			}
-			ts_read(&stream, &tk2);
+			stream.read(tk2);
 			if (tk2.type == ',') {
-				ts_read(&stream, &tk2);
+				stream.read(tk2);
 				if (tk2.type == cpu_register)
 					if (tk2.value[0] == 'Y') {
 						mode = indy_mode;
 						size = 2;
 					} else
-						error("Invalid index register");
+						_error("Invalid index register");
 				else
-					error("Index mode requires register");
+					_error("Index mode requires register");
 			} else
-				ts_back(&stream);
+				stream.rewind_1();
 			break;
 		case cpu_register:
 			if (tk1.value[0] == 'A') {
 				mode = impl_rega; size = 1;
 				break;
 			} else {
-				error("Invalid register");
+				_error("Invalid register");
 				return -1;
 			}
 		case symbol_ref:
@@ -159,16 +136,16 @@ int do_opcode(void) {
 		case '!':
 		case '*':
 			mode = abs_mode; size = 3;
-			ts_back(&stream);
+			stream.rewind_1();
 			value = parse_expr();
 			if (value <= 0x100) {
 				mode = zp_mode; size = 2;
 			}
-			ts_read(&stream, &tk2);
+			stream.read(tk2);
 			if (tk2.type != ',') {
-				ts_back(&stream);
+				stream.rewind_1();
 			} else {
-				ts_read(&stream, &tk2);
+				stream.read(tk2);
 				if (tk2.type == cpu_register) {
 					switch (tk2.value[0]) {
 						case 'X':
@@ -184,117 +161,114 @@ int do_opcode(void) {
 								mode = zpy_mode;
 							break;
 						default:
-							error("Invalid index register");
+							_error("Invalid index register");
 							return -1;
 					}
 				} else {
-					error("Index mode requires register");
+					_error("Index mode requires register");
 					return -1;
 				}
 			}
 			break;
 		default:
-			error("Syntax error");
+			_error("Syntax error");
 	}
 
-	emit_instruction(first.value[0], mode, (u16) value, size - 1);
+	emit.emit_instruction(first.value[0], mode, (u16) value, size - 1);
 
 	return expect_newline();
 }
 
-static void do_pseudo_word(void) {
+void Parser::do_pseudo_word() {
 	u16 value;
-	token tk;
+	Token tk;
 
 	do {
 		value = (u16) parse_expr();
-		emit_word(value);
+		emit.emit_word(value);
 
-		ts_read(&stream, &tk);
+		stream.read(tk);
 
 		if (tk.type == endline) {
-			ts_back(&stream);
+			stream.rewind_1();
 			break;
 		}
 
 		if (tk.type != ',')
-			error("Syntax error");
+			_error("Syntax error");
 	} while (1);
 }
 	
-static void do_pseudo_byte(void) {
+void Parser::do_pseudo_byte() {
 	u8 value;
 	u16 len;
-	token tk;
+	Token tk;
 
 	do {
-		ts_read(&stream, &tk);
+		stream.read(tk);
 		if (tk.type == literal_str) {
 			len = strlen(tk.value);
-			emit_bytes(tk.value, len);
+			emit.emit_bytes((u8 *)tk.value, len);
 		} else {
-			ts_back(&stream);
+			stream.rewind_1();
 			value = (u8) parse_expr();
-			emit_byte(value);
+			emit.emit_byte(value);
 		}
 
-		ts_read(&stream, &tk);
+		stream.read(tk);
 
 		if (tk.type == endline) {
-			ts_back(&stream);
+			stream.rewind_1();
 			break;
 		}
 
 		if (tk.type != ',')
-			error("Syntax error");
+			_error("Syntax error");
 	} while (1);
 }
 	
-static int do_pseudo(void) {
+int Parser::do_pseudo(void) {
 	switch (first.value[0]) {
 		case 0: /* MACRO */
 		case 1: /* ENDM */
-			error("Macro not implemented");
+			_error("Macro not implemented");
 			break;
 		case 2: /* .BYTE */
 			do_pseudo_byte();
-			emit_next();
 			break;
 		case 3: /* .WORD */
 			do_pseudo_word();
-			emit_next();
 			break;
 		default:
-			error("Internal error - no such pseudo-opcode");
+			_error("Internal error - no such pseudo-opcode");
 	}
 
 	return expect_newline();
 }
 
-static int expect_newline(void) {
-	token tk;
+int Parser::expect_newline(void) {
+	Token tk;
 
-	ts_read(&stream, &tk);
+	stream.read(tk);
 	if (tk.type != endline) {
-		DV(tk.type,u8)
-		error("Expected end of line");
+		_error("Expected end of line");
 		return -1;
 	}
 
 	return 1;
 }
 
-int do_macrodef(void) {
-	error("Macros not implemented");
+int Parser::do_macrodef(void) {
+	_error("Macros not implemented");
 	return -1;
 }
 
-int do_macro(void) {
-	error("Macros not implemented");
+int Parser::do_macro(void) {
+	_error("Macros not implemented");
 	return -1;
 }
 
-void make_local_label(char *local_label, char const *global_context, char const *local_part) {
+void Parser::make_local_label(char *local_label, char const *global_context, char const *local_part) {
 	unsigned len1, len2;
 	char *result;
 
@@ -302,78 +276,76 @@ void make_local_label(char *local_label, char const *global_context, char const 
 	len2 = strlen(local_part);
 
 	if (len1 + len2 > MAX_TOKEN_LENGTH)
-		error("Label too long");
+		_error("Label too long");
 
-	memcpy(local_label + len1, local_part, len2 + 1);
-	memcpy(local_label, global_context, len1);
+	memmove(local_label + len1, local_part, len2 + 1);
+	memmove(local_label, global_context, len1);
 }
 
-static char main_label[MAX_TOKEN_LENGTH + 1];
-void do_labeldef(void) {
+void Parser::do_labeldef(void) {
 	if (first.value[0] != '.') {  /* global label */
-		strcpy(main_label, first.value);
+		main_label = first;
 	} else {                      /* local label */
-		make_local_label(first.value, main_label, first.value);
+		make_local_label(first.value, main_label.value, first.value);
 	}
 
 	if (pass == 1) {
-		DV(first.value,str)
-		sym_new(first.value, sym_label, location);
+		sym.addnew(first.value, sym_label, emit.get_loc());
 	}
 }
 
-int do_vardef(void) {
-	token tk;
+int Parser::do_vardef(void) {
+	Token tk;
 	u16 value;
 
-	ts_read(&stream, &tk);
+	stream.read(tk);
 	if (tk.type != '=') {
-		error("Expecting = for variable assignment");
+		_error("Expecting = for variable assignment");
 		return -1;
 	}
 
 	value = (u16) parse_expr();
 
 	if (first.value[0] == '.')
-		make_local_label(first.value, main_label, first.value);
+		make_local_label(first.value, main_label.value, first.value);
 
-	sym_add(first.value, sym_var, value);
+	sym.add(first.value, sym_var, value);
 
 	return expect_newline();
 }
 
-int do_location(void) {
-	token tk;
+int Parser::do_location(void) {
+	Token tk;
 
-	ts_read(&stream, &tk);
+	stream.read(tk);
 	if (tk.type != '=') {
-		error("Expecting = for location update");
+		_error("Expecting = for location update");
 		return -1;
 	}
 
-	location = (u16) parse_expr();
+	emit.set_loc((u16) parse_expr());
 
 	return expect_newline();
 }
 
-u32 parse_expr(void) {
-	token tk;
+u32 Parser::parse_expr(void) {
+	Token tk;
 	u16 result;
 	u16 operand;
 	u8 operation;
 	u32 long_result = 0;
 
-	ts_read(&stream, &tk);
+	stream.read(tk);
 	if (tk.type == '!')
 		long_result = 0x10000ul;
 	else
-		ts_back(&stream);
+		stream.rewind_1();
 
 	result = expr_element();
 
 	do {
 		operation = 0;
-		ts_read(&stream, &tk);
+		stream.read(tk);
 		switch (tk.type) {
 			case '+':
 			case '-':
@@ -382,10 +354,10 @@ u32 parse_expr(void) {
 			case ')':
 			case endline:
 			case ',':
-				ts_back(&stream);
+				stream.rewind_1();
 				break;
 			default:
-				error("Invalid expression");
+				_error("Invalid expression");
 				break;
 		}
 
@@ -403,24 +375,24 @@ u32 parse_expr(void) {
 	return long_result;
 }
 
-u16 expr_element(void) {
-	token tk;
+u16 Parser::expr_element(void) {
+	Token tk;
 	u16 value;
 
-	ts_read(&stream, &tk);
+	stream.read(tk);
 
 	switch (tk.type) {
 		case symbol_ref:
 			if (tk.value[0] == '.')  /* local label */
-				make_local_label(tk.value, main_label, tk.value);
+				make_local_label(tk.value, main_label.value, tk.value);
 
-			if (sym_get(tk.value, sym_any, &value) != 0)
+			if (sym.get(tk.value, sym_any, value) != 0)
 				return value;
 			else
 				if (pass == 1)
-					return location;
+					return emit.get_loc();
 				else
-					error_str("Symbol %s not found", tk.value);
+					_error_fmt("Symbol %s not found", tk.value);
 		case literal_chr:
 			return (u16)tk.value[0];
 		case literal_dec:
@@ -432,12 +404,12 @@ u16 expr_element(void) {
 		case '>':
 			return (expr_element()) >> 8 & 0xFF;
 		default:
-			error("Invalid expression");
+			_error("Invalid expression");
 			return (u16) -1;
 	}
 }
 
-u16 parse_dec(char const *text) {
+u16 Parser::parse_dec(char const *text) {
 	u16 value = 0;
 	u8 c;
 	char const *p;
@@ -455,11 +427,10 @@ u16 parse_dec(char const *text) {
 	return value;
 
 error:
-	error_str("Invalid decimal number %s", text);
-	return (u16) -1;
+	_error_fmt("Invalid decimal number %s", text);
 }
 
-u16 parse_hex(char const *text) {
+u16 Parser::parse_hex(char const *text) {
 	u16 value = 0;
 	char const *p;
 	u8 c;
@@ -485,7 +456,19 @@ u16 parse_hex(char const *text) {
 	return value;
 
 error:
-	error("Invalid decimal number");
-	return (u16) -1;
+	_error("Invalid decimal number");
 }
 
+[[noreturn]] void Parser::_error(char const *txt) {
+	abort_fmt("%s(%u): %s", stream.getFilename(), stream.getLinenum(), txt);
+}
+
+[[noreturn]] void Parser::_error_fmt(char const *fmt, ...) {
+	va_list args;
+	char msg[256];
+
+	va_start(args, fmt);
+	vsprintf(msg, fmt, args);
+	_error(msg);
+	va_end(args);
+}

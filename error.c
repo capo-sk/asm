@@ -9,27 +9,32 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 
 noreturn void abort() {
 	exit(EXIT_FAILURE);
 }
 
-noreturn void error_msg(char const *msg) {
+noreturn void abort_msg(char const *msg) {
 	fprintf(stderr, "%s\n", msg);
 	abort();
 }
 
-noreturn void error_fmt(char const *fmt, ...) {
+noreturn void abort_fmt(char const *fmt, ...) {
 	va_list args;
 
+	char *fmtnl = malloc(strlen(fmt) + 2);
+	strcpy(fmtnl, fmt);
+	strcat(fmtnl, "\n");
+
 	va_start(args, fmt);
-	vfprintf(stderr, fmt, args);
+	vfprintf(stderr, fmtnl, args);
 	va_end(args);
 
 	abort();
 }
 
-noreturn void error_sys(char const *text) {
+noreturn void abort_sys(char const *text) {
 	perror(text);
 	abort();
 }

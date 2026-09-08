@@ -25,8 +25,8 @@ public:
 	SrcFile(char const *name);
 	~SrcFile();
 
-	char const *GetName();
-	unsigned GetLine() { return line; }
+	char const *getFilename();
+	unsigned getLinenum() { return line; }
 	NFile *GetNfile() { return nfile; }
 
 	void AdvanceLine();
@@ -45,6 +45,8 @@ public:
 	void Add(char const *name);
 	void Pop();
 	void AdvanceLine();
+	char const *getFilename();
+	unsigned getLinenum();
 	NFile *GetNFile();
 };
 

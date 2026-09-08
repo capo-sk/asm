@@ -45,12 +45,12 @@ NFile::NFile(int which) {
 	name = strdup(tname);
 }
 
-NFile::NFile(char const *name, char const *mode) {
-	file = fopen(name, mode);
+NFile::NFile(char const *a_name, char const *mode) {
+	file = fopen(a_name, mode);
 	if (file != NULL)
-		name = strdup(name);
+		name = strdup(a_name);
 	else
-		_fail_name(name);
+		_fail_name(a_name);
 }
 
 NFile::NFile() {

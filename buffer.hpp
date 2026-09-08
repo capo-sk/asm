@@ -27,8 +27,11 @@ public:
 	int get_next();
 	void rewind_1();
 	void rewind();
+	void AdvanceLine();
+	char const *getFilename();
+	unsigned getLinenum();
 	
-	const int eofmark = -1;
+	static const int eofmark = -1;
 };
 
 #endif

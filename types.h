@@ -23,6 +23,4 @@ typedef int bool;
 #define true 1
 #endif
 
-#define null (void *)0
-
 #endif

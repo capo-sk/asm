@@ -5,15 +5,13 @@
    See LICENSE file
 */
 
-/* TOKENS */
+#ifndef TKSTREAM_HPP
+#define TKSTREAM_HPP
 
-#ifndef TOKEN_H
-#define TOKEN_H
-
-#include "buffer.h"
+#include "buffer.hpp"
 #include "types.h"
 
-typedef enum {
+enum token_context {
 	line_start,
 	line_middle,
 	macro_header1,
@@ -21,9 +19,9 @@ typedef enum {
 	end_of_file,
 	err_too_long,
 	err_invalid_chr
-} token_context;
+};
 
-typedef enum {
+enum token_type {
 	invalid = 0,
 	/* standalone characters with their value 1-127 */
 	endline = 0x80,
@@ -40,16 +38,34 @@ typedef enum {
 	literal_hex,
 	literal_chr,
 	literal_str
-} token_type;
+};
 
 #define VALUE_SIZE 64
 #define MAX_TOKEN_LENGTH (VALUE_SIZE - 1)
 
-typedef struct {
+struct Token {
 	token_type type;
 	char value[VALUE_SIZE];
-} token;
+};
 
-int get_next_token(buffer_ref *in_buf, token_context *ctx, token *tk);
+class TokenStream {
+private:
+	Buffer &buf;
+	token_context ctx;
+	Token latest;
+	bool reuse;
+
+	int _get_next_token(Token *tk);
+
+public:
+	TokenStream(Buffer &in_buf);
+
+	int read(Token &tk);
+	void rewind_1();
+	void rewind();
+	void AdvanceLine();
+	char const *getFilename();
+	unsigned getLinenum();
+};
 
 #endif
