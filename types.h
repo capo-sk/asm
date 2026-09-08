@@ -17,9 +17,11 @@ typedef short int i16;
 typedef unsigned u32;
 typedef int i32;
 
+#ifndef __cplusplus
 typedef int bool;
 #define false 0
 #define true 1
+#endif
 
 #define null (void *)0
 

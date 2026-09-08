@@ -1,8 +1,8 @@
 CC=cc
-CFLAGS=-g
+CFLAGS=-g -Wfatal-errors
 
 all: asm
 
-asm: assemble.c parse.c tkstream.c buffer.c token.c debug.c opcodes.c loc.c error.c emit.c symtable.c nfile.c
+asm: assemble.cpp nfile.cpp srcfile.cpp error.c emit.cpp
 	$(CC) $(CFLAGS) -o $@ $^
 

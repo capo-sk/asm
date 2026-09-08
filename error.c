@@ -8,20 +8,29 @@
 #include "error.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 
-unsigned line;
-
-static void error_line(void) {
-	fprintf(stderr, "Error at line %u: ", line);
+noreturn void abort() {
+	exit(EXIT_FAILURE);
 }
 
-void error_str(char const *fmt, char const *str) {
-	error_line();
-	fprintf(stderr, fmt, str);
-	fprintf(stderr, "\n");
-	exit(1);
+noreturn void error_msg(char const *msg) {
+	fprintf(stderr, "%s\n", msg);
+	abort();
 }
 
-void error(char const *msg) {
-	error_str("%s", msg);
+noreturn void error_fmt(char const *fmt, ...) {
+	va_list args;
+
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+
+	abort();
 }
+
+noreturn void error_sys(char const *text) {
+	perror(text);
+	abort();
+}
+
