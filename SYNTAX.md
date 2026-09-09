@@ -19,10 +19,12 @@ Variables can be reassigned a new value.
 The special assignment `* = <expression>` changes the memory location.
 Incidentally, the default start location is 0 ($0000), which is probably not where you want your code. It is probably a good idea to start the source code with a `* =` assignment.
 
-A symbol (label or variable) starting with dot (.) is treated as local. The symbol is qualified by prepending the most recent non-local label name. The combined name must fit in 63 characters.
-In the example below, `.loop` is qualified to `proc.loop`:
+A symbol (label or variable) starting with dot (.) is treated as local. The symbol is qualified by prepending the most recent non-local label name. This applies to both labels and variables. The combined name must fit in 63 characters.
+In the example below, `.count` is qualified to `proc.count` and `.loop` to `proc.loop`:
 ```
-	proc:	LDX #10
+	proc:
+	.count = 10
+		LDX #.count
 	.loop:	DEX
 		BNE .loop
 		RTS
@@ -57,4 +59,11 @@ Pseudo-instructions are:
 * `MACRO name [par ...]`: beginning of a macro definition
 * `MEND`: end of macro defintion
 * `&name [par ...]`: invocation of a macro
-* (macros are not implemented yet)
+Please note that macros are not implemented yet.
+
+This is a two-pass assembler.
+The first pass populates the symbol table. The second pass emits the code.
+If there are inconsistencies between first and second pass, the code will be incorrect or an erro will occur.
+After the first pass, the symbol table is output to stdout (human readable) or to a text file (VICE monitor format).
+
+The binary output is Commodore PRG format: one word with the load location, followed by the binary memory dump.

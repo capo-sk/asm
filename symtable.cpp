@@ -86,13 +86,14 @@ int SymbolTable::get(char const *name, SymbolType type, u16 &value) {
 
 void SymbolTable::dump(NFile &where, int format) {
 	SymbolNode *p;
+	static char const *decode[] = { "label", "variable", "any" };
 
 	if (format == 0)
 		where.printf("Symbols\n");
 
 	for (p = first; p != NULL; p = p->next)
 		if (format == 0)  /* human consumption */
-			where.printf("%s(%u) = %u $%04X\n", p->name, p->type, p->value, p->value);
+			where.printf("%s(%s) = %u $%04X\n", p->name, decode[p->type], p->value, p->value);
 		else  /* VICE monitor format */
 			where.printf("al C:%X .%s\n", p->value, p->name);
 }
