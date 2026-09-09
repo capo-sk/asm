@@ -18,7 +18,7 @@ int Buffer::get_next() {
 	} else {
 		if (*ptr == 0) {  // need new line
 			if (slist.GetNFile()->getline(line, sizeof(line)) == 0) {  // EOF
-				eof = 1;
+				eof = true;
 				return eofmark;
 			}
 			ptr = &line[0];
@@ -34,18 +34,18 @@ void Buffer::rewind_1() {
 }
 
 void Buffer::rewind() {
-	slist.GetNFile()->rewind();
-	replay = eofmark;
+	slist.GetCurrent()->Rewind();
+	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
-	eof = 0;
+	eof = false;
 }
 
 Buffer::Buffer(SrcFileList &srcl) : slist(srcl) {
-	replay = eofmark;
+	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
-	eof = 0;
+	eof = false;
 }
 
 void Buffer::AdvanceLine() {
@@ -60,6 +60,19 @@ unsigned Buffer::getLinenum() {
 	return slist.getLinenum();
 }
 
-void Buffer::close_file() {
-	slist.Pop();
+bool Buffer::close_file() {
+	replay = 0;
+	line[0] = 0;
+	ptr = &line[0];
+	eof = false;
+	return slist.Pop();
+}
+
+void Buffer::new_file(char const *name) {
+	if (!slist.isPresent(name))  // only process file if first encounter
+		slist.Add(name);
+}
+
+void Buffer::reset() {
+	slist.Reset();
 }

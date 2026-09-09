@@ -59,7 +59,7 @@ extern const opcode opcodes[];
 extern const u8 num_opcodes;
 
 typedef struct {
-	char mnemonic[8];
+	char *mnemonic;
 } pseudo;
 
 extern const pseudo pseudos[];

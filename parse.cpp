@@ -24,7 +24,7 @@ void Parser::first_pass() {
 }
 
 void Parser::second_pass() {
-	stream.rewind();
+	stream.reset();
 	pass = 2;
 	emit.set_pass(2);
 	do_pass();
@@ -249,11 +249,23 @@ int Parser::do_pseudo(void) {
 	return expect_newline();
 }
 
-void Parser::do_include() {
-	_error("Include not implemented");
+int Parser::do_include() {
+	Token tk;
+	int result;
+
+	stream.read(tk);
+	if (tk.type != literal_str)
+		_error("Expected filename");
+
+	result = expect_newline();
+	stream.rewind_1();
+
+	stream.nested_file(tk.value);
+
+	return result;
 }
 
-int Parser::expect_newline(void) {
+int Parser::expect_newline() {
 	Token tk;
 
 	stream.read(tk);

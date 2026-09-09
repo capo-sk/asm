@@ -63,9 +63,11 @@ public:
 	int read(Token &tk);
 	void rewind_1();
 	void rewind();
+	void reset();
 	void AdvanceLine();
 	char const *getFilename();
 	unsigned getLinenum();
+	void nested_file(char const *name);
 };
 
 #endif

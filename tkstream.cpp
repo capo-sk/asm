@@ -37,6 +37,12 @@ void TokenStream::rewind_1() {
 void TokenStream::rewind() {
 	buf.rewind();
 	reuse = false;
+	ctx = line_start;
+}
+
+void TokenStream::reset() {
+	buf.reset();
+	rewind();
 }
 
 
@@ -64,9 +70,13 @@ int TokenStream::_get_next_token(Token *tk) {
 			if (text_len == 0) {  // reached end of file
 				tk->type = endline;
 				tk->value[0] = 0;
-				ctx = end_of_file;
-				buf.close_file();
-				return 0;
+				if (buf.close_file() == 0) { // no more files
+					ctx = end_of_file;
+					return 0;
+				} else {
+					ctx = line_start;
+					return 1;
+				}
 			} else {  // EOF terminates word
 				buf.rewind_1();
 				tk->value[text_len] = 0;
@@ -306,3 +316,8 @@ char const *TokenStream::getFilename() {
 unsigned TokenStream::getLinenum() {
 	return buf.getLinenum();
 }
+
+void TokenStream::nested_file(char const *name) {
+	buf.new_file(name);
+}
+

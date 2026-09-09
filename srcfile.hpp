@@ -14,8 +14,7 @@ class SrcFileList;
 
 class SrcFile {
 private:
-	SrcFile *stack_next;
-	SrcFile *list_next;
+	SrcFile *next;
 	NFile *nfile;
 	unsigned line;
 
@@ -25,28 +24,43 @@ public:
 	SrcFile(char const *name);
 	~SrcFile();
 
-	char const *getFilename();
 	unsigned getLinenum() { return line; }
-	NFile *GetNfile() { return nfile; }
+	NFile *GetNFile() { return nfile; }
+	char const *getFilename() { return nfile->GetName(); }
 
 	void AdvanceLine();
 	void Rewind();
 };
 
+struct FileName {
+private:
+	char const *name;
+	FileName *next;
+
+	friend class SrcFileList;
+
+public:
+	FileName(char const *a_name);
+	~FileName();
+	char const *getName() { return name; }
+};
+
 class SrcFileList {
 private:
-	SrcFile *first, *last;	// as a list
-	SrcFile *top;		// as a stack
+	FileName *first, *last;	// list of file names
+	SrcFile *top;		// stack of files
 
 public:
 	SrcFileList();
 
-	SrcFile *Find(char const *name);
+	bool isPresent(char const *name);
 	void Add(char const *name);
-	void Pop();
+	bool Pop();
+	void Reset();
 	void AdvanceLine();
 	char const *getFilename();
 	unsigned getLinenum();
+	SrcFile *GetCurrent() { return top; }
 	NFile *GetNFile();
 };
 

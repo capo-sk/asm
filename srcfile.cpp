@@ -5,28 +5,24 @@
    See LICENSE file
 */
 
+#include <cstdio>
 #include <cstring>
 #include "srcfile.hpp"
 
 // class SrcFile
 
 SrcFile::SrcFile(char const *name) {
-	stack_next = NULL;
-	list_next = NULL;
+	next = NULL;
 	nfile = new NFile(name, "r");
 	line = 1;
 }
 
 SrcFile::~SrcFile() {
-	delete nfile;
+	if (nfile) delete nfile;
 }
 
 void SrcFile::AdvanceLine() {
 	line++;
-}
-
-char const *SrcFile::getFilename() {
-	return nfile->GetName();
 }
 
 void SrcFile::Rewind() {
@@ -34,45 +30,79 @@ void SrcFile::Rewind() {
 	line = 1;
 }
 
+// class FileName
+
+FileName::FileName(char const *a_name) {
+	next = NULL;
+	name = strdup(a_name);
+}
+
+FileName::~FileName() {
+	if (name) delete name;
+}
+
 // class SrcFileList
 
 SrcFileList::SrcFileList() {
-	first = last = top = NULL;
+	first = last = NULL;
+	top = NULL;
 }
 
 void SrcFileList::Add(char const *name) {
-	SrcFile *entry = new SrcFile(name);
+	SrcFile *fentry = new SrcFile(name);
+	FileName *nentry = new FileName(name);
+
+	printf("File: %s\n", name);
 
 	// entry is new top of the stack
-	entry->stack_next = top;
-	top = entry;
+	fentry->next = top;
+	top = fentry;
 
 	// add entry to the end of the list
-	if (first == NULL)
-		first = entry;
+	if (last == NULL)
+		first = nentry;
 	else
-		first->list_next = entry;
-	last = entry;
+		last->next = nentry;
+	last = nentry;
 }
 
-SrcFile *SrcFileList::Find(char const *name) {
-	SrcFile *p;
+bool SrcFileList::isPresent(char const *name) {
+	FileName *p;
 
-	for (p = first; p != NULL; p = p->list_next)
-		if (strcmp(name, p->getFilename()) == 0)
+	for (p = first; p != NULL; p = p->next)
+		if (strcmp(name, p->name) == 0)
 			return p;
 
 	return NULL;
 }
 
-void SrcFileList::Pop() {
+bool SrcFileList::Pop() {
 	SrcFile *p;
 
-	if (top != first) { // do not pop the initial file
+	if (top != NULL && top->next != NULL) {  // do not pop the initial file
 		p = top;
-		top = p->stack_next;
+		top = p->next;
 		delete p;
+		return true;
+	} else
+		return false;
+}
+
+void SrcFileList::Reset() {
+	FileName *p, *q;
+
+	while (Pop()) { }
+
+	if (first != NULL) {
+		p = first->next;
+		while (p != NULL) {
+			q = p->next;
+			delete p;
+			p = q;
+		}
+		first->next = NULL;
 	}
+	last = first;
 }
 
 void SrcFileList::AdvanceLine() {
@@ -100,4 +130,4 @@ unsigned SrcFileList::getLinenum() {
 	else
 		return 0;
 }
-	
+

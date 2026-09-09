@@ -18,7 +18,7 @@ class Buffer {
 private:
 	SrcFileList &slist;
 	int replay;
-	int eof;
+	bool eof;
 	char *ptr;
 	char line[_buf_line_max + 1];
 
@@ -30,7 +30,9 @@ public:
 	void AdvanceLine();
 	char const *getFilename();
 	unsigned getLinenum();
-	void close_file();
+	bool close_file();
+	void new_file(char const *name);
+	void reset();
 	
 	static const int eofmark = -1;
 };

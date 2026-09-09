@@ -91,6 +91,7 @@ unsigned NFile::getline(char *line, unsigned max) {
 	if (feof(file))
 		return 0;
 
+	line[0] = 0;
 	result = fgets(line, max, file);
 	if (result == NULL && ferror(file))
 		_fail();

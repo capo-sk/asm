@@ -6,6 +6,9 @@ CPPFLAGS=-g -Wfatal-errors
 
 all: asm
 
+clean:
+	rm *.o asm
+
 %.o: %.c
 	$(CC) $(CFLAGS) -c $^
 
