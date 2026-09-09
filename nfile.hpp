@@ -8,7 +8,7 @@
 #ifndef NFILE_HPP
 #define NFILE_HPP
 
-#include <stdio.h>
+#include <cstdio>
 
 class NFile {
 private:

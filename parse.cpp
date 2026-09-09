@@ -9,7 +9,7 @@
 #include <cstring>
 #include <cstdarg>
 #include "error.h"
-#include "opcodes.h"
+#include "opcodes.hpp"
 #include "emit.hpp"
 
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)

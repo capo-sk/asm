@@ -7,8 +7,8 @@
 
 /* OPCODES */
 
-#ifndef OPCODES_H
-#define OPCODES_H
+#ifndef OPCODES_HPP
+#define OPCODES_HPP
 
 #include "types.h"
 
@@ -59,7 +59,7 @@ extern const opcode opcodes[];
 extern const u8 num_opcodes;
 
 typedef struct {
-	char *mnemonic;
+	char const *mnemonic;
 } pseudo;
 
 extern const pseudo pseudos[];

@@ -5,8 +5,8 @@
    See LICENSE file
 */
 
-#ifndef SYM_TABLE
-#define SYM_TABLE
+#ifndef SYMTABLE_HPP
+#define SYMTABLE_HPP
 
 #include "types.h"
 #include "nfile.hpp"

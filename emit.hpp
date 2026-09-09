@@ -5,8 +5,8 @@
    See LICENSE file
 */
 
-#ifndef EMIT_H
-#define EMIT_H
+#ifndef EMIT_HPP
+#define EMIT_HPP
 
 #include "types.h"
 #include "nfile.hpp"

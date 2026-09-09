@@ -5,8 +5,8 @@
    See LICENSE file
 */
 
-#ifndef SRCFILES_H
-#define SRCFILES_H
+#ifndef SRCFILES_HPP
+#define SRCFILES_HPP
 
 #include "nfile.hpp"
 

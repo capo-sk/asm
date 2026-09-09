@@ -5,7 +5,6 @@
    See LICENSE file
 */
 
-#include <cstdio>
 #include <cstring>
 #include "srcfile.hpp"
 
@@ -51,8 +50,6 @@ SrcFileList::SrcFileList() {
 void SrcFileList::Add(char const *name) {
 	SrcFile *fentry = new SrcFile(name);
 	FileName *nentry = new FileName(name);
-
-	printf("File: %s\n", name);
 
 	// entry is new top of the stack
 	fentry->next = top;

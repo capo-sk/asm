@@ -8,7 +8,7 @@ LDFLAGS :=
 
 #####
 
-SRCS := assemble.cpp buffer.cpp emit.cpp error.c nfile.cpp opcodes.c parse.cpp srcfile.cpp symtable.cpp tkstream.cpp
+SRCS := assemble.cpp buffer.cpp emit.cpp error.c nfile.cpp opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp
 OBJS := assemble.o buffer.o emit.o error.o nfile.o opcodes.o parse.o srcfile.o symtable.o tkstream.o
 
 #####

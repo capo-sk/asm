@@ -8,7 +8,7 @@
 #include "tkstream.hpp"
 #include <cctype>
 #include <cstring>
-#include "opcodes.h"
+#include "opcodes.hpp"
 
 TokenStream::TokenStream(Buffer &in_buf) : buf(in_buf) {
 	ctx = line_start;
