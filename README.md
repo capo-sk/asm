@@ -8,3 +8,5 @@ The new goal is for it to be portable C, assuming a modern 32-bit or 64-bit host
 The main target platform is Commodore 64 as that's what I'm familiar with.
 
 2026-09-08 Moved most of the code to C++.
+
+** Please see SYNTAX.md **
