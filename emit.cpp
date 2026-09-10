@@ -6,15 +6,19 @@
 */
 
 #include "emit.hpp"
-#include "error.h"
 #include "opcodes.hpp"
 
-Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile) {
+Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile)  {
 	nfile = a_nfile;
 	pass = 1;
 	flag = 0;
 	loc = 0x0000;
 	last_loc = 0xFFFF;
+	err = NULL;
+}
+
+void Emitter::error_provider(ErrorProvider *ep) {
+	err = ep;
 }
 
 void Emitter::emit_byte(u8 value) {
@@ -51,6 +55,7 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
 	u8 opc_multi = opcodes[index].multi;
 	u8 out_code;
 	i16 distance;
+	u8 upgraded_mode;
 
 	if (opc_mode == mode) {
 		out_code = opc_code;
@@ -62,11 +67,11 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
 					out_code = opc_code;
 					distance = (i16) (number - loc - 2);
 					if (distance > 127 || distance < -128)
-						abort_msg("Relative address too far");
+						err->error("Relative address too far");
 					number = (u8) distance;
 					size = 1;
 				} else
-					abort_msg("Invalid mode");
+					err->error("Invalid mode");
 				break;
 			case abs_ind_modes:
 				if (mode == abs_mode)
@@ -74,18 +79,36 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
 				else if (mode == ind_mode)
 					out_code = opc_multi;
 				else
-					abort_msg("Invalid mode");
+					err->error("Invalid mode");
 				break;
 			case multimode:
 			case multimode2:
 			case multimode3:
 				if (multimode_valid(opc_multi, mode))
-					out_code = multimode_compose(index, mode);
+					upgraded_mode = mode;
+				else {
+					switch (mode) {
+						case zp_mode:
+							upgraded_mode = abs_mode;
+							break;
+						case zpx_mode:
+							upgraded_mode = absx_mode;
+							break;
+						case zpy_mode:
+							upgraded_mode = absy_mode;
+							break;
+						default:
+							upgraded_mode = mode;
+					}
+					size++;
+				}
+				if (multimode_valid(opc_multi, upgraded_mode))
+					out_code = multimode_compose(index, upgraded_mode);
 				else
-					abort_msg("Invalid mode");
+					err->error("Invalid mode");
 				break;
 			default:
-				abort_msg("Internal error - no such mode");
+				err->error("Internal error - no such mode");
 		}
 	}
 
@@ -103,7 +126,7 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
 			emit_word(number);
 			break;
 		default:
-			abort_msg("Internal error - invalid size");
+			err->error("Internal error - invalid size");
 	}
 }
 

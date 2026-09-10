@@ -57,6 +57,7 @@ int main(int argc, char *argv[]) {
 	SymbolTable symtab;
 
 	Parser parser(in_buf, emit, symtab);
+	emit.error_provider(&parser);
 
 	parser.first_pass();
 

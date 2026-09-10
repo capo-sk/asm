@@ -59,11 +59,43 @@ Pseudo-instructions are:
 * `MACRO name [par ...]`: beginning of a macro definition
 * `MEND`: end of macro defintion
 * `&name [par ...]`: invocation of a macro
-Please note that macros are not implemented yet.
+* `.IFDEF symbol`, `.IFNDEF symbol`: conditional block, if symbol is/isn't defined
+* `.IFZ/.IFNZ expression`: conditional block - if value of expression is zero/nonzero
+* `.ENDIF`: end of conditional block
+Please note that macros and conditional blocks are not implemented yet.
+I do not plan on supporting nested macros (macros defined inside macros). I am on the fence about allowing macro invocation inside macros.
+I do not plan on supporting nested conditional blocks.
 
 This is a two-pass assembler.
 The first pass populates the symbol table. The second pass emits the code.
 If there are inconsistencies between first and second pass, the code will be incorrect or an erro will occur.
 After the first pass, the symbol table is output to stdout (human readable) or to a text file (VICE monitor format).
+
+Ambiguity between absolute and zero page modes is resolved (independently during each pass) based on the value of the argument: if the value is 0-255, zero page mode is preferred; if not, absolute is needed. `!` can be used to force 16-bit argument and therefore absolute mode.
+```
+	LDA	$80		;zero page mode
+	LDA	$1000		;absolute mode
+	LDA	!$80		;absolute mode
+	LDX	($80),Y		;zero page mode, indexed by Y
+	LDA	($80),Y		;absolute mode, indexed by Y (LDA does not have a ZP,Y mode)
+	JMP	$80		;absolute mode (JMP does not have ZP mode)
+```
+
+During the first pass, a yet undefined symbol is assumed to have the value of the current location. This can lead to inconsistencies between first and second pass, resulting in incorrect output.
+***THERE IS NO PROTECTION AGAINST THESE INCONSISTENCIES***.
+Examples:
+```
+* = $1000
+	LDA	variable1	;first pass assumes variable=$1000 -> absolute mode
+				;second pass knows variable=$fe -> zero page mode
+variable1 = $fe
+```
+
+```
+* = $C0
+	LDA	variable2	;first pass assumes variable=$C0 -> zero page mode
+				;second pass knows variable=$1234 -> absolute mode
+variable2 = $1234
+```
 
 The binary output is Commodore PRG format: one word with the load location, followed by the binary memory dump.

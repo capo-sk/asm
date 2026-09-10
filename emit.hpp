@@ -10,10 +10,12 @@
 
 #include "types.h"
 #include "nfile.hpp"
+#include "errorpro.hpp"
 
 class Emitter {
 private:
 	NFile &nfile;
+	ErrorProvider *err;
 	unsigned pass;
 	int flag;
 	u16 loc;
@@ -23,6 +25,7 @@ private:
 
 public:
 	Emitter(NFile &a_nfile);
+	void error_provider(ErrorProvider *ep);
 	u16 get_loc() { return loc; }
 	void set_loc(u16 a_loc) { loc = a_loc; }
 	void set_pass(unsigned a_pass) { pass = a_pass; }

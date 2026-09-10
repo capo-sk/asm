@@ -12,23 +12,6 @@
 
 #include "types.h"
 
-#define indx_bit  0x01
-#define zp_bit    0x02
-#define imm_bit   0x04
-#define abs_bit   0x08
-#define indy_bit  0x10
-#define zpx_bit   0x20
-#define absy_bit  0x40
-#define absx_bit  0x80
-#define all_bits  0xFF
-#define rega_bit  imm_bit
-#define zpy_bit   indy_bit
-#define imm2_bit  imm_bit
-
-extern const u8 multimode_select[];
-extern const u8 multimode2_select[];
-extern const u8 multimode3_select[];
-
 #define indx_mode 0
 #define zp_mode   1
 #define imm_mode  2
@@ -47,12 +30,28 @@ extern const u8 multimode3_select[];
 #define multimode3 18
 #define abs_ind_modes 19
 
+#define indx_bit  (1u << indx_mode)
+#define zp_bit    (1u << zp_mode)
+#define imm_bit   (1u << imm_mode)
+#define abs_bit   (1u << abs_mode)
+#define indy_bit  (1u << indy_mode)
+#define zpx_bit   (1u << zpx_mode)
+#define absy_bit  (1u << absy_mode)
+#define absx_bit  (1u << absx_mode)
+#define all_bits  0xffu
+#define rega_bit  (1u << impl_rega)
+#define zpy_bit   (1u << zpy_mode)
+#define imm2_bit  imm_bit
+
+extern const u8 multimode_select[];
+extern const u8 multimode2_select[];
+extern const u8 multimode3_select[];
 
 typedef struct {
 	char mnemonic[4];
 	u8 mode;
 	u8 code;
-	u8 multi;
+	u16 multi;
 } opcode;
 
 extern const opcode opcodes[];
@@ -73,7 +72,7 @@ extern const u8 num_registers;
 u8 multimode_opcode(u8 base_code, u8 mode);
 u8 multimode2_opcode(u8 base_code, u8 mode);
 u8 multimode3_opcode(u8 base_code, u8 mode);
-bool multimode_valid(u8 multi_bits, u8 mode);
+bool multimode_valid(u16 multi_bits, u8 mode);
 u8 multimode_compose(u8 index, u8 mode);
 
 #endif

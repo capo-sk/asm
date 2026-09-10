@@ -15,15 +15,12 @@ const u8 multimode2_select[10] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x14 };
 const u8 multimode3_select[10] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x1C, 0x18, 0x1C, 0x08, 0x14 };
-const u8 multimode_bits[10] =
-	{ indx_bit, zp_bit, imm_bit, abs_bit, indy_bit, zpx_bit,
-	  absy_bit, absx_bit, rega_bit, zpy_bit };
 
-bool multimode_valid(u8 multi_bits, u8 mode) {
+bool multimode_valid(u16 multi_bits, u8 mode) {
 	if (mode > 9)
 		return false;
 
-	if ((multi_bits & multimode_bits[mode]) != 0)
+	if ((multi_bits & (1u << mode)) != 0)
 		return true;
 	else
 		return false;

@@ -8,9 +8,9 @@
 #include "parse.hpp"
 #include <cstring>
 #include <cstdarg>
-#include "error.h"
 #include "opcodes.hpp"
 #include "emit.hpp"
+#include "error.h"
 
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
@@ -37,7 +37,7 @@ void Parser::do_pass() {
 		stream.AdvanceLine();
 
 	if (ret < 0)
-		_error("Parse error");
+		error("Parse error");
 }
 
 int Parser::do_line() {
@@ -99,13 +99,13 @@ int Parser::do_opcode() {
 						mode = indx_mode;
 						size = 2;
 					} else
-						_error("Invalid index register");
+						error("Invalid index register");
 				else
-					_error("Index mode requires register");
+					error("Index mode requires register");
 				stream.read(tk2);
 			}
 			if (tk2.type != ')') {
-				_error("Missing )");
+				error("Missing )");
 			}
 			stream.read(tk2);
 			if (tk2.type == ',') {
@@ -115,9 +115,9 @@ int Parser::do_opcode() {
 						mode = indy_mode;
 						size = 2;
 					} else
-						_error("Invalid index register");
+						error("Invalid index register");
 				else
-					_error("Index mode requires register");
+					error("Index mode requires register");
 			} else
 				stream.rewind_1();
 			break;
@@ -126,7 +126,7 @@ int Parser::do_opcode() {
 				mode = impl_rega; size = 1;
 				break;
 			} else {
-				_error("Invalid register");
+				error("Invalid register");
 				return -1;
 			}
 		case symbol_ref:
@@ -161,17 +161,17 @@ int Parser::do_opcode() {
 								mode = zpy_mode;
 							break;
 						default:
-							_error("Invalid index register");
+							error("Invalid index register");
 							return -1;
 					}
 				} else {
-					_error("Index mode requires register");
+					error("Index mode requires register");
 					return -1;
 				}
 			}
 			break;
 		default:
-			_error("Syntax error");
+			error("Syntax error");
 	}
 
 	emit.emit_instruction(first.value[0], mode, (u16) value, size - 1);
@@ -195,7 +195,7 @@ void Parser::do_pseudo_word() {
 		}
 
 		if (tk.type != ',')
-			_error("Syntax error");
+			error("Syntax error");
 	} while (1);
 }
 	
@@ -223,7 +223,7 @@ void Parser::do_pseudo_byte() {
 		}
 
 		if (tk.type != ',')
-			_error("Syntax error");
+			error("Syntax error");
 	} while (1);
 }
 	
@@ -231,7 +231,7 @@ int Parser::do_pseudo(void) {
 	switch (first.value[0]) {
 		case 0: /* MACRO */
 		case 1: /* ENDM */
-			_error("Macro not implemented");
+			error("Macro not implemented");
 			break;
 		case 2: /* .BYTE */
 			do_pseudo_byte();
@@ -243,7 +243,7 @@ int Parser::do_pseudo(void) {
 			do_include();
 			break;
 		default:
-			_error("Internal error - no such pseudo-opcode");
+			error("Internal error - no such pseudo-opcode");
 	}
 
 	return expect_newline();
@@ -255,7 +255,7 @@ int Parser::do_include() {
 
 	stream.read(tk);
 	if (tk.type != literal_str)
-		_error("Expected filename");
+		error("Expected filename");
 
 	result = expect_newline();
 	stream.rewind_1();
@@ -270,7 +270,7 @@ int Parser::expect_newline() {
 
 	stream.read(tk);
 	if (tk.type != endline) {
-		_error("Expected end of line");
+		error("Expected end of line");
 		return -1;
 	}
 
@@ -278,12 +278,12 @@ int Parser::expect_newline() {
 }
 
 int Parser::do_macrodef(void) {
-	_error("Macros not implemented");
+	error("Macros not implemented");
 	return -1;
 }
 
 int Parser::do_macro(void) {
-	_error("Macros not implemented");
+	error("Macros not implemented");
 	return -1;
 }
 
@@ -295,7 +295,7 @@ void Parser::make_local_label(char *local_label, char const *global_context, cha
 	len2 = strlen(local_part);
 
 	if (len1 + len2 > MAX_TOKEN_LENGTH)
-		_error("Label too long");
+		error("Label too long");
 
 	memmove(local_label + len1, local_part, len2 + 1);
 	memmove(local_label, global_context, len1);
@@ -319,7 +319,7 @@ int Parser::do_vardef(void) {
 
 	stream.read(tk);
 	if (tk.type != '=') {
-		_error("Expecting = for variable assignment");
+		error("Expecting = for variable assignment");
 		return -1;
 	}
 
@@ -338,7 +338,7 @@ int Parser::do_location(void) {
 
 	stream.read(tk);
 	if (tk.type != '=') {
-		_error("Expecting = for location update");
+		error("Expecting = for location update");
 		return -1;
 	}
 
@@ -376,7 +376,7 @@ u32 Parser::parse_expr(void) {
 				stream.rewind_1();
 				break;
 			default:
-				_error("Invalid expression");
+				error("Invalid expression");
 				break;
 		}
 
@@ -411,7 +411,7 @@ u16 Parser::expr_element(void) {
 				if (pass == 1)
 					return emit.get_loc();
 				else
-					_error_fmt("Symbol %s not found", tk.value);
+					error_fmt("Symbol %s not found", tk.value);
 		case literal_chr:
 			return (u16)tk.value[0];
 		case literal_dec:
@@ -423,7 +423,7 @@ u16 Parser::expr_element(void) {
 		case '>':
 			return (expr_element()) >> 8 & 0xFF;
 		default:
-			_error("Invalid expression");
+			error("Invalid expression");
 			return (u16) -1;
 	}
 }
@@ -446,7 +446,7 @@ u16 Parser::parse_dec(char const *text) {
 	return value;
 
 error:
-	_error_fmt("Invalid decimal number %s", text);
+	error_fmt("Invalid decimal number %s", text);
 }
 
 u16 Parser::parse_hex(char const *text) {
@@ -475,19 +475,19 @@ u16 Parser::parse_hex(char const *text) {
 	return value;
 
 error:
-	_error("Invalid decimal number");
+	error("Invalid decimal number");
 }
 
-[[noreturn]] void Parser::_error(char const *txt) {
+[[noreturn]] void Parser::error(char const *txt) {
 	abort_fmt("%s(%u): %s", stream.getFilename(), stream.getLinenum(), txt);
 }
 
-[[noreturn]] void Parser::_error_fmt(char const *fmt, ...) {
+[[noreturn]] void Parser::error_fmt(char const *fmt, ...) {
 	va_list args;
 	char msg[256];
 
 	va_start(args, fmt);
 	vsprintf(msg, fmt, args);
-	_error(msg);
+	error(msg);
 	va_end(args);
 }

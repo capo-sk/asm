@@ -8,12 +8,13 @@
 #ifndef PARSE_HPP
 #define PARSE_HPP
 
+#include "errorpro.hpp"
 #include "buffer.hpp"
 #include "tkstream.hpp"
 #include "symtable.hpp"
 #include "emit.hpp"
 
-class Parser {
+class Parser : public ErrorProvider {
 private:
 	TokenStream stream;
 	Token first;
@@ -38,16 +39,19 @@ private:
 	u16 parse_dec(char const *text);
 	u16 parse_hex(char const *text);
 	int expect_newline();
-	[[noreturn]] void _error(char const *txt);
-	[[noreturn]] void _error_fmt(char const *fmt, ...);
 	void make_local_label(char *local_label, char const *global_context, char const *local_part);
 	int do_include();
+
+	friend Emitter;  // uses error methods
 
 public:
 	Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtable);
 
 	void first_pass(void);
 	void second_pass(void);
+
+	[[noreturn]] virtual void error(char const *txt);
+	[[noreturn]] virtual void error_fmt(char const *fmt, ...);
 };
 
 #endif

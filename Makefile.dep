@@ -1,12 +1,12 @@
 assemble.o: assemble.cpp error.h nfile.hpp srcfile.hpp buffer.hpp \
- emit.hpp types.h parse.hpp tkstream.hpp symtable.hpp
+ emit.hpp types.h errorpro.hpp parse.hpp tkstream.hpp symtable.hpp
 buffer.o: buffer.cpp buffer.hpp srcfile.hpp nfile.hpp
-emit.o: emit.cpp emit.hpp types.h nfile.hpp error.h opcodes.hpp
+emit.o: emit.cpp emit.hpp types.h nfile.hpp errorpro.hpp opcodes.hpp
 error.o: error.c error.h
 nfile.o: nfile.cpp nfile.hpp error.h
 opcodes.o: opcodes.cpp opcodes.hpp types.h
-parse.o: parse.cpp parse.hpp buffer.hpp srcfile.hpp nfile.hpp \
- tkstream.hpp types.h symtable.hpp emit.hpp error.h opcodes.hpp
+parse.o: parse.cpp parse.hpp errorpro.hpp buffer.hpp srcfile.hpp \
+ nfile.hpp tkstream.hpp types.h symtable.hpp emit.hpp opcodes.hpp error.h
 srcfile.o: srcfile.cpp srcfile.hpp nfile.hpp
 symtable.o: symtable.cpp symtable.hpp types.h nfile.hpp error.h
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcfile.hpp nfile.hpp \
