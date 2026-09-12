@@ -10,34 +10,33 @@
 
 #include "types.h"
 #include "nfile.hpp"
+#include <map>
+#include <string>
 
-enum SymbolType {
+enum sym_type {
 	sym_label,
 	sym_var,
-	sym_any
+	sym_macro,
+	sym_param,
+	sym_anynum
 };
 
-struct SymbolNode {
-        char *name;
-        SymbolType type;
-        u16 value;
-        SymbolNode *next;
+struct sym_type_value {
+	sym_type type;
+	u16 value;
 };
 
-class SymbolTable {
+class SymbolTable: std::map<std::string, sym_type_value> {
 private:
-	SymbolNode *first, *last;
-
-	SymbolNode *_find(char const *name);
-	void _add(char const *name, SymbolType type, u16 value);
+	void _add(char const *name, sym_type type, u16 value);
 
 public:
 	SymbolTable();
 	~SymbolTable();
 
-	void add(char const *name, SymbolType type, u16 value);
-	void addnew(char const *name, SymbolType type, u16 value);
-	int get(char const *name, SymbolType type, u16 &value);
+	void add(char const *name, sym_type type, u16 value);
+	void addnew(char const *name, sym_type type, u16 value);
+	bool get(char const *name, sym_type type, u16 &value);
 	void dump(NFile &where, int format);
 };
 

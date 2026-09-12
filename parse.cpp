@@ -230,6 +230,8 @@ void Parser::do_pseudo_byte() {
 int Parser::do_pseudo(void) {
 	switch (first.value[0]) {
 		case 0: /* MACRO */
+			do_macro_header();
+			break;
 		case 1: /* ENDM */
 			error("Macro not implemented");
 			break;
@@ -247,6 +249,38 @@ int Parser::do_pseudo(void) {
 	}
 
 	return expect_newline();
+}
+
+void Parser::do_macro_header() {
+	Token tk;
+
+	stream.read(tk);
+	if (tk.type != macro_def)
+		error("Expected macro name");
+
+	if (pass == 1)
+		sym.addnew(tk.value, sym_macro, 0);
+
+	Token tk2;
+	u16 ct;
+	char *cp;
+	stream.read(tk2);
+	ct = 1;
+	while (tk2.type == macro_par) {
+		if (pass == 1) {
+			char parsym[VALUE_SIZE];
+
+			cp = stpncpy(parsym, tk.value, VALUE_SIZE - 2);
+			*cp++ = '&';
+			strncpy(cp, tk2.value, VALUE_SIZE - strlen(tk.value) - 2);
+
+			sym.addnew(parsym, sym_param, ct);
+
+			ct++;
+		}
+		stream.read(tk2);
+	}
+	stream.rewind_1();
 }
 
 int Parser::do_include() {
@@ -405,7 +439,7 @@ u16 Parser::expr_element(void) {
 			if (tk.value[0] == '.')  /* local label */
 				make_local_label(tk.value, main_label.value, tk.value);
 
-			if (sym.get(tk.value, sym_any, value) != 0)
+			if (sym.get(tk.value, sym_anynum, value) != 0)
 				return value;
 			else
 				if (pass == 1)

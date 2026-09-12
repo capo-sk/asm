@@ -52,7 +52,7 @@ void Emitter::emit_bytes(u8 const *value, u16 count) {
 void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
 	u8 opc_mode = opcodes[index].mode;
 	u8 opc_code = opcodes[index].code;
-	u8 opc_multi = opcodes[index].multi;
+	u16 opc_multi = opcodes[index].multi;
 	u8 out_code;
 	i16 distance;
 	u8 upgraded_mode;

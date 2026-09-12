@@ -12,23 +12,23 @@
 
 #include "types.h"
 
-#define indx_mode 0
-#define zp_mode   1
-#define imm_mode  2
-#define abs_mode  3
-#define indy_mode 4
-#define zpx_mode  5
-#define absy_mode 6
-#define absx_mode 7
-#define impl_rega 8
-#define zpy_mode  9
-#define impl_mode 10
-#define rel_mode  11
-#define ind_mode  12
-#define multimode 16
-#define multimode2 17
-#define multimode3 18
-#define abs_ind_modes 19
+#define indx_mode 0	// OPC (byte,X)
+#define zp_mode   1	// OPC byte
+#define imm_mode  2	// OPC #byte
+#define abs_mode  3	// OPC word
+#define indy_mode 4	// OPC (byte),Y
+#define zpx_mode  5	// OPC byte,X
+#define absy_mode 6	// OPC word,Y
+#define absx_mode 7	// OPC word,X
+#define impl_rega 8	// OPC A
+#define impl_mode 9	// OPC
+#define zpy_mode  10	// OPC byte,Y
+#define rel_mode  11	// BOP label
+#define ind_mode  12	// OPC (word)
+#define multimode 16	// LDA etc
+#define multimode2 17	// LDY etc
+#define multimode3 18	// LDX etc
+#define abs_ind_modes 19 // JMP
 
 #define indx_bit  (1u << indx_mode)
 #define zp_bit    (1u << zp_mode)
@@ -40,8 +40,9 @@
 #define absx_bit  (1u << absx_mode)
 #define all_bits  0xffu
 #define rega_bit  (1u << impl_rega)
+#define impl_bit  (1u << impl_mode)
+#define rega_bits (rega_bit | impl_bit)
 #define zpy_bit   (1u << zpy_mode)
-#define imm2_bit  imm_bit
 
 extern const u8 multimode_select[];
 extern const u8 multimode2_select[];

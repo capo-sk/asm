@@ -16,7 +16,7 @@ extern "C" {
 
 /* C++11 / C23 syntax */
 
-[[noreturn]] extern void abort();
+[[noreturn]] extern void abort_now();
 [[noreturn]] extern void abort_msg(char const *msg);
 [[noreturn]] extern void abort_fmt(char const *fmt, ...);
 [[noreturn]] extern void abort_sys(char const *text);
@@ -26,7 +26,7 @@ extern "C" {
 /* C11-C17 syntax */
  
 #include <stdnoreturn.h>
-extern noreturn void abort();
+extern noreturn void abort_now();
 extern noreturn void abort_msg(char const *msg);
 extern noreturn void abort_fmt(char const *fmt, ...);
 extern noreturn void abort_sys(char const *text);

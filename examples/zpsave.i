@@ -77,10 +77,13 @@ zp_restore:
 	sta	0,y
 .skip:	iny
 	bne	.loop
-	ldy	#.pointer		;copy the content of the pointer area
+	ldy	#.pointer+1		;copy the content of the pointer area
 	lda	(.pointer),y
-	ldx	(.pointer),y
+	pha
+	dey
+	lda	(.pointer),y
 	sta	.pointer
-	stx	.pointer+1
+	pla
+	sta	.pointer+1
 	rts
 

@@ -10,90 +10,59 @@
 #include "error.h"
 
 SymbolTable::SymbolTable() {
-	first = NULL;
-	last = NULL;
 }
 
 SymbolTable::~SymbolTable() {
-	SymbolNode *p, *n;
-
-	for (p = first; p != NULL; p = n) {
-		n = p->next;
-		delete p;
-	}
 }
 
-SymbolNode *SymbolTable::_find(char const *name) {
-	SymbolNode *p;
-
-	for (p = first; p != NULL; p = p->next)
-		if (strcmp(p->name, name) == 0)
-			break;
-
-	return p;
+void SymbolTable::_add(char const *name, sym_type type, u16 value) {
+	insert({name, {type, value}});
 }
 
-void SymbolTable::_add(char const *name, SymbolType type, u16 value) {
-	SymbolNode *p;
-
-	p = new SymbolNode;
-	p->name = strdup(name);
-	p->type = type;
-	p->value = value;
-	p->next = NULL;
-
-	if (last == NULL)
-		first = p;
-	else
-		last->next = p;
-	last = p;
-}
-
-void SymbolTable::addnew(char const *name, SymbolType type, u16 value) {
-	if (_find(name) != NULL)
+void SymbolTable::addnew(char const *name, sym_type type, u16 value) {
+	if (count(name) != 0)
 		abort_fmt("Duplicate symbol %s", name);
 	else
 		_add(name, type, value);
 }
 
-void SymbolTable::add(char const *name, SymbolType type, u16 value) {
-	SymbolNode *p;
+void SymbolTable::add(char const *name, sym_type type, u16 value) {
+	auto it = find(name);
 
-	p = _find(name);
-	if (p == NULL)
+	if (it == end())
 		_add(name, type, value);
 	else
-		if (p->type == type)
-			p->value = value;
+		if (it->second.type == type)
+			it->second.value = value;
 		else
 			abort_fmt("Symbol %s type mismatch", name);
 }
 
-int SymbolTable::get(char const *name, SymbolType type, u16 &value) {
-	SymbolNode *p;
+bool SymbolTable::get(char const *name, sym_type type, u16 &value) {
+	auto it = find(name);
 
-	p = _find(name);
-	if (p == NULL)
-		return 0;
+	if (it == end())
+		return false;
 	else {
-		if (type == p->type || type == sym_any) {
-			value = p->value;
-			return 1;
+		if ( (type == it->second.type) || 
+			( type == sym_anynum && (it->second.type == sym_label || it->second.type == sym_var) )
+			) {
+			value = it->second.value;
+			return true;
 		} else
 			abort_fmt("Symbol %s type mismatch", name);
 	}
 }
 
 void SymbolTable::dump(NFile &where, int format) {
-	SymbolNode *p;
-	static char const *decode[] = { "label", "variable", "any" };
+	static char const *decode[] = { "label", "variable", "macro", "param", "any" };
 
 	if (format == 0)
 		where.printf("Symbols\n");
 
-	for (p = first; p != NULL; p = p->next)
+	for (auto it = begin(); it != end(); ++it)
 		if (format == 0)  /* human consumption */
-			where.printf("%s(%s) = %u $%04X\n", p->name, decode[p->type], p->value, p->value);
+			where.printf("%s(%s) = %u $%04X\n", it->first.c_str(), decode[it->second.type], it->second.value, it->second.value);
 		else  /* VICE monitor format */
-			where.printf("al C:%X .%s\n", p->value, p->name);
+			where.printf("al C:%X .%s\n", it->second.value, it->first.c_str());
 }

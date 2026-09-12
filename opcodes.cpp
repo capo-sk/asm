@@ -9,12 +9,12 @@
 
 #include "opcodes.hpp"
 
-const u8 multimode_select[10] =
-	{ 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x14 };
-const u8 multimode2_select[10] =
-	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x14 };
-const u8 multimode3_select[10] =
-	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x1C, 0x18, 0x1C, 0x08, 0x14 };
+const u8 multimode_select[11] =
+	{ 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
+const u8 multimode2_select[11] =
+	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
+const u8 multimode3_select[11] =
+	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x1C, 0x18, 0x1C, 0x08, 0x08, 0x14 };
 
 bool multimode_valid(u16 multi_bits, u8 mode) {
 	if (mode > 9)
@@ -56,7 +56,7 @@ u8 multimode_compose(u8 index, u8 mode) {
 const opcode opcodes[] = {
 	{ "ADC", multimode, 0x61, all_bits },
 	{ "AND", multimode, 0x21, all_bits },
-	{ "ASL", multimode2, 0x02, zp_bit | rega_bit | abs_bit | zpx_bit | absx_bit },
+	{ "ASL", multimode2, 0x02, zp_bit | rega_bits | abs_bit | zpx_bit | absx_bit },
 	{ "BCC", rel_mode, 0x90 },
 	{ "BCS", rel_mode, 0xB0 },
 	{ "BEQ", rel_mode, 0xF0 },
@@ -72,8 +72,8 @@ const opcode opcodes[] = {
 	{ "CLI", impl_mode, 0x58 },
 	{ "CLV", impl_mode, 0xB8 },
 	{ "CMP", multimode, 0xC1, all_bits },
-	{ "CPX", multimode2, 0xE0, imm2_bit | zp_bit | abs_bit },
-	{ "CPY", multimode2, 0xC0, imm2_bit | zp_bit | abs_bit },
+	{ "CPX", multimode2, 0xE0, imm_bit | zp_bit | abs_bit },
+	{ "CPY", multimode2, 0xC0, imm_bit | zp_bit | abs_bit },
 	{ "DEC", multimode, 0xC2, zp_bit | abs_bit | zpx_bit | absx_bit },
 	{ "DEX", impl_mode, 0xCA },
 	{ "DEY", impl_mode, 0x88 },
@@ -84,17 +84,17 @@ const opcode opcodes[] = {
 	{ "JMP", abs_ind_modes, 0x4C, 0x6C },
 	{ "JSR", abs_mode, 0x20 },
 	{ "LDA", multimode, 0xA1, all_bits },
-	{ "LDX", multimode3, 0xA2, imm2_bit | zp_bit | abs_bit | zpy_bit | absy_bit },
-	{ "LDY", multimode2, 0xA0, imm2_bit | zp_bit | abs_bit | zpx_bit | absx_bit },
-	{ "LSR", multimode2, 0x42, zp_bit | rega_bit | abs_bit | zpx_bit | absx_bit },
+	{ "LDX", multimode3, 0xA2, imm_bit | zp_bit | abs_bit | zpy_bit | absy_bit },
+	{ "LDY", multimode2, 0xA0, imm_bit | zp_bit | abs_bit | zpx_bit | absx_bit },
+	{ "LSR", multimode2, 0x42, zp_bit | rega_bits | abs_bit | zpx_bit | absx_bit },
 	{ "NOP", impl_mode, 0xEA },
 	{ "ORA", multimode, 0x01, all_bits },
 	{ "PHA", impl_mode, 0x48 },
 	{ "PHP", impl_mode, 0x08 },
 	{ "PLA", impl_mode, 0x68 },
 	{ "PLP", impl_mode, 0x28 },
-	{ "ROL", multimode2, 0x22, zp_bit | rega_bit | abs_bit | zpx_bit | absx_bit },
-	{ "ROR", multimode2, 0x62, zp_bit | rega_bit | abs_bit | zpx_bit | absx_bit },
+	{ "ROL", multimode2, 0x22, zp_bit | rega_bits | abs_bit | zpx_bit | absx_bit },
+	{ "ROR", multimode2, 0x62, zp_bit | rega_bits | abs_bit | zpx_bit | absx_bit },
 	{ "RTI", impl_mode, 0x40 },
 	{ "RTS", impl_mode, 0x60 },
 	{ "SBC", multimode, 0xE1, all_bits },

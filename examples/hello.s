@@ -1,4 +1,4 @@
-.include "b2061.i"
+.include "sys2061.i"
 .include "kernal.i"
 
 ; main

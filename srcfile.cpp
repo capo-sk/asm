@@ -13,7 +13,7 @@
 SrcFile::SrcFile(char const *name) {
 	next = NULL;
 	nfile = new NFile(name, "r");
-	line = 1;
+	line = 0;
 }
 
 SrcFile::~SrcFile() {

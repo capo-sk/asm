@@ -41,6 +41,7 @@ private:
 	int expect_newline();
 	void make_local_label(char *local_label, char const *global_context, char const *local_part);
 	int do_include();
+	void do_macro_header();
 
 	friend Emitter;  // uses error methods
 

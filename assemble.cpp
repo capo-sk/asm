@@ -37,6 +37,7 @@ int main(int argc, char *argv[]) {
 
 	SrcFileList srcl;
 	srcl.Add(input_filename);
+	srcl.AdvanceLine();  // otherwise it starts from 0; can't be bothered fixing it properly
 
 	Buffer in_buf(srcl);
 
