@@ -11,13 +11,13 @@
 #include <stdarg.h>
 #include <string.h>
 
-noreturn void abort() {
+noreturn void abort_now() {
 	exit(EXIT_FAILURE);
 }
 
 noreturn void abort_msg(char const *msg) {
 	fprintf(stderr, "%s\n", msg);
-	abort();
+	abort_now();
 }
 
 noreturn void abort_fmt(char const *fmt, ...) {
@@ -31,11 +31,11 @@ noreturn void abort_fmt(char const *fmt, ...) {
 	vfprintf(stderr, fmtnl, args);
 	va_end(args);
 
-	abort();
+	abort_now();
 }
 
 noreturn void abort_sys(char const *text) {
 	perror(text);
-	abort();
+	abort_now();
 }
 
