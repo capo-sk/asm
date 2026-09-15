@@ -513,7 +513,7 @@ error:
 }
 
 [[noreturn]] void Parser::error(char const *txt) {
-	abort_fmt("%s(%u): %s", stream.getFilename(), stream.getLinenum(), txt);
+	abort_fmt("%s: %s", stream.getLocation(), txt);
 }
 
 [[noreturn]] void Parser::error_fmt(char const *fmt, ...) {

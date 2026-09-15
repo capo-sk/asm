@@ -8,23 +8,19 @@
 #ifndef NFILE_HPP
 #define NFILE_HPP
 
-#include <cstdio>
+#include <fstream>
+#include <string>
 
-class NFile {
+class NFile: public std::fstream {
 private:
-	FILE *file;
-	char *name;
-
-	[[noreturn]] void _fail();
+	std::string name;
 
 public:
-	NFile(char const *name, char const *mode = "r");
-	NFile(int stdfile);
-	NFile();
+	NFile(std::string const &name, std::ios_base::openmode mode = std::ios_base::in);
+	NFile(int which);
+	//NFile();
 	~NFile();
-	char const *GetName() { return name; };
-	void putc(unsigned char c);
-	unsigned getline(char *output, unsigned max);
+	std::string const &GetName() { return name; };
 	void rewind();
 	void printf(char const *fmt, ...);
 };

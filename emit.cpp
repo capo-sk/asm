@@ -9,7 +9,6 @@
 #include "opcodes.hpp"
 
 Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile)  {
-	nfile = a_nfile;
 	pass = 1;
 	flag = 0;
 	loc = 0x0000;
@@ -29,7 +28,7 @@ void Emitter::emit_byte(u8 value) {
 			loc -= 2;
 		}
 
-		nfile.putc(value);
+		nfile.put(value);
 	}
 
 	loc++;

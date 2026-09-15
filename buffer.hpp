@@ -11,6 +11,7 @@
 #define BUFFER_HPP
 
 #include "srcfile.hpp"
+#include <string>
 
 #define _buf_line_max 255
 
@@ -28,8 +29,7 @@ public:
 	void rewind_1();
 	void rewind();
 	void AdvanceLine();
-	char const *getFilename();
-	unsigned getLinenum();
+	std::string getLocation();
 	bool close_file();
 	void new_file(char const *name);
 	void reset();

@@ -6,6 +6,7 @@
 */
 
 #include <cstring>
+#include <iostream>
 #include "error.h"
 #include "nfile.hpp"
 #include "srcfile.hpp"
@@ -14,6 +15,10 @@
 #include "parse.hpp"
 
 int main(int argc, char *argv[]) {
+	const std::ios_base::openmode m_r = std::ios_base::in;
+	const std::ios_base::openmode m_w = std::ios_base::out | std::ios_base::trunc;
+	const std::ios_base::openmode m_wb = m_w | std::ios_base::binary;
+
 	char *input_filename, *output_filename, *symbol_filename;
 
 	if (argc < 2)
@@ -41,14 +46,14 @@ int main(int argc, char *argv[]) {
 
 	Buffer in_buf(srcl);
 
-	NFile output_nfile(output_filename, "wb");
+	NFile output_nfile(output_filename, m_wb);
 
 	Emitter emit(output_nfile);
 
 	NFile *symbol_nfile;
 	int symdump_format;
 	if (symbol_filename != NULL) {
-		symbol_nfile = new NFile(symbol_filename, "w");
+		symbol_nfile = new NFile(symbol_filename, m_w);
 		symdump_format = 1;
 	} else {
 		symbol_nfile = new NFile(2);

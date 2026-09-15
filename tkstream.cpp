@@ -309,12 +309,9 @@ void TokenStream::AdvanceLine() {
 	buf.AdvanceLine();
 }
 
-char const *TokenStream::getFilename() {
-	return buf.getFilename();
-}
-
-unsigned TokenStream::getLinenum() {
-	return buf.getLinenum();
+std::string TokenStream::getLocation()
+{
+	return buf.getLocation();
 }
 
 void TokenStream::nested_file(char const *name) {

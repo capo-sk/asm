@@ -9,6 +9,7 @@
 #define TKSTREAM_HPP
 
 #include "buffer.hpp"
+#include <string>
 #include "types.h"
 
 enum token_context {
@@ -65,8 +66,7 @@ public:
 	void rewind();
 	void reset();
 	void AdvanceLine();
-	char const *getFilename();
-	unsigned getLinenum();
+	std::string getLocation();
 	void nested_file(char const *name);
 };
 

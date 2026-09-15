@@ -17,7 +17,7 @@ int Buffer::get_next() {
 		replay &= 0xff;
 	} else {
 		if (*ptr == 0) {  // need new line
-			if (slist.GetNFile()->getline(line, sizeof(line)) == 0) {  // EOF
+			if (!slist.GetCurrent().getline(line, sizeof(line))) { // EOF
 				eof = true;
 				return eofmark;
 			}
@@ -34,7 +34,7 @@ void Buffer::rewind_1() {
 }
 
 void Buffer::rewind() {
-	slist.GetCurrent()->Rewind();
+	slist.GetCurrent().Rewind();
 	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
@@ -52,14 +52,6 @@ void Buffer::AdvanceLine() {
 	slist.AdvanceLine();
 }
 
-char const *Buffer::getFilename() {
-	return slist.getFilename();
-}
-
-unsigned Buffer::getLinenum() {
-	return slist.getLinenum();
-}
-
 bool Buffer::close_file() {
 	replay = 0;
 	line[0] = 0;
@@ -75,4 +67,9 @@ void Buffer::new_file(char const *name) {
 
 void Buffer::reset() {
 	slist.Reset();
+}
+
+std::string Buffer::getLocation()
+{
+	return slist.getLocation();
 }

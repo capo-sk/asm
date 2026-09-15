@@ -10,121 +10,90 @@
 
 // class SrcFile
 
-SrcFile::SrcFile(char const *name) {
-	next = NULL;
-	nfile = new NFile(name, "r");
-	line = 0;
+SrcFile::SrcFile(std::string const &name)
+: SrcText(name)
+{
+	nfile = new NFile(name);
 }
 
-SrcFile::~SrcFile() {
+SrcFile::~SrcFile()
+{
 	if (nfile) delete nfile;
 }
 
-void SrcFile::AdvanceLine() {
-	line++;
-}
-
-void SrcFile::Rewind() {
+void SrcFile::Rewind()
+{
 	nfile->rewind();
-	line = 1;
+	SrcText::Rewind();
 }
 
-// class FileName
-
-FileName::FileName(char const *a_name) {
-	next = NULL;
-	name = strdup(a_name);
-}
-
-FileName::~FileName() {
-	if (name) delete name;
+bool SrcFile::getline(char *buffer, unsigned size)
+{
+	nfile->getline(buffer, size);
+	if (buffer[0] == 0 && nfile->eof())
+		return false;
+	else
+		return true;
 }
 
 // class SrcFileList
 
-SrcFileList::SrcFileList() {
-	first = last = NULL;
-	top = NULL;
+SrcFileList::SrcFileList()
+{
 }
 
-void SrcFileList::Add(char const *name) {
-	SrcFile *fentry = new SrcFile(name);
-	FileName *nentry = new FileName(name);
-
-	// entry is new top of the stack
-	fentry->next = top;
-	top = fentry;
-
-	// add entry to the end of the list
-	if (last == NULL)
-		first = nentry;
-	else
-		last->next = nentry;
-	last = nentry;
+void SrcFileList::Add(std::string const &name)
+{
+	files.push(SrcFile(name));
+	auto ret = names.insert(name);
+	first = ret.first;
 }
 
-bool SrcFileList::isPresent(char const *name) {
-	FileName *p;
-
-	for (p = first; p != NULL; p = p->next)
-		if (strcmp(name, p->name) == 0)
-			return p;
-
-	return NULL;
+bool SrcFileList::isPresent(std::string const &name)
+{
+	return names.count(name) > 0;
 }
 
-bool SrcFileList::Pop() {
-	SrcFile *p;
-
-	if (top != NULL && top->next != NULL) {  // do not pop the initial file
-		p = top;
-		top = p->next;
-		delete p;
+bool SrcFileList::Pop()
+{
+	if (files.size() > 1) {
+		files.pop();
 		return true;
 	} else
 		return false;
 }
 
-void SrcFileList::Reset() {
-	FileName *p, *q;
+void SrcFileList::Reset()
+{
+	while (files.size() > 1)
+		files.pop();
 
-	while (Pop()) { }
-
-	if (first != NULL) {
-		p = first->next;
-		while (p != NULL) {
-			q = p->next;
-			delete p;
-			p = q;
-		}
-		first->next = NULL;
-	}
-	last = first;
+	for (auto it = names.begin(); it != names.end(); ++it)
+		if (it != first)
+			names.erase(it);
 }
 
-void SrcFileList::AdvanceLine() {
-	if (top != NULL)
-		top->AdvanceLine();
+void SrcFileList::AdvanceLine()
+{
+	files.top().AdvanceLine();
 }
 
-NFile *SrcFileList::GetNFile() {
-	if (top != NULL)
-		return top->nfile;
-	else
-		return NULL;
+//NFile *SrcFileList::GetNFile() {
+//	return files.top().nfile;
+//}
+
+std::string SrcFileList::getLocation()
+{
+	return files.top().getLocation();
 }
 
-char const *SrcFileList::getFilename() {
-	if (top != NULL)
-		return top->getFilename();
-	else
-		return NULL;
-}
+//std::string const &SrcFileList::getFilename()
+//{
+//	return files.top().getName();
+//}
 
-unsigned SrcFileList::getLinenum() {
-	if (top != NULL)
-		return top->getLinenum();
-	else
-		return 0;
-}
+//unsigned SrcFileList::getLinenum()
+//{
+//	return files.top().getLine();
+//}
 

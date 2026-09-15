@@ -6,99 +6,54 @@
 */
 
 #include "nfile.hpp"
-#include <cstdlib>
-#include <cstring>
+#include <iostream>
 #include <cstdarg>
+#include <cstring>
 #include "error.h"
 
-[[noreturn]] static void _fail_msg(char const *msg) {
-	abort_msg(msg);
-}
-
-[[noreturn]] static void _fail_name(char const *name) {
-	abort_sys(name);
-}
-
-[[noreturn]] void NFile::_fail() {
-	_fail_name(name);
-}
-
-NFile::NFile(int which) {
-	char const *tname;
-
+NFile::NFile(int which)
+: std::fstream()
+{
 	switch (which) {
 		case 0:
-			file = stdin;
-			tname = "<stdin>";
+			std::ios::rdbuf(std::cin.rdbuf());
+			name = "<stdin>";
 			break;
 		case 1:
-			file = stdout;
-			tname = "<stdout>";
+			std::ios::rdbuf(std::cout.rdbuf());
+			name = "<stdout>";
 			break;
 		case 2:
-			file = stderr;
-			tname = "<stderr>";
+			std::ios::rdbuf(std::cerr.rdbuf());
+			name = "<stderr>";
 			break;
 		default:
-			_fail_msg("Invalid standard file number");
+			name = "<>";
 	}
-	name = strdup(tname);
 }
 
-NFile::NFile(char const *a_name, char const *mode) {
-	file = fopen(a_name, mode);
-	if (file != NULL)
-		name = strdup(a_name);
-	else
-		_fail_name(a_name);
+NFile::NFile(std::string const &a_name, std::ios_base::openmode mode)
+: std::fstream(a_name, mode), name(a_name)
+{
 }
 
-NFile::NFile() {
-	file = NULL;
-	name = strdup("");
-}
-
-NFile::~NFile() {
-	int result;
-
-	if (name[0] != '<' && name[0] != 0)
-		result = fclose(file);
-	else  // do not close stdin/out/err
-		result = 0;
-
-	if (result == 0)
-		free(name);
-	else
-		_fail();
-}
-
-void NFile::putc(unsigned char c) {
-	fputc(c, file);
-	if (ferror(file))
-		_fail();
+NFile::~NFile()
+{
+	close();
 }
 
 void NFile::printf(char const *fmt, ...) {
+	char buffer[1024];
+	int len;
+
 	va_list params;
 
 	va_start(params, fmt);
-	vfprintf(file, fmt, params);
-}
-
-unsigned NFile::getline(char *line, unsigned max) {
-	void *result;
-
-	if (feof(file))
-		return 0;
-
-	line[0] = 0;
-	result = fgets(line, max, file);
-	if (result == NULL && ferror(file))
-		_fail();
-	else
-		return strlen(line);
+	len = vsnprintf(buffer, 1024, fmt, params);
+	write(buffer, len);
+	va_end(params);
 }
 
 void NFile::rewind() {
-	::rewind(file);
+	seekg(0, beg);
 }

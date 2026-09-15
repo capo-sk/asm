@@ -5,63 +5,50 @@
    See LICENSE file
 */
 
-#ifndef SRCFILES_HPP
-#define SRCFILES_HPP
+#ifndef SRCFILE_HPP
+#define SRCFILE_HPP
 
+#include "source.hpp"
 #include "nfile.hpp"
+#include <unordered_set>
+#include <stack>
+#include <string>
 
-class SrcFileList;
-
-class SrcFile {
+class SrcFile: public SrcText {
 private:
-	SrcFile *next;
 	NFile *nfile;
-	unsigned line;
-
-	friend class SrcFileList;
 
 public:
-	SrcFile(char const *name);
-	~SrcFile();
+	SrcFile(std::string const &fname);
+	virtual ~SrcFile();
 
-	unsigned getLinenum() { return line; }
-	NFile *GetNFile() { return nfile; }
-	char const *getFilename() { return nfile->GetName(); }
+	//NFile *GetNFile() { return nfile; }
 
-	void AdvanceLine();
-	void Rewind();
-};
+//	virtual std::string getLocation();
+	virtual void Rewind();
 
-struct FileName {
-private:
-	char const *name;
-	FileName *next;
-
-	friend class SrcFileList;
-
-public:
-	FileName(char const *a_name);
-	~FileName();
-	char const *getName() { return name; }
+	virtual bool getline(char *buffer, unsigned size);
 };
 
 class SrcFileList {
 private:
-	FileName *first, *last;	// list of file names
-	SrcFile *top;		// stack of files
+	std::unordered_set<std::string> names;
+	std::unordered_set<std::string>::iterator first;
+	std::stack<SrcFile> files;
 
 public:
 	SrcFileList();
 
-	bool isPresent(char const *name);
-	void Add(char const *name);
+	bool isPresent(std::string const &name);
+	void Add(std::string const &name);
 	bool Pop();
 	void Reset();
 	void AdvanceLine();
-	char const *getFilename();
-	unsigned getLinenum();
-	SrcFile *GetCurrent() { return top; }
-	NFile *GetNFile();
+	std::string getLocation();
+	//std::string &getFilename();
+	//unsigned getLinenum();
+	SrcFile &GetCurrent() { return files.top(); }
+	//NFile *GetNFile();
 };
 
 #endif
