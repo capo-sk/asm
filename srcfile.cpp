@@ -5,8 +5,10 @@
    See LICENSE file
 */
 
-#include <cstring>
 #include "srcfile.hpp"
+#include <iostream>
+
+using namespace std;
 
 // class SrcFile
 
@@ -44,9 +46,13 @@ SrcFileList::SrcFileList()
 
 void SrcFileList::Add(std::string const &name)
 {
-	files.push(SrcFile(name));
-	auto ret = names.insert(name);
-	first = ret.first;
+	SrcFile *next = new SrcFile(name);
+
+	files.push(*next);
+
+	if (names.size() == 0)
+		first = name;
+	names.insert(name);
 }
 
 bool SrcFileList::isPresent(std::string const &name)
@@ -65,12 +71,12 @@ bool SrcFileList::Pop()
 
 void SrcFileList::Reset()
 {
-	while (files.size() > 1)
+	while (files.size() > 1) {
 		files.pop();
+	}
 
-	for (auto it = names.begin(); it != names.end(); ++it)
-		if (it != first)
-			names.erase(it);
+	names.clear();
+	names.insert(first);
 }
 
 void SrcFileList::AdvanceLine()
@@ -96,4 +102,14 @@ std::string SrcFileList::getLocation()
 //{
 //	return files.top().getLine();
 //}
+
+SrcFile &SrcFileList::getCurrent()
+{
+	return files.top();
+}
+
+bool SrcFileList::getline(char *buffer, unsigned max)
+{
+	return getCurrent().getline(buffer, max);
+}
 

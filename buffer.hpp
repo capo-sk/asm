@@ -20,6 +20,7 @@ private:
 	SrcFileList &slist;
 	int replay;
 	bool eof;
+	bool refill;
 	char *ptr;
 	char line[_buf_line_max + 1];
 

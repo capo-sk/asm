@@ -33,7 +33,7 @@ public:
 class SrcFileList {
 private:
 	std::unordered_set<std::string> names;
-	std::unordered_set<std::string>::iterator first;
+	std::string first;
 	std::stack<SrcFile> files;
 
 public:
@@ -47,7 +47,8 @@ public:
 	std::string getLocation();
 	//std::string &getFilename();
 	//unsigned getLinenum();
-	SrcFile &GetCurrent() { return files.top(); }
+	SrcFile &getCurrent();
+	bool getline(char *buffer, unsigned max);
 	//NFile *GetNFile();
 };
 

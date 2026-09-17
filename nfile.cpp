@@ -11,20 +11,22 @@
 #include <cstring>
 #include "error.h"
 
+using namespace std;
+
 NFile::NFile(int which)
-: std::fstream()
+: fstream()
 {
 	switch (which) {
 		case 0:
-			std::ios::rdbuf(std::cin.rdbuf());
+			ios::rdbuf(cin.rdbuf());
 			name = "<stdin>";
 			break;
 		case 1:
-			std::ios::rdbuf(std::cout.rdbuf());
+			ios::rdbuf(cout.rdbuf());
 			name = "<stdout>";
 			break;
 		case 2:
-			std::ios::rdbuf(std::cerr.rdbuf());
+			ios::rdbuf(cerr.rdbuf());
 			name = "<stderr>";
 			break;
 		default:
@@ -32,7 +34,7 @@ NFile::NFile(int which)
 	}
 }
 
-NFile::NFile(std::string const &a_name, std::ios_base::openmode mode)
+NFile::NFile(string const &a_name, ios_base::openmode mode)
 : std::fstream(a_name, mode), name(a_name)
 {
 }
@@ -55,5 +57,6 @@ void NFile::printf(char const *fmt, ...) {
 }
 
 void NFile::rewind() {
-	seekg(0, beg);
+	clear();
+	seekg(0, ios::beg);
 }

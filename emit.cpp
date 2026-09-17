@@ -8,7 +8,9 @@
 #include "emit.hpp"
 #include "opcodes.hpp"
 
-Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile)  {
+Emitter::Emitter(NFile &a_nfile)
+: nfile(a_nfile)
+{
 	pass = 1;
 	flag = 0;
 	loc = 0x0000;
@@ -16,11 +18,13 @@ Emitter::Emitter(NFile &a_nfile) : nfile(a_nfile)  {
 	err = NULL;
 }
 
-void Emitter::error_provider(ErrorProvider *ep) {
+void Emitter::error_provider(ErrorProvider *ep)
+{
 	err = ep;
 }
 
-void Emitter::emit_byte(u8 value) {
+void Emitter::emit_byte(u8 value)
+{
 	if (pass > 1) {
 		if (flag == 0) {
 			flag = 1;
@@ -35,12 +39,14 @@ void Emitter::emit_byte(u8 value) {
 	last_loc = loc;
 }
 
-void Emitter::emit_word(u16 value) {
+void Emitter::emit_word(u16 value)
+{
 	emit_byte(value & 0xFF);
 	emit_byte((value >> 8) & 0xFF);
 }
 
-void Emitter::emit_bytes(u8 const *value, u16 count) {
+void Emitter::emit_bytes(u8 const *value, u16 count)
+{
 	while (count > 0) {
 		emit_byte(*value);
 		++value;
@@ -48,7 +54,8 @@ void Emitter::emit_bytes(u8 const *value, u16 count) {
 	}
 }
 
-void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size) {
+void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size)
+{
 	u8 opc_mode = opcodes[index].mode;
 	u8 opc_code = opcodes[index].code;
 	u16 opc_multi = opcodes[index].multi;

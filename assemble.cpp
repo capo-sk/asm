@@ -5,6 +5,7 @@
    See LICENSE file
 */
 
+#include <string>
 #include <cstring>
 #include <iostream>
 #include "error.h"
@@ -14,12 +15,13 @@
 #include "emit.hpp"
 #include "parse.hpp"
 
-int main(int argc, char *argv[]) {
-	const std::ios_base::openmode m_r = std::ios_base::in;
-	const std::ios_base::openmode m_w = std::ios_base::out | std::ios_base::trunc;
-	const std::ios_base::openmode m_wb = m_w | std::ios_base::binary;
+using namespace std;
 
-	char *input_filename, *output_filename, *symbol_filename;
+int main(int argc, char *argv[]) {
+	const ios::openmode m_r = ios::in;
+	const ios::openmode m_w = ios::out | ios::trunc;
+	const ios::openmode m_wb = m_w | ios_base::binary;
+	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
 		abort_fmt("Usage: %s <source.s> [<binary> [<symbols>]]", argv[0]);
@@ -29,16 +31,17 @@ int main(int argc, char *argv[]) {
 	if (argc > 2)
 		output_filename = argv[2];
 	else {
-		output_filename = strdup(input_filename);
-		char *dot;
-		dot = strrchr(output_filename, '.');
-		if (dot != NULL) *dot = 0;
+		auto pos = input_filename.rfind('.');
+		if (pos != string::npos)
+			output_filename = input_filename.substr(0, pos);
+		else
+			output_filename = input_filename + ".prg";
 	}
 
 	if (argc > 3)
 		symbol_filename = argv[3];
 	else
-		symbol_filename = NULL;
+		symbol_filename = "";
 
 	SrcFileList srcl;
 	srcl.Add(input_filename);
@@ -50,13 +53,13 @@ int main(int argc, char *argv[]) {
 
 	Emitter emit(output_nfile);
 
-	NFile *symbol_nfile;
+	NFile *symbol_nfilep;
 	int symdump_format;
-	if (symbol_filename != NULL) {
-		symbol_nfile = new NFile(symbol_filename, m_w);
+	if (symbol_filename.length() > 0) {
+		symbol_nfilep = new NFile(symbol_filename, m_w);
 		symdump_format = 1;
 	} else {
-		symbol_nfile = new NFile(2);
+		symbol_nfilep = new NFile(1);
 		symdump_format = 0;
 	}
 
@@ -67,7 +70,7 @@ int main(int argc, char *argv[]) {
 
 	parser.first_pass();
 
-	symtab.dump(*symbol_nfile, symdump_format);
+	symtab.dump(*symbol_nfilep, symdump_format);
 
 	parser.second_pass();
 

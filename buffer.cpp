@@ -8,6 +8,9 @@
 /* BUFFER */
 
 #include "buffer.hpp"
+#include <iostream>
+
+using namespace std;
 
 int Buffer::get_next() {
 	if (eof)
@@ -16,14 +19,21 @@ int Buffer::get_next() {
 	if (replay > 0xff) {  // after rewind_1
 		replay &= 0xff;
 	} else {
-		if (*ptr == 0) {  // need new line
-			if (!slist.GetCurrent().getline(line, sizeof(line))) { // EOF
+		if (refill) {
+			if (!slist.getline(line, sizeof(line))) { // EOF
 				eof = true;
 				return eofmark;
 			}
 			ptr = &line[0];
+			refill = false;
 		}
-		replay = *(unsigned char *)ptr++;
+
+		if (*ptr != 0) { // not end of line yet
+			replay = *(unsigned char *)ptr++;
+		} else {  // reached end of line
+			replay = 10;
+			refill = true;
+		}
 	}
 
 	return replay;
@@ -34,7 +44,7 @@ void Buffer::rewind_1() {
 }
 
 void Buffer::rewind() {
-	slist.GetCurrent().Rewind();
+	slist.getCurrent().Rewind();
 	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
@@ -46,6 +56,7 @@ Buffer::Buffer(SrcFileList &srcl) : slist(srcl) {
 	line[0] = 0;
 	ptr = &line[0];
 	eof = false;
+	refill = true;
 }
 
 void Buffer::AdvanceLine() {
