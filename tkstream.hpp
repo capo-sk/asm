@@ -47,7 +47,8 @@ enum token_type {
 	literal_chr,
 	literal_str,
 	macro_line = 0xc0,
-	word = 0xd0
+	word = 0xd0,
+	skip = 0xf0
 };
 
 #define VALUE_SIZE 64
@@ -69,6 +70,7 @@ private:
 	int _get_next_token_multimode(Token *tk);
 	int _get_next_token(Token *tk);
 	int _get_next_macro_line(Token *tk);
+	int _get_next_word(Token *tk);
 
 public:
 	TokenStream(Buffer &in_buf);

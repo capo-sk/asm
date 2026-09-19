@@ -6,7 +6,6 @@
 */
 
 #include "srcfile.hpp"
-#include <iostream>
 
 using namespace std;
 
@@ -44,15 +43,35 @@ SrcFileList::SrcFileList()
 {
 }
 
-void SrcFileList::Add(std::string const &name)
+#if 0
+void SrcFileList::AddFile(std::string const &name)
 {
-	SrcFile *next = new SrcFile(name);
+	SrcText *next = new SrcFile(name);
 
-	files.push(*next);
+	sources.push(next);
 
 	if (names.size() == 0)
 		first = name;
 	names.insert(name);
+}
+#endif
+
+void SrcFileList::Add(SrcText *source)
+{
+	sources.push(source);
+}
+
+void SrcFileList::AddOnce(SrcText *source)
+{
+	string name = source->getName();
+
+	if (names.count(name) == 0) {
+		if (names.size() == 0)
+			first = name;
+		names.insert(name);
+
+		Add(source);
+	}
 }
 
 bool SrcFileList::isPresent(std::string const &name)
@@ -62,8 +81,8 @@ bool SrcFileList::isPresent(std::string const &name)
 
 bool SrcFileList::Pop()
 {
-	if (files.size() > 1) {
-		files.pop();
+	if (sources.size() > 1) {
+		sources.pop();
 		return true;
 	} else
 		return false;
@@ -71,8 +90,8 @@ bool SrcFileList::Pop()
 
 void SrcFileList::Reset()
 {
-	while (files.size() > 1) {
-		files.pop();
+	while (sources.size() > 1) {
+		sources.pop();
 	}
 
 	names.clear();
@@ -81,35 +100,21 @@ void SrcFileList::Reset()
 
 void SrcFileList::AdvanceLine()
 {
-	files.top().AdvanceLine();
+	sources.top()->AdvanceLine();
 }
-
-//NFile *SrcFileList::GetNFile() {
-//	return files.top().nfile;
-//}
 
 std::string SrcFileList::getLocation()
 {
-	return files.top().getLocation();
+	return sources.top()->getLocation();
 }
-
-//std::string const &SrcFileList::getFilename()
-//{
-//	return files.top().getName();
-//}
-
-//unsigned SrcFileList::getLinenum()
-//{
-//	return files.top().getLine();
-//}
 
 SrcText &SrcFileList::getCurrent()
 {
-	return files.top();
+	return *sources.top();
 }
 
 bool SrcFileList::getline(char *buffer, unsigned max)
 {
-	return getCurrent().getline(buffer, max);
+	bool retval = getCurrent().getline(buffer, max);
+	return retval;
 }
-

@@ -32,14 +32,15 @@ class SrcFileList {
 private:
 	std::unordered_set<std::string> names;
 	std::string first;
-	std::stack<SrcText> files;
+	std::stack<SrcText *> sources;
 
 public:
 	SrcFileList();
 
 	bool isPresent(std::string const &name);
-	void Add(std::string const &name);
+//	void Add(std::string const &name);
 	void Add(SrcText *source);
+	void AddOnce(SrcText *source);
 	bool Pop();
 	void Reset();
 	void AdvanceLine();

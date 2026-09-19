@@ -13,12 +13,15 @@
 #include "macro.hpp"
 #include "error.h"
 
+using namespace std;
+
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
 	pass = 1;
 }
 	
 void Parser::first_pass() {
+	main_label.value[0] = 0;
 	pass = 1;
 	emit.set_pass(1);
 	p0_source();
@@ -26,6 +29,7 @@ void Parser::first_pass() {
 
 void Parser::second_pass() {
 	stream.reset();
+	main_label.value[0] = 0;
 	pass = 2;
 	emit.set_pass(2);
 	p0_source();
@@ -66,6 +70,8 @@ int Parser::p1_line() {
 			return p2_location();
 		case macro_line:
 			return p2_macro_line();
+		case skip:
+			return p1_line();
 		default:
 			return -1;
 	}
@@ -288,7 +294,8 @@ void Parser::p3_macro_header() {
 
 int Parser::p2_macro_line()
 {
-	current_macro->AddLine(first.value);
+	if (pass == 1)
+		current_macro->AddLine(first.value);
 	return 1;
 }
 
@@ -311,13 +318,21 @@ int Parser::p3_include() {
 int Parser::expect_newline() {
 	Token tk;
 
-	stream.read(tk);
+	do {
+		stream.read(tk);
+	} while (tk.type == skip);
+
 	if (tk.type != endline) {
 		error("Expected end of line");
 		return -1;
 	}
 
 	return 1;
+}
+
+int Parser::rewind_and_newline() {
+	stream.rewind_1();
+	return expect_newline();
 }
 
 int Parser::p2_invoke_macro(void) {
@@ -327,19 +342,19 @@ int Parser::p2_invoke_macro(void) {
 		error_fmt("Unknown macro %s", first.value);
 
 	// parse parameters
-	std::list<std::string> values;
+	auto *values = new list<string>;
 	Token tk;
 	stream.SetMode(words);
 	stream.read(tk);
 	while (tk.type == word) {
-		values.push_back(tk.value);
+		values->push_back(tk.value);
 		stream.read(tk);
 	}
-	stream.rewind_1();
 	stream.SetMode(assembly);
+	rewind_and_newline();
 
 	// invoke macro with parameters
-	macro_it->second.Invoke(stream.getCurrent(), values);
+	macro_it->second.Invoke(stream.getCurrent(), *values);
 
 	// switch input to macro
 	stream.nested_source(macro_it->second);

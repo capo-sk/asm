@@ -7,7 +7,6 @@
 
 #include <string>
 #include <cstring>
-#include <iostream>
 #include "error.h"
 #include "nfile.hpp"
 #include "srcfile.hpp"
@@ -44,8 +43,9 @@ int main(int argc, char *argv[]) {
 		symbol_filename = "";
 
 	SrcFileList srcl;
-	srcl.Add(input_filename);
-	srcl.AdvanceLine();  // otherwise it starts from 0; can't be bothered fixing it properly
+	//srcl.Add(input_filename);
+	srcl.AddOnce(new SrcFile(input_filename));
+	//srcl.AdvanceLine();  // otherwise it starts from 0; can't be bothered fixing it properly
 
 	Buffer in_buf(srcl);
 

@@ -1,5 +1,7 @@
-.include "sys2061.i"
+.include "start.m"
 .include "kernal.i"
+
+	&basic_header 42
 
 ; main
 * = 2061

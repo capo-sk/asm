@@ -40,7 +40,7 @@ public:
 	virtual void Rewind();
 };
 
-class MacroTable: public std::map<std::string, MacroText> {
+class MacroTable: public std::map<std::string, MacroText &> {
 public:
 	void add(MacroText &macro);
 };

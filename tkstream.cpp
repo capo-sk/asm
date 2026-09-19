@@ -10,7 +10,6 @@
 #include <cstring>
 #include "opcodes.hpp"
 #include <string>
-#include <iostream>
 
 using namespace std;
 
@@ -59,8 +58,62 @@ int TokenStream::_get_next_token_multimode(Token *tk)
 			return _get_next_token(tk);
 		case macro:
 			return _get_next_macro_line(tk);
+		case words:
+			return _get_next_word(tk);
 		default:
 			return -1;
+	}
+}
+
+int TokenStream::_get_next_word(Token *tk)
+{
+	int c;
+	unsigned text_len = 0;
+	bool incomplete_token = true;
+
+	tk->type = invalid;  /* until we know better */
+	while (incomplete_token) {
+		c = buf.get_next();
+
+		/* convert to uppercase */
+		if (islower(c))
+			c = toupper(c);
+
+		/* whitespace */
+		if (
+		    c == ' ' ||
+		    c == 9  /* tab */
+		   ) {
+			if (text_len == 0) {
+				/* ignore starting whitespace */
+				continue;
+			} else {  /* whitespace terminates word */
+				tk->value[text_len] = 0;
+				incomplete_token = false;
+				break;
+			}
+		}
+
+		/* end of line */
+		if (c == 13 ||	/* cr */
+		    c == 10	/* lf */
+		   ) {
+			buf.rewind_1();
+			tk->value[text_len] = 0;
+			incomplete_token = false;
+			break;
+		}
+
+		/* anything else */
+		tk->value[text_len++] = c;
+	}
+
+	if (text_len > 0) {
+		tk->type = word;
+		return 1;
+	} else {
+		tk->type = skip;
+		return 0;
 	}
 }
 
@@ -170,8 +223,6 @@ int TokenStream::_get_next_macro_line(Token *tk)
 	} else {
 		tk->type = macro_line;
 	}
-
-	cerr << tk->type << " " << (tk->type == macro_line ? tk->value : "") << "\n";
 
 	return 1;
 }

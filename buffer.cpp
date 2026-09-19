@@ -21,11 +21,13 @@ int Buffer::get_next() {
 	} else {
 		if (refill) {
 			if (!slist.getline(line, sizeof(line))) { // EOF
+				cerr << line << "\n";
 				eof = true;
 				return eofmark;
 			}
 			ptr = &line[0];
 			refill = false;
+			cerr << line << "\n";
 		}
 
 		if (*ptr != 0) { // not end of line yet
@@ -73,7 +75,7 @@ bool Buffer::close_file() {
 
 void Buffer::new_file(char const *name) {
 	if (!slist.isPresent(name))  // only process file if first encounter
-		slist.Add(name);
+		slist.AddOnce(new SrcFile(name));
 }
 
 void Buffer::reset() {
