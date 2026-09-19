@@ -19,9 +19,9 @@ public:
 	SrcText(std::string const &tname);
 	virtual ~SrcText();
 
-	virtual std::string getLocation();
-	std::string const &getName();
-	unsigned getLine();
+	virtual std::string getLocation() const;
+	virtual std::string const &getName() const;
+	virtual unsigned getLine() const;
 
 	virtual void AdvanceLine();
 	virtual void Rewind();

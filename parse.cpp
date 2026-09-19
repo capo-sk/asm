@@ -10,6 +10,7 @@
 #include <cstdarg>
 #include "opcodes.hpp"
 #include "emit.hpp"
+#include "macro.hpp"
 #include "error.h"
 
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
@@ -20,27 +21,27 @@ Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 void Parser::first_pass() {
 	pass = 1;
 	emit.set_pass(1);
-	do_pass();
+	p0_source();
 }
 
 void Parser::second_pass() {
 	stream.reset();
 	pass = 2;
 	emit.set_pass(2);
-	do_pass();
+	p0_source();
 }
 
-void Parser::do_pass() {
+void Parser::p0_source() {
 	int ret;
 
-	while ((ret = do_line()) > 0)
+	while ((ret = p1_line()) > 0)
 		stream.AdvanceLine();
 
 	if (ret < 0)
 		error("Parse error");
 }
 
-int Parser::do_line() {
+int Parser::p1_line() {
 	int ret;
 
 	ret = stream.read(first);
@@ -51,26 +52,26 @@ int Parser::do_line() {
 		case endline:
 			return 1;
 		case actual_opcode:
-			return do_opcode();
+			return p2_instruction();
 		case pseudo_opcode:
-			return do_pseudo();
-		case macro_def:
-			return do_macrodef();
+			return p2_pseudo_instruction();
 		case macro_ref:
-			return do_macro();
+			return p2_invoke_macro();
 		case label_def:
-			do_labeldef();
-			return do_line();
+			p3_labeldef();
+			return p1_line();
 		case var_def:
-			return do_vardef();
+			return p2_vardef();
 		case '*':
-			return do_location();
+			return p2_location();
+		case macro_line:
+			return p2_macro_line();
 		default:
 			return -1;
 	}
 }
 
-int Parser::do_opcode() {
+int Parser::p2_instruction() {
 	Token tk1;
 	Token tk2;
 	u8 mode;
@@ -227,14 +228,14 @@ void Parser::do_pseudo_byte() {
 	} while (1);
 }
 	
-int Parser::do_pseudo(void) {
+int Parser::p2_pseudo_instruction(void) {
 	switch (first.value[0]) {
 		case 0: /* MACRO */
-			do_macro_header();
-			break;
+			p3_macro_header();
+			return 1;  // already consumed newline
 		case 1: /* ENDM */
-			error("Macro not implemented");
-			break;
+			stream.SetMode(assembly);
+			return 1;
 		case 2: /* .BYTE */
 			do_pseudo_byte();
 			break;
@@ -242,7 +243,7 @@ int Parser::do_pseudo(void) {
 			do_pseudo_word();
 			break;
 		case 4: /* .INCLUDE */
-			do_include();
+			p3_include();
 			break;
 		default:
 			error("Internal error - no such pseudo-opcode");
@@ -251,39 +252,47 @@ int Parser::do_pseudo(void) {
 	return expect_newline();
 }
 
-void Parser::do_macro_header() {
+void Parser::p3_macro_header() {
 	Token tk;
 
 	stream.read(tk);
 	if (tk.type != macro_def)
 		error("Expected macro name");
 
-	if (pass == 1)
-		sym.addnew(tk.value, sym_macro, 0);
+	if (pass == 1) {
+		current_macro = new MacroText(tk.value);
+	}
 
+	unsigned parct = 0;
 	Token tk2;
-	u16 ct;
-	char *cp;
 	stream.read(tk2);
-	ct = 1;
 	while (tk2.type == macro_par) {
 		if (pass == 1) {
-			char parsym[VALUE_SIZE];
-
-			cp = stpncpy(parsym, tk.value, VALUE_SIZE - 2);
-			*cp++ = '&';
-			strncpy(cp, tk2.value, VALUE_SIZE - strlen(tk.value) - 2);
-
-			sym.addnew(parsym, sym_param, ct);
-
-			ct++;
+			current_macro->AddParam(tk2.value);
+			parct++;
 		}
 		stream.read(tk2);
 	}
+
+	if (pass == 1) {
+		sym.addnew(tk.value, sym_macro, parct);
+		macros.add(*current_macro);
+	}
+
 	stream.rewind_1();
+	expect_newline();
+
+	// switch to macro mode
+	stream.SetMode(macro);
 }
 
-int Parser::do_include() {
+int Parser::p2_macro_line()
+{
+	current_macro->AddLine(first.value);
+	return 1;
+}
+
+int Parser::p3_include() {
 	Token tk;
 	int result;
 
@@ -311,14 +320,31 @@ int Parser::expect_newline() {
 	return 1;
 }
 
-int Parser::do_macrodef(void) {
-	error("Macros not implemented");
-	return -1;
-}
+int Parser::p2_invoke_macro(void) {
+	// find macro by name
+	auto macro_it = macros.find(first.value);
+	if (macro_it == macros.end())
+		error_fmt("Unknown macro %s", first.value);
 
-int Parser::do_macro(void) {
-	error("Macros not implemented");
-	return -1;
+	// parse parameters
+	std::list<std::string> values;
+	Token tk;
+	stream.SetMode(words);
+	stream.read(tk);
+	while (tk.type == word) {
+		values.push_back(tk.value);
+		stream.read(tk);
+	}
+	stream.rewind_1();
+	stream.SetMode(assembly);
+
+	// invoke macro with parameters
+	macro_it->second.Invoke(stream.getCurrent(), values);
+
+	// switch input to macro
+	stream.nested_source(macro_it->second);
+
+	return 1;
 }
 
 void Parser::make_local_label(char *local_label, char const *global_context, char const *local_part) {
@@ -335,7 +361,7 @@ void Parser::make_local_label(char *local_label, char const *global_context, cha
 	memmove(local_label, global_context, len1);
 }
 
-void Parser::do_labeldef(void) {
+void Parser::p3_labeldef(void) {
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
 	} else {                      /* local label */
@@ -347,7 +373,7 @@ void Parser::do_labeldef(void) {
 	}
 }
 
-int Parser::do_vardef(void) {
+int Parser::p2_vardef(void) {
 	Token tk;
 	u16 value;
 
@@ -367,7 +393,7 @@ int Parser::do_vardef(void) {
 	return expect_newline();
 }
 
-int Parser::do_location(void) {
+int Parser::p2_location(void) {
 	Token tk;
 
 	stream.read(tk);
@@ -513,7 +539,7 @@ error:
 }
 
 [[noreturn]] void Parser::error(char const *txt) {
-	abort_fmt("%s: %s", stream.getLocation(), txt);
+	abort_fmt("%s: %s\n%s\n", stream.getLocation().c_str(), txt, stream.getLineText().c_str());
 }
 
 [[noreturn]] void Parser::error_fmt(char const *fmt, ...) {

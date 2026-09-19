@@ -9,8 +9,13 @@
 #include <cctype>
 #include <cstring>
 #include "opcodes.hpp"
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 TokenStream::TokenStream(Buffer &in_buf) : buf(in_buf) {
+	mode = assembly;
 	ctx = line_start;
 	reuse = false;
 }
@@ -22,7 +27,7 @@ int TokenStream::read(Token &tk) {
 		reuse = false;
 		retval = 1;
 	} else {
-		retval = _get_next_token(&latest);
+		retval = _get_next_token_multimode(&latest);
 	}
 
 	tk = latest;
@@ -40,11 +45,136 @@ void TokenStream::rewind() {
 	ctx = line_start;
 }
 
-void TokenStream::reset() {
+void TokenStream::reset()
+{
 	buf.reset();
 	rewind();
 }
 
+
+int TokenStream::_get_next_token_multimode(Token *tk)
+{
+	switch (mode) {
+		case assembly:
+			return _get_next_token(tk);
+		case macro:
+			return _get_next_macro_line(tk);
+		default:
+			return -1;
+	}
+}
+
+int TokenStream::_get_next_macro_line(Token *tk)
+{
+	int c, prev;
+	bool incomplete_token = true;
+	unsigned text_len = 0;
+	bool inside_comment = false;
+
+	tk->type = invalid;  /* until we know better */
+
+	c = 0;
+	while (incomplete_token) {
+		prev = c;
+		c = buf.get_next();
+
+		if (c == Buffer::eofmark) {
+			if (text_len == 0) {  // reached end of file
+				tk->type = endline;
+				tk->value[0] = 0;
+				if (buf.close_file() == 0) { // no more files
+					ctx = end_of_file;
+					return 0;
+				} else {
+					ctx = line_start;
+					return 1;
+				}
+			} else {  // EOF terminates word
+				buf.rewind_1();
+				tk->value[text_len] = 0;
+				incomplete_token = false;
+				break;
+			}
+		}
+
+		/* if we are in a comment, ignore all until newline */
+		if (inside_comment) {
+			if (c == 13 || c == 10) {  // newline ends comment
+				tk->type = endline;
+				tk->value[0] = 0;
+				ctx = line_start;
+				return 1;
+			}
+			continue;
+		}
+
+		/* convert to uppercase */
+		if (islower(c))
+			c = toupper(c);
+
+		/* start comment */
+		if (c == ';') {
+			if (text_len == 0) {
+				inside_comment = true;
+				continue;
+			} else {
+				tk->value[text_len] = 0;
+				buf.rewind_1();
+				incomplete_token = false;
+				break;
+			}
+		}
+
+		/* whitespace */
+		if (
+		    c == ' ' ||
+		    c == 9  /* tab */
+		   ) {
+			c = ' ';
+			if (text_len == 0) {
+				/* ignore starting whitespace */
+				continue;
+			} else if (prev != ' ') {
+				/* compress whitespace between words to one space */
+				tk->value[text_len++] = c;
+				continue;
+			} else {
+				/* ignore additional spaces */
+				continue;
+			}
+		}
+
+		/* end of line */
+		if (c == 13 ||	/* cr */
+		    c == 10	/* lf */
+		   ) {
+			//buf.rewind_1();
+			tk->value[text_len] = 0;
+			incomplete_token = false;
+			break;
+		}
+
+		/* anything else */
+		tk->value[text_len++] = c;
+	}
+
+	/* remove trailing space if any */
+	if (text_len > 1 && tk->value[text_len - 1] == ' ')
+		tk->value[--text_len] = 0;
+
+	/* if the line is MEND then return MEND token, otherwise the line is the token */
+	const unsigned mend_opcode = 1;
+	if (strcmp(pseudos[mend_opcode].mnemonic, tk->value) == 0) {
+		tk->type = pseudo_opcode;
+		tk->value[0] = mend_opcode;
+	} else {
+		tk->type = macro_line;
+	}
+
+	cerr << tk->type << " " << (tk->type == macro_line ? tk->value : "") << "\n";
+
+	return 1;
+}
 
 /*
 return: tk is populated with the next token
@@ -52,7 +182,8 @@ return: 1 if valid token, 0 if eof, -1 error
 update: in_buf as consumed
 update: ctx with new context if changed
 */
-int TokenStream::_get_next_token(Token *tk) {
+int TokenStream::_get_next_token(Token *tk)
+{
 	int c;
 	unsigned char literal_delimiter;
 	unsigned i;
@@ -150,7 +281,7 @@ int TokenStream::_get_next_token(Token *tk) {
 				break;
 			}
 		}
-			
+
 		/* special symbols */
 		if (
 		    c == '#' ||
@@ -229,8 +360,7 @@ int TokenStream::_get_next_token(Token *tk) {
 		    c == '&'
 		   ) {
 			if (text_len <= MAX_TOKEN_LENGTH) {
-				tk->value[text_len] = c;
-				++text_len;
+				tk->value[text_len++] = c;
 				continue;
 			} else {
 				ctx = err_too_long;
@@ -314,7 +444,27 @@ std::string TokenStream::getLocation()
 	return buf.getLocation();
 }
 
-void TokenStream::nested_file(char const *name) {
+void TokenStream::nested_file(char const *name)
+{
 	buf.new_file(name);
 }
 
+void TokenStream::SetMode(token_mode a_mode)
+{
+	mode = a_mode;
+}
+
+string TokenStream::getLineText()
+{
+	return buf.getLineText();
+}
+
+SrcText &TokenStream::getCurrent()
+{
+	return buf.getCurrent();
+}
+
+void TokenStream::nested_source(SrcText &source)
+{
+	buf.new_source(&source);
+}

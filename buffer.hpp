@@ -31,9 +31,12 @@ public:
 	void rewind();
 	void AdvanceLine();
 	std::string getLocation();
+	std::string getLineText();
 	bool close_file();
 	void new_file(char const *name);
 	void reset();
+	SrcText &getCurrent();
+	void new_source(SrcText *source);
 	
 	static const int eofmark = -1;
 };

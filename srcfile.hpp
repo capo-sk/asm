@@ -22,9 +22,7 @@ public:
 	SrcFile(std::string const &fname);
 	virtual ~SrcFile();
 
-	//NFile *GetNFile() { return nfile; }
-
-//	virtual std::string getLocation();
+//	virtual std::string getLocation() const;
 	virtual void Rewind();
 
 	virtual bool getline(char *buffer, unsigned size);
@@ -34,20 +32,21 @@ class SrcFileList {
 private:
 	std::unordered_set<std::string> names;
 	std::string first;
-	std::stack<SrcFile> files;
+	std::stack<SrcText> files;
 
 public:
 	SrcFileList();
 
 	bool isPresent(std::string const &name);
 	void Add(std::string const &name);
+	void Add(SrcText *source);
 	bool Pop();
 	void Reset();
 	void AdvanceLine();
 	std::string getLocation();
 	//std::string &getFilename();
 	//unsigned getLinenum();
-	SrcFile &getCurrent();
+	SrcText &getCurrent();
 	bool getline(char *buffer, unsigned max);
 	//NFile *GetNFile();
 };

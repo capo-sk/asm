@@ -13,6 +13,7 @@
 #include "tkstream.hpp"
 #include "symtable.hpp"
 #include "emit.hpp"
+#include "macro.hpp"
 
 class Parser : public ErrorProvider {
 private:
@@ -20,28 +21,31 @@ private:
 	Token first;
 	Token main_label;
 	SymbolTable &sym;
+	MacroTable macros;
+	MacroText *current_macro;
 	Emitter &emit;
 	unsigned pass;
 
-	void do_pass();
-	int do_line();
-	int do_opcode();
-	int do_pseudo();
+	void p0_source();
+	int p1_line();
+	int p2_instruction();
+	int p2_pseudo_instruction();
 	void do_pseudo_word();
 	void do_pseudo_byte();
-	int do_macrodef();
-	int do_macro();
-	void do_labeldef();
-	int do_vardef();
-	int do_location();
+	int p2_invoke_macro();
+	void p3_labeldef();
+	int p2_vardef();
+	int p2_location();
 	u32 parse_expr();
 	u16 expr_element();
 	u16 parse_dec(char const *text);
 	u16 parse_hex(char const *text);
 	int expect_newline();
+	int rewind_and_newline();
 	void make_local_label(char *local_label, char const *global_context, char const *local_part);
-	int do_include();
-	void do_macro_header();
+	int p3_include();
+	void p3_macro_header();
+	int p2_macro_line();
 
 	friend Emitter;  // uses error methods
 

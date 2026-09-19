@@ -9,8 +9,15 @@
 #define TKSTREAM_HPP
 
 #include "buffer.hpp"
+#include "macro.hpp"
 #include <string>
 #include "types.h"
+
+enum token_mode {
+	assembly,
+	macro,
+	words
+};
 
 enum token_context {
 	line_start,
@@ -38,7 +45,9 @@ enum token_type {
 	literal_dec,
 	literal_hex,
 	literal_chr,
-	literal_str
+	literal_str,
+	macro_line = 0xc0,
+	word = 0xd0
 };
 
 #define VALUE_SIZE 64
@@ -52,11 +61,14 @@ struct Token {
 class TokenStream {
 private:
 	Buffer &buf;
+	token_mode mode;
 	token_context ctx;
 	Token latest;
 	bool reuse;
 
+	int _get_next_token_multimode(Token *tk);
 	int _get_next_token(Token *tk);
+	int _get_next_macro_line(Token *tk);
 
 public:
 	TokenStream(Buffer &in_buf);
@@ -66,8 +78,12 @@ public:
 	void rewind();
 	void reset();
 	void AdvanceLine();
+	void SetMode(token_mode a_mode);
 	std::string getLocation();
+	std::string getLineText();
 	void nested_file(char const *name);
+	void nested_source(SrcText &source);
+	SrcText &getCurrent();
 };
 
 #endif

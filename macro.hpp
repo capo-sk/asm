@@ -10,6 +10,7 @@
 
 #include "source.hpp"
 #include <list>
+#include <map>
 
 class MacroText: public SrcText {
 private:
@@ -19,18 +20,29 @@ private:
 	//unsigned linenum;
 	std::string filename;
 	unsigned fileline;
+	std::list<std::string> params;
+	std::list<std::string> const *values;
 
 public:
 	MacroText(std::string const &mname);
 	virtual ~MacroText();
 
-	void InvokeAt(std::string const &fname, unsigned fline);
 	void AddLine(std::string const &tline);
+	void AddParam(std::string const &param);
 
-	virtual std::string getFileLocation();
+	void Invoke(SrcText const &callfrom, std::list<std::string> const &values);
+
+	virtual std::string getLocation() const;
+
+        virtual bool getline(char *buffer, unsigned size);
 
 	virtual void AdvanceLine();
 	virtual void Rewind();
+};
+
+class MacroTable: public std::map<std::string, MacroText> {
+public:
+	void add(MacroText &macro);
 };
 
 #endif

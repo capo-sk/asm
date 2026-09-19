@@ -84,3 +84,18 @@ std::string Buffer::getLocation()
 {
 	return slist.getLocation();
 }
+
+string Buffer::getLineText()
+{
+	return string(line);
+}
+
+SrcText &Buffer::getCurrent()
+{
+	return slist.getCurrent();
+}
+
+void Buffer::new_source(SrcText *source)
+{
+	slist.Add(source);
+}

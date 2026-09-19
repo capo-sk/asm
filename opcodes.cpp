@@ -115,8 +115,8 @@ const opcode opcodes[] = {
 const u8 num_opcodes = sizeof(opcodes) / sizeof(opcode);
 
 const pseudo pseudos[] = {
-	{ "MACRO" },
-	{ "ENDM" },
+	{ ".MACRO" },
+	{ ".ENDM" },
 	{ ".BYTE" },
 	{ ".WORD" },
 	{ ".INCLUDE" }

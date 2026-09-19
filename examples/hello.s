@@ -31,3 +31,15 @@ extra:	asl a			;0A
 	cmp ($70,x)		;C170
 	eor ($80),y		;5180
 	jmp ($75)		;6C7500
+
+	.macro addw add1 add2 sum
+	clc
+	lda add1
+	adc add2
+	sta sum
+	lda add1+1
+	adc add2+1
+	sta sum+1
+	.endm
+
+	&addw $f0 $f2 $f4

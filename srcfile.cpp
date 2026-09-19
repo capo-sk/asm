@@ -103,7 +103,7 @@ std::string SrcFileList::getLocation()
 //	return files.top().getLine();
 //}
 
-SrcFile &SrcFileList::getCurrent()
+SrcText &SrcFileList::getCurrent()
 {
 	return files.top();
 }

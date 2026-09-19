@@ -6,9 +6,12 @@
 */
 
 #include "macro.hpp"
+#include <cstring>
 
-MacroText::MacroText(std::string const &mname)
-: SrcText(mname)
+using namespace std;
+
+MacroText::MacroText(string const &mname)
+: SrcText(mname), values(NULL)
 {
 	current = text.begin();
 }
@@ -17,21 +20,22 @@ MacroText::~MacroText()
 {
 }
 
-void MacroText::InvokeAt(std::string const &fname, unsigned fline)
+void MacroText::Invoke(SrcText const &callfrom, list<string> const &pvalues)
 {
-	filename = fname;
-	fileline = fline;
+	filename = callfrom.getName();
+	fileline = callfrom.getLine();
+	values = &pvalues;
 }
 
-void MacroText::AddLine(std::string const &tline)
+void MacroText::AddLine(string const &tline)
 {
 	text.push_back(tline);
 }
 
-std::string MacroText::getFileLocation()
+string MacroText::getLocation() const
 {
-	return "&" + getName() + ":" + std::to_string(getLine())
-		+ "@" + filename + ":" + std::to_string(fileline);
+	return "&" + getName() + ":" + to_string(getLine())
+		+ "@" + filename + ":" + to_string(fileline);
 }
 
 void MacroText::AdvanceLine()
@@ -44,4 +48,30 @@ void MacroText::Rewind()
 {
 	current = text.begin();
 	SrcText::Rewind();
+}
+
+void MacroText::AddParam(string const &param)
+{
+	params.push_back(param);
+}
+
+string _replace(string const &base, list<string> const &params, list<string> const &values)
+{
+	return base;
+}
+
+bool MacroText::getline(char *buffer, unsigned max)
+{
+	if (current != text.end()) {
+		string tx = _replace(current->data(), params, *values);
+		strncpy(buffer, tx.c_str(), max - 1);
+		buffer[max - 1] = 0;
+		return true;
+	} else
+		return false;
+}
+
+void MacroTable::add(MacroText &macro)
+{
+	insert({macro.getName(), macro});
 }
