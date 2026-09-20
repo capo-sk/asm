@@ -8,7 +8,7 @@
 #include "source.hpp"
 
 SrcText::SrcText(std::string const &tname)
-: textname(tname), linenum(1)
+: textname(tname), linenum(0)
 {
 }
 

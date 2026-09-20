@@ -114,9 +114,12 @@ bool MacroText::getline(char *buffer, unsigned max)
 		string tx = _replace(current->data(), params, *values);
 		strncpy(buffer, tx.c_str(), max - 1);
 		buffer[max - 1] = 0;
+		AdvanceLine();
 		return true;
-	} else
+	} else {
+		buffer[0] = 0;
 		return false;
+	}
 }
 
 void MacroTable::add(MacroText &macro)

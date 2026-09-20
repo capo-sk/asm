@@ -39,7 +39,8 @@ void Parser::p0_source() {
 	int ret;
 
 	while ((ret = p1_line()) > 0)
-		stream.AdvanceLine();
+		;
+		//stream.AdvanceLine();
 
 	if (ret < 0)
 		error("Parse error");

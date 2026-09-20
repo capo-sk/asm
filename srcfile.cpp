@@ -33,8 +33,10 @@ bool SrcFile::getline(char *buffer, unsigned size)
 	nfile->getline(buffer, size);
 	if (buffer[0] == 0 && nfile->eof())
 		return false;
-	else
+	else {
+		AdvanceLine();
 		return true;
+	}
 }
 
 // class SrcFileList
