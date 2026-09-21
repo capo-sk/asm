@@ -27,27 +27,37 @@ private:
 	unsigned pass;
 
 	void p0_source();
+
 	int p1_line();
+	void p2_labeldef();
+	
 	int p2_instruction();
+
 	int p2_pseudo_instruction();
-	void do_pseudo_word();
-	void do_pseudo_byte();
-	int p2_invoke_macro();
-	void p3_labeldef();
-	int p2_vardef();
-	int p2_location();
-	u32 parse_expr();
-	u16 expr_element();
-	u16 parse_dec(char const *text);
-	u16 parse_hex(char const *text);
-	int expect_newline();
-	int rewind_and_newline();
-	void make_local_label(char *local_label, char const *global_context, char const *local_part);
+	void p3_pseudo_word();
+	void p3_pseudo_byte();
 	int p3_include();
 	void p3_macro_header();
+
+	int p2_invoke_macro();
+
+	int p2_vardef();
+
+	int p2_location();
+
+	u32 p3_expr();
+	u16 p4_expr_element();
+	u16 p5_dec(char const *text);
+	u16 p5_hex(char const *text);
+
 	int p2_macro_line();
 
-	friend Emitter;  // uses error methods
+	int expect_newline();
+	int pushback_and_newline();
+
+	void make_local_label(char *local_label, char const *global_context, char const *local_part);
+
+//	friend Emitter;  // uses error methods
 
 public:
 	Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtable);

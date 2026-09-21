@@ -34,7 +34,7 @@ int TokenStream::read(Token &tk) {
 	return retval;
 }
 
-void TokenStream::rewind_1() {
+void TokenStream::pushback() {
 	reuse = true;
 }
 
@@ -486,9 +486,9 @@ update_ctx:
 	return 1;
 }
 
-std::string TokenStream::getLocation()
+std::string TokenStream::get_location()
 {
-	return buf.getLocation();
+	return buf.get_location();
 }
 
 void TokenStream::nested_file(char const *name)
@@ -499,14 +499,14 @@ void TokenStream::nested_file(char const *name)
 	}
 }
 
-void TokenStream::SetMode(token_mode a_mode)
+void TokenStream::set_mode(token_mode a_mode)
 {
 	mode = a_mode;
 }
 
-string TokenStream::getLineText()
+string TokenStream::get_line_text()
 {
-	return buf.getLineText();
+	return buf.get_line_text();
 }
 
 SrcText &TokenStream::get_current()

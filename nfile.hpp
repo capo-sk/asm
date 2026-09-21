@@ -20,7 +20,7 @@ public:
 	NFile(int which);
 	//NFile();
 	~NFile();
-	std::string const &GetName() { return name; };
+	std::string const &get_name() { return name; };
 	void rewind();
 	void printf(char const *fmt, ...);
 };

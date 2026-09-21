@@ -34,8 +34,8 @@ public:
 	SymbolTable();
 	~SymbolTable();
 
-	void add(char const *name, sym_type type, u16 value);
-	void addnew(char const *name, sym_type type, u16 value);
+	void add_or_overwrite(char const *name, sym_type type, u16 value);
+	void add_unique(char const *name, sym_type type, u16 value);
 	bool get(char const *name, sym_type type, u16 &value);
 	void dump(NFile &where, int format);
 };

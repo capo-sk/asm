@@ -12,7 +12,7 @@ SrcText::SrcText(std::string const &tname)
 {
 }
 
-std::string SrcText::getLocation() const
+std::string SrcText::get_location() const
 {
 	return textname + ":" + std::to_string(linenum);
 }
@@ -27,12 +27,12 @@ void SrcText::rewind()
 	linenum = 1;
 }
 
-unsigned SrcText::getLine() const
+unsigned SrcText::get_line() const
 {
 	return linenum;
 }
 
-std::string const &SrcText::getName() const
+std::string const &SrcText::get_name() const
 {
 	return textname;
 }

@@ -27,14 +27,14 @@ public:
 	MacroText(std::string const &mname);
 	virtual ~MacroText();
 
-	void AddLine(std::string const &tline);
-	void AddParam(std::string const &param);
+	void add_line(std::string const &tline);
+	void add_param(std::string const &param);
 
-	void Invoke(SrcText const &callfrom, std::list<std::string> const &values);
+	void invoke(SrcText const &callfrom, std::list<std::string> const &values);
 
-	virtual std::string getLocation() const;
+	virtual std::string get_location() const;
 
-        virtual bool getline(char *buffer, unsigned size);
+    virtual bool getline(char *buffer, unsigned size);
 
 	virtual void advance_line();
 	virtual void rewind();

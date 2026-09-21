@@ -67,7 +67,7 @@ void SrcStack::new_source(SrcText *source)
 
 void SrcStack::new_source_once(SrcText *source)
 {
-	string name = source->getName();
+	string name = source->get_name();
 
 	if (!is_present(name)) {
 		if (names.size() == 0)
@@ -104,9 +104,9 @@ void SrcStack::reset()
 	rewind();
 }
 
-std::string SrcStack::getLocation()
+std::string SrcStack::get_location()
 {
-	return sources.top()->getLocation();
+	return sources.top()->get_location();
 }
 
 SrcText &SrcStack::get_current()

@@ -43,7 +43,7 @@ public:
 	bool Pop();
 	virtual void rewind();
 	virtual void reset();
-	virtual std::string getLocation();
+	virtual std::string get_location();
 	virtual bool getline(char *buffer, unsigned max);
 };
 

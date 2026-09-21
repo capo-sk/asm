@@ -22,9 +22,9 @@ public:
 	SrcText(std::string const &tname);
 	virtual ~SrcText() = default;
 
-	virtual std::string getLocation() const;
-	virtual std::string const &getName() const;
-	virtual unsigned getLine() const;
+	virtual std::string get_location() const;
+	virtual std::string const &get_name() const;
+	virtual unsigned get_linenum() const;
 
 	virtual void rewind();
 

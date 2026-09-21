@@ -20,22 +20,22 @@ MacroText::~MacroText()
 {
 }
 
-void MacroText::Invoke(SrcText const &callfrom, list<string> const &pvalues)
+void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
 {
-	filename = callfrom.getName();
-	fileline = callfrom.getLine();
+	filename = callfrom.get_name();
+	fileline = callfrom.get_line();
 	values = &pvalues;
 	current = text.begin();
 }
 
-void MacroText::AddLine(string const &tline)
+void MacroText::add_line(string const &tline)
 {
 	text.push_back(tline);
 }
 
-string MacroText::getLocation() const
+string MacroText::get_location() const
 {
-	return "&" + getName() + ":" + to_string(getLine())
+	return "&" + get_name() + ":" + to_string(get_line())
 		+ "@" + filename + ":" + to_string(fileline);
 }
 
@@ -51,7 +51,7 @@ void MacroText::rewind()
 	SrcText::rewind();
 }
 
-void MacroText::AddParam(string const &param)
+void MacroText::add_param(string const &param)
 {
 	params.push_back(param);
 }
@@ -124,5 +124,5 @@ bool MacroText::getline(char *buffer, unsigned max)
 
 void MacroTable::add(MacroText &macro)
 {
-	insert({macro.getName(), macro});
+	insert({macro.get_name(), macro});
 }

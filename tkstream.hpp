@@ -76,12 +76,12 @@ public:
 	TokenStream(Buffer &in_buf);
 
 	int read(Token &tk);
-	void rewind_1();
+	void pushback();
 	void rewind();
 	void reset();
-	void SetMode(token_mode a_mode);
-	std::string getLocation();
-	std::string getLineText();
+	void set_mode(token_mode a_mode);
+	std::string get_location();
+	std::string get_line_text();
 	void nested_file(char const *name);
 	void nested_source(SrcText &source);
 	SrcText &get_current();

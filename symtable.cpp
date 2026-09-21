@@ -19,14 +19,14 @@ void SymbolTable::_add(char const *name, sym_type type, u16 value) {
 	insert({name, {type, value}});
 }
 
-void SymbolTable::addnew(char const *name, sym_type type, u16 value) {
+void SymbolTable::add_new(char const *name, sym_type type, u16 value) {
 	if (count(name) != 0)
 		abort_fmt("Duplicate symbol %s", name);
 	else
 		_add(name, type, value);
 }
 
-void SymbolTable::add(char const *name, sym_type type, u16 value) {
+void SymbolTable::add_or_overwrite(char const *name, sym_type type, u16 value) {
 	auto it = find(name);
 
 	if (it == end())

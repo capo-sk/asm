@@ -83,7 +83,7 @@ bool Buffer::close_file() {
 	return Pop();
 }
 
-string Buffer::getLineText()
+string Buffer::get_line_text()
 {
 	return string(line);
 }

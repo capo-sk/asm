@@ -63,7 +63,7 @@ int Parser::p1_line() {
 		case macro_ref:
 			return p2_invoke_macro();
 		case label_def:
-			p3_labeldef();
+			p2_labeldef();
 			return p1_line();
 		case var_def:
 			return p2_vardef();
@@ -90,15 +90,15 @@ int Parser::p2_instruction() {
 	switch (tk1.type) {
 		case endline:
 			mode = impl_mode; size = 1;
-			stream.rewind_1();
+			stream.pushback();
 			break;
 		case '#':
 			mode = imm_mode; size = 2;
-			value = parse_expr();
+			value = p3_expr();
 			break;
 		case '(':
 			mode = ind_mode; size = 3;
-			value = parse_expr();
+			value = p3_expr();
 			stream.read(tk2);
 			if (tk2.type == ',') {
 				stream.read(tk2);
@@ -127,7 +127,7 @@ int Parser::p2_instruction() {
 				else
 					error("Index mode requires register");
 			} else
-				stream.rewind_1();
+				stream.pushback();
 			break;
 		case cpu_register:
 			if (tk1.value[0] == 'A') {
@@ -144,14 +144,14 @@ int Parser::p2_instruction() {
 		case '!':
 		case '*':
 			mode = abs_mode; size = 3;
-			stream.rewind_1();
-			value = parse_expr();
+			stream.pushback();
+			value = p3_expr();
 			if (value <= 0x100) {
 				mode = zp_mode; size = 2;
 			}
 			stream.read(tk2);
 			if (tk2.type != ',') {
-				stream.rewind_1();
+				stream.pushback();
 			} else {
 				stream.read(tk2);
 				if (tk2.type == cpu_register) {
@@ -187,18 +187,18 @@ int Parser::p2_instruction() {
 	return expect_newline();
 }
 
-void Parser::do_pseudo_word() {
+void Parser::p3_pseudo_word() {
 	u16 value;
 	Token tk;
 
 	do {
-		value = (u16) parse_expr();
+		value = (u16) p3_expr();
 		emit.emit_word(value);
 
 		stream.read(tk);
 
 		if (tk.type == endline) {
-			stream.rewind_1();
+			stream.pushback();
 			break;
 		}
 
@@ -207,7 +207,7 @@ void Parser::do_pseudo_word() {
 	} while (1);
 }
 	
-void Parser::do_pseudo_byte() {
+void Parser::p3_pseudo_byte() {
 	u8 value;
 	u16 len;
 	Token tk;
@@ -218,15 +218,15 @@ void Parser::do_pseudo_byte() {
 			len = strlen(tk.value);
 			emit.emit_bytes((u8 *)tk.value, len);
 		} else {
-			stream.rewind_1();
-			value = (u8) parse_expr();
+			stream.pushback();
+			value = (u8) p3_expr();
 			emit.emit_byte(value);
 		}
 
 		stream.read(tk);
 
 		if (tk.type == endline) {
-			stream.rewind_1();
+			stream.pushback();
 			break;
 		}
 
@@ -241,17 +241,16 @@ int Parser::p2_pseudo_instruction(void) {
 			p3_macro_header();
 			return 1;  // already consumed newline
 		case 1: /* ENDM */
-			stream.SetMode(assembly);
+			stream.set_mode(assembly);
 			return 1;
 		case 2: /* .BYTE */
-			do_pseudo_byte();
+			p3_pseudo_byte();
 			break;
 		case 3: /* .WORD */
-			do_pseudo_word();
+			p3_pseudo_word();
 			break;
 		case 4: /* .INCLUDE */
-			p3_include();
-			break;
+			return p3_include();
 		default:
 			error("Internal error - no such pseudo-opcode");
 	}
@@ -275,28 +274,27 @@ void Parser::p3_macro_header() {
 	stream.read(tk2);
 	while (tk2.type == macro_par) {
 		if (pass == 1) {
-			current_macro->AddParam(tk2.value);
+			current_macro->add_param(tk2.value);
 			parct++;
 		}
 		stream.read(tk2);
 	}
 
 	if (pass == 1) {
-		sym.addnew(tk.value, sym_macro, parct);
+		sym.add_unique(tk.value, sym_macro, parct);
 		macros.add(*current_macro);
 	}
 
-	stream.rewind_1();
-	expect_newline();
+	pushback_and_newline();
 
 	// switch to macro mode
-	stream.SetMode(macro);
+	stream.set_mode(macro);
 }
 
 int Parser::p2_macro_line()
 {
 	if (pass == 1)
-		current_macro->AddLine(first.value);
+		current_macro->add_line(first.value);
 	return 1;
 }
 
@@ -309,7 +307,7 @@ int Parser::p3_include() {
 		error("Expected filename");
 
 	result = expect_newline();
-	stream.rewind_1();
+	//stream.pushback();
 
 	stream.nested_file(tk.value);
 
@@ -331,8 +329,8 @@ int Parser::expect_newline() {
 	return 1;
 }
 
-int Parser::rewind_and_newline() {
-	stream.rewind_1();
+int Parser::pushback_and_newline() {
+	stream.pushback();
 	return expect_newline();
 }
 
@@ -345,17 +343,17 @@ int Parser::p2_invoke_macro(void) {
 	// parse parameters
 	auto *values = new list<string>;
 	Token tk;
-	stream.SetMode(words);
+	stream.set_mode(words);
 	stream.read(tk);
 	while (tk.type == word) {
 		values->push_back(tk.value);
 		stream.read(tk);
 	}
-	stream.SetMode(assembly);
-	rewind_and_newline();
+	stream.set_mode(assembly);
+	pushback_and_newline();
 
 	// invoke macro with parameters
-	macro_it->second.Invoke(stream.get_current(), *values);
+	macro_it->second.invoke(stream.get_current(), *values);
 
 	// switch input to macro
 	stream.nested_source(macro_it->second);
@@ -377,7 +375,7 @@ void Parser::make_local_label(char *local_label, char const *global_context, cha
 	memmove(local_label, global_context, len1);
 }
 
-void Parser::p3_labeldef(void) {
+void Parser::p2_labeldef(void) {
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
 	} else {                      /* local label */
@@ -385,7 +383,7 @@ void Parser::p3_labeldef(void) {
 	}
 
 	if (pass == 1) {
-		sym.addnew(first.value, sym_label, emit.get_loc());
+		sym.add_unique(first.value, sym_label, emit.get_loc());
 	}
 }
 
@@ -399,12 +397,12 @@ int Parser::p2_vardef(void) {
 		return -1;
 	}
 
-	value = (u16) parse_expr();
+	value = (u16) p3_expr();
 
 	if (first.value[0] == '.')
 		make_local_label(first.value, main_label.value, first.value);
 
-	sym.add(first.value, sym_var, value);
+	sym.add_or_overwrite(first.value, sym_var, value);
 
 	return expect_newline();
 }
@@ -418,12 +416,12 @@ int Parser::p2_location(void) {
 		return -1;
 	}
 
-	emit.set_loc((u16) parse_expr());
+	emit.set_loc((u16) p3_expr());
 
 	return expect_newline();
 }
 
-u32 Parser::parse_expr(void) {
+u32 Parser::p3_expr(void) {
 	Token tk;
 	u16 result;
 	u16 operand;
@@ -434,9 +432,9 @@ u32 Parser::parse_expr(void) {
 	if (tk.type == '!')
 		long_result = 0x10000ul;
 	else
-		stream.rewind_1();
+		stream.pushback();
 
-	result = expr_element();
+	result = p4_expr_element();
 
 	do {
 		operation = 0;
@@ -449,7 +447,7 @@ u32 Parser::parse_expr(void) {
 			case ')':
 			case endline:
 			case ',':
-				stream.rewind_1();
+				stream.pushback();
 				break;
 			default:
 				error("Invalid expression");
@@ -457,7 +455,7 @@ u32 Parser::parse_expr(void) {
 		}
 
 		if (operation != 0) {
-			operand = expr_element();
+			operand = p4_expr_element();
 			if (operation == '-')
 				result -= operand;
 			else
@@ -470,7 +468,7 @@ u32 Parser::parse_expr(void) {
 	return long_result;
 }
 
-u16 Parser::expr_element(void) {
+u16 Parser::p4_expr_element(void) {
 	Token tk;
 	u16 value;
 
@@ -491,20 +489,20 @@ u16 Parser::expr_element(void) {
 		case literal_chr:
 			return (u16)tk.value[0];
 		case literal_dec:
-			return parse_dec(tk.value);
+			return p5_dec(tk.value);
 		case literal_hex:
-			return parse_hex(tk.value);
+			return p5_hex(tk.value);
 		case '<':
-			return expr_element() & 0xFF;
+			return p4_expr_element() & 0xFF;
 		case '>':
-			return (expr_element()) >> 8 & 0xFF;
+			return (p4_expr_element()) >> 8 & 0xFF;
 		default:
 			error("Invalid expression");
 			return (u16) -1;
 	}
 }
 
-u16 Parser::parse_dec(char const *text) {
+u16 Parser::p5_dec(char const *text) {
 	u16 value = 0;
 	u8 c;
 	char const *p;
@@ -525,7 +523,7 @@ error:
 	error_fmt("Invalid decimal number %s", text);
 }
 
-u16 Parser::parse_hex(char const *text) {
+u16 Parser::p5_hex(char const *text) {
 	u16 value = 0;
 	char const *p;
 	u8 c;
@@ -555,7 +553,7 @@ error:
 }
 
 [[noreturn]] void Parser::error(char const *txt) {
-	abort_fmt("%s: %s\n%s\n", stream.getLocation().c_str(), txt, stream.getLineText().c_str());
+	abort_fmt("%s: %s\n%s\n", stream.get_location().c_str(), txt, stream.get_line_text().c_str());
 }
 
 [[noreturn]] void Parser::error_fmt(char const *fmt, ...) {
