@@ -15,16 +15,18 @@ private:
 	std::string textname;
 	unsigned linenum;
 
+protected:
+	virtual void advance_line();
+
 public:
 	SrcText(std::string const &tname);
-	virtual ~SrcText();
+	virtual ~SrcText() = default;
 
 	virtual std::string getLocation() const;
 	virtual std::string const &getName() const;
 	virtual unsigned getLine() const;
 
-	virtual void AdvanceLine();
-	virtual void Rewind();
+	virtual void rewind();
 
 	virtual bool getline(char *buffer, unsigned size) = 0;
 };

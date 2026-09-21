@@ -355,7 +355,7 @@ int Parser::p2_invoke_macro(void) {
 	rewind_and_newline();
 
 	// invoke macro with parameters
-	macro_it->second.Invoke(stream.getCurrent(), *values);
+	macro_it->second.Invoke(stream.get_current(), *values);
 
 	// switch input to macro
 	stream.nested_source(macro_it->second);

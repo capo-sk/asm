@@ -42,12 +42,11 @@ int main(int argc, char *argv[]) {
 	else
 		symbol_filename = "";
 
-	SrcFileList srcl;
-	//srcl.Add(input_filename);
-	srcl.AddOnce(new SrcFile(input_filename));
+	Buffer in_buf(input_filename);
+	//srcl.new_source_once(new SrcFile(input_filename));
 	//srcl.AdvanceLine();  // otherwise it starts from 0; can't be bothered fixing it properly
 
-	Buffer in_buf(srcl);
+	//Buffer in_buf(srcl);
 
 	NFile output_nfile(output_filename, m_wb);
 

@@ -39,16 +39,16 @@ string MacroText::getLocation() const
 		+ "@" + filename + ":" + to_string(fileline);
 }
 
-void MacroText::AdvanceLine()
+void MacroText::advance_line()
 {
 	++current;
-	SrcText::AdvanceLine();
+	SrcText::advance_line();
 }
 
-void MacroText::Rewind()
+void MacroText::rewind()
 {
 	current = text.begin();
-	SrcText::Rewind();
+	SrcText::rewind();
 }
 
 void MacroText::AddParam(string const &param)
@@ -114,7 +114,7 @@ bool MacroText::getline(char *buffer, unsigned max)
 		string tx = _replace(current->data(), params, *values);
 		strncpy(buffer, tx.c_str(), max - 1);
 		buffer[max - 1] = 0;
-		AdvanceLine();
+		advance_line();
 		return true;
 	} else {
 		buffer[0] = 0;

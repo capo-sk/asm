@@ -98,7 +98,7 @@ int TokenStream::_get_next_word(Token *tk)
 		if (c == 13 ||	/* cr */
 		    c == 10	/* lf */
 		   ) {
-			buf.rewind_1();
+			buf.pushback();
 			tk->value[text_len] = 0;
 			incomplete_token = false;
 			break;
@@ -143,7 +143,7 @@ int TokenStream::_get_next_macro_line(Token *tk)
 					return 1;
 				}
 			} else {  // EOF terminates word
-				buf.rewind_1();
+				buf.pushback();
 				tk->value[text_len] = 0;
 				incomplete_token = false;
 				break;
@@ -172,7 +172,7 @@ int TokenStream::_get_next_macro_line(Token *tk)
 				continue;
 			} else {
 				tk->value[text_len] = 0;
-				buf.rewind_1();
+				buf.pushback();
 				incomplete_token = false;
 				break;
 			}
@@ -260,7 +260,7 @@ int TokenStream::_get_next_token(Token *tk)
 					return 1;
 				}
 			} else {  // EOF terminates word
-				buf.rewind_1();
+				buf.pushback();
 				tk->value[text_len] = 0;
 				incomplete_token = false;
 				break;
@@ -314,7 +314,7 @@ int TokenStream::_get_next_token(Token *tk)
 				continue;
 			} else {
 				tk->value[text_len] = 0;
-				buf.rewind_1();
+				buf.pushback();
 				incomplete_token = false;
 				break;
 			}
@@ -327,7 +327,7 @@ int TokenStream::_get_next_token(Token *tk)
 				continue;
 			} else {
 				tk->value[text_len] = 0;
-				buf.rewind_1();
+				buf.pushback();
 				incomplete_token = false;
 				break;
 			}
@@ -361,7 +361,7 @@ int TokenStream::_get_next_token(Token *tk)
 				tk->value[0] = 0;  /* no value */
 				return 1;
 			} else {		/* c is not part of the token */
-				buf.rewind_1();
+				buf.pushback();
 				tk->value[text_len] = 0;
 				incomplete_token = false;
 				break;
@@ -486,10 +486,6 @@ update_ctx:
 	return 1;
 }
 
-void TokenStream::AdvanceLine() {
-	buf.AdvanceLine();
-}
-
 std::string TokenStream::getLocation()
 {
 	return buf.getLocation();
@@ -497,7 +493,10 @@ std::string TokenStream::getLocation()
 
 void TokenStream::nested_file(char const *name)
 {
-	buf.new_file(name);
+	if (!buf.is_present(name)) {
+		SrcFile *f = new SrcFile(name);
+		buf.new_source_once(f);
+	}
 }
 
 void TokenStream::SetMode(token_mode a_mode)
@@ -510,9 +509,9 @@ string TokenStream::getLineText()
 	return buf.getLineText();
 }
 
-SrcText &TokenStream::getCurrent()
+SrcText &TokenStream::get_current()
 {
-	return buf.getCurrent();
+	return buf.get_current();
 }
 
 void TokenStream::nested_source(SrcText &source)

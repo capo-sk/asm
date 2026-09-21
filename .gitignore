@@ -1,3 +1,6 @@
 *.o
 asm
 old
+compile_commands.json
+examples/hello
+.vscode

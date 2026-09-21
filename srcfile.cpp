@@ -22,10 +22,10 @@ SrcFile::~SrcFile()
 	if (nfile) delete nfile;
 }
 
-void SrcFile::Rewind()
+void SrcFile::rewind()
 {
 	nfile->rewind();
-	SrcText::Rewind();
+	SrcText::rewind();
 }
 
 bool SrcFile::getline(char *buffer, unsigned size)
@@ -34,15 +34,17 @@ bool SrcFile::getline(char *buffer, unsigned size)
 	if (buffer[0] == 0 && nfile->eof())
 		return false;
 	else {
-		AdvanceLine();
+		advance_line();
 		return true;
 	}
 }
 
 // class SrcFileList
 
-SrcFileList::SrcFileList()
+SrcStack::SrcStack(string const &fname)
+: SrcText(fname)
 {
+	new_source_once(new SrcFile(fname));
 }
 
 #if 0
@@ -58,30 +60,30 @@ void SrcFileList::AddFile(std::string const &name)
 }
 #endif
 
-void SrcFileList::Add(SrcText *source)
+void SrcStack::new_source(SrcText *source)
 {
 	sources.push(source);
 }
 
-void SrcFileList::AddOnce(SrcText *source)
+void SrcStack::new_source_once(SrcText *source)
 {
 	string name = source->getName();
 
-	if (names.count(name) == 0) {
+	if (!is_present(name)) {
 		if (names.size() == 0)
 			first = name;
 		names.insert(name);
 
-		Add(source);
+		new_source(source);
 	}
 }
 
-bool SrcFileList::isPresent(std::string const &name)
+bool SrcStack::is_present(std::string const &name)
 {
 	return names.count(name) > 0;
 }
 
-bool SrcFileList::Pop()
+bool SrcStack::Pop()
 {
 	if (sources.size() > 1) {
 		sources.pop();
@@ -90,33 +92,34 @@ bool SrcFileList::Pop()
 		return false;
 }
 
-void SrcFileList::Reset()
+void SrcStack::reset()
 {
+	names.clear();
+	names.insert(first);
+
 	while (sources.size() > 1) {
 		sources.pop();
 	}
 
-	names.clear();
-	names.insert(first);
+	rewind();
 }
 
-void SrcFileList::AdvanceLine()
-{
-	sources.top()->AdvanceLine();
-}
-
-std::string SrcFileList::getLocation()
+std::string SrcStack::getLocation()
 {
 	return sources.top()->getLocation();
 }
 
-SrcText &SrcFileList::getCurrent()
+SrcText &SrcStack::get_current()
 {
 	return *sources.top();
 }
 
-bool SrcFileList::getline(char *buffer, unsigned max)
+bool SrcStack::getline(char *buffer, unsigned max)
 {
-	bool retval = getCurrent().getline(buffer, max);
-	return retval;
+	return get_current().getline(buffer, max);
+}
+
+void SrcStack::rewind()
+{
+	get_current().rewind();
 }

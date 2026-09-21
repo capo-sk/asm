@@ -79,13 +79,12 @@ public:
 	void rewind_1();
 	void rewind();
 	void reset();
-	void AdvanceLine();
 	void SetMode(token_mode a_mode);
 	std::string getLocation();
 	std::string getLineText();
 	void nested_file(char const *name);
 	void nested_source(SrcText &source);
-	SrcText &getCurrent();
+	SrcText &get_current();
 };
 
 #endif

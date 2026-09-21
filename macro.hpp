@@ -36,8 +36,8 @@ public:
 
         virtual bool getline(char *buffer, unsigned size);
 
-	virtual void AdvanceLine();
-	virtual void Rewind();
+	virtual void advance_line();
+	virtual void rewind();
 };
 
 class MacroTable: public std::map<std::string, MacroText &> {

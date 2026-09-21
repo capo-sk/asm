@@ -12,21 +12,17 @@ SrcText::SrcText(std::string const &tname)
 {
 }
 
-SrcText::~SrcText()
-{
-}
-
 std::string SrcText::getLocation() const
 {
 	return textname + ":" + std::to_string(linenum);
 }
 
-void SrcText::AdvanceLine()
+void SrcText::advance_line()
 {
 	++linenum;
 }
 
-void SrcText::Rewind()
+void SrcText::rewind()
 {
 	linenum = 1;
 }

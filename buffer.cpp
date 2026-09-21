@@ -12,7 +12,8 @@
 
 using namespace std;
 
-int Buffer::get_next() {
+int Buffer::get_next()
+{
 	if (eof)
 		return eofmark;
 
@@ -20,7 +21,7 @@ int Buffer::get_next() {
 		replay &= 0xff;
 	} else {
 		if (refill) {
-			if (!slist.getline(line, sizeof(line))) { // EOF
+			if (!getline(line, sizeof(line))) { // EOF
 				cerr << line << "\n";
 				eof = true;
 				return eofmark;
@@ -41,19 +42,22 @@ int Buffer::get_next() {
 	return replay;
 }
 
-void Buffer::rewind_1() {
+void Buffer::pushback()
+{
 	replay |= 0x100;
 }
 
 void Buffer::rewind() {
-	slist.getCurrent().Rewind();
+	get_current().rewind();
 	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
 	eof = false;
 }
 
-Buffer::Buffer(SrcFileList &srcl) : slist(srcl) {
+Buffer::Buffer(string const &fname)
+: SrcStack(fname)
+{
 	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
@@ -61,30 +65,22 @@ Buffer::Buffer(SrcFileList &srcl) : slist(srcl) {
 	refill = true;
 }
 
-void Buffer::AdvanceLine() {
-	slist.AdvanceLine();
+/*
+Buffer::Buffer(SrcStack &srcl) : slist(srcl) {
+	replay = 0;
+	line[0] = 0;
+	ptr = &line[0];
+	eof = false;
+	refill = true;
 }
+*/
 
 bool Buffer::close_file() {
 	replay = 0;
 	line[0] = 0;
 	ptr = &line[0];
 	eof = false;
-	return slist.Pop();
-}
-
-void Buffer::new_file(char const *name) {
-	if (!slist.isPresent(name))  // only process file if first encounter
-		slist.AddOnce(new SrcFile(name));
-}
-
-void Buffer::reset() {
-	slist.Reset();
-}
-
-std::string Buffer::getLocation()
-{
-	return slist.getLocation();
+	return Pop();
 }
 
 string Buffer::getLineText()
@@ -92,12 +88,3 @@ string Buffer::getLineText()
 	return string(line);
 }
 
-SrcText &Buffer::getCurrent()
-{
-	return slist.getCurrent();
-}
-
-void Buffer::new_source(SrcText *source)
-{
-	slist.Add(source);
-}

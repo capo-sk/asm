@@ -15,9 +15,8 @@
 
 #define _buf_line_max 255
 
-class Buffer {
+class Buffer: public SrcStack {
 private:
-	SrcFileList &slist;
 	int replay;
 	bool eof;
 	bool refill;
@@ -25,18 +24,13 @@ private:
 	char line[_buf_line_max + 1];
 
 public:
-	Buffer(SrcFileList &srcl);
+	Buffer(std::string const &fname);
+
 	int get_next();
-	void rewind_1();
+	void pushback();
 	void rewind();
-	void AdvanceLine();
-	std::string getLocation();
 	std::string getLineText();
 	bool close_file();
-	void new_file(char const *name);
-	void reset();
-	SrcText &getCurrent();
-	void new_source(SrcText *source);
 	
 	static const int eofmark = -1;
 };
