@@ -45,25 +45,26 @@ Exampes:
 Expressions are evaluated as 16-bit unsigned integers. The can include numeric literals and symbols (variables and labels). The following operators are supported:
 * `+` and `-`
 * `<` and `>` (low-byte and high-byte)
+* `^` (shift left by 8 bits, i.e. takes a page number and makes it an address)
 * `!` (force the value to be 16-bit)
 Parentheses are not supported (nor they would make a difference with only additions and subtractions).
 
 The standard 6502 opcodes and addressing modes are supported.
 `ASL A` and `ASL` are both valid and equivalent.
-`BRK #imm` is not supported.
+`BRK #imm` is not supported. Use `BRK` and then `.BYTE` instead.
 
 Pseudo-instructions are:
 * `.BYTE`: sequence of bytes
 * `.WORD`: sequence of 16-bit words, in low-endian order
 * `.INCLUDE`: process an include file; repeat includes are ignored
-* `MACRO name [par ...]`: beginning of a macro definition
-* `MEND`: end of macro defintion
+* `.MACRO name [par ...]`: beginning of a macro definition
+* `.ENDM`: end of macro defintion
 * `&name [par ...]`: invocation of a macro
 * `.IFDEF symbol`, `.IFNDEF symbol`: conditional block, if symbol is/isn't defined
 * `.IFZ/.IFNZ expression`: conditional block - if value of expression is zero/nonzero
 * `.ENDIF`: end of conditional block
-Please note that macros and conditional blocks are not implemented yet.
-I do not plan on supporting nested macros (macros defined inside macros). I am on the fence about allowing macro invocation inside macros.
+Please note that conditional blocks are not implemented yet.
+I do not plan on supporting nested macros (macros defined inside macros). Nested macro invocations are supported.
 I do not plan on supporting nested conditional blocks.
 
 This is a two-pass assembler.
