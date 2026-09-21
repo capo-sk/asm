@@ -1,7 +1,5 @@
-.include "start.m"
+.include "sys2061.i"
 .include "kernal.i"
-
-	&basic_header 42
 
 ; main
 * = 2061
@@ -14,7 +12,7 @@ main:
 	ldx #0			;A200
 loop:	lda hello,x		;BD0F08
 	beq finish		;F006
-	jsr kprint		;20D2FF
+	jsr CHROUT		;20D2FF
 	inx			;E8
 	bne loop		;D0F5
 finish:	rts			;60
