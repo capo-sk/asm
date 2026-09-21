@@ -3,7 +3,10 @@
 ; AI-generated with prompt:
 ; Generate an assembly source file with the instructions in the table, in order. 1-byte operands are 42 and 2-byte operands are 1337.
 ;
+; Manually inserted origin
 ; Manually corrected branch instruction operands
+
+* = $1234
 
 BRK           ; 0x00
 ORA (42,X)    ; 0x01
@@ -14,7 +17,7 @@ ORA #42       ; 0x09
 ASL A         ; 0x0A
 ORA 1337      ; 0x0D
 ASL 1337      ; 0x0E
-BPL *+42        ; 0x10
+BPL *+44        ; 0x10
 ORA (42),Y    ; 0x11
 ORA 42,X      ; 0x15
 ASL 42,X      ; 0x16
@@ -24,7 +27,7 @@ ORA 1337,X    ; 0x1D
 ASL 1337,X    ; 0x1E
 JSR 1337      ; 0x20
 AND (42,X)    ; 0x21
-BIT *+42        ; 0x24
+BIT 42        ; 0x24
 AND 42        ; 0x25
 ROL 42        ; 0x26
 PLP           ; 0x28
@@ -33,7 +36,7 @@ ROL A         ; 0x2A
 BIT 1337      ; 0x2C
 AND 1337      ; 0x2D
 ROL 1337      ; 0x2E
-BMI *+42        ; 0x30
+BMI *+44        ; 0x30
 AND (42),Y    ; 0x31
 AND 42,X      ; 0x35
 ROL 42,X      ; 0x36
@@ -51,7 +54,7 @@ LSR A         ; 0x4A
 JMP 1337      ; 0x4C
 EOR 1337      ; 0x4D
 LSR 1337      ; 0x4E
-BVC *+42        ; 0x50
+BVC *+44        ; 0x50
 EOR (42),Y    ; 0x51
 EOR 42,X      ; 0x55
 LSR 42,X      ; 0x56
@@ -69,7 +72,7 @@ ROR A         ; 0x6A
 JMP (1337)    ; 0x6C
 ADC 1337      ; 0x6D
 ROR 1337      ; 0x6E
-BVS *+42        ; 0x70
+BVS *+44        ; 0x70
 ADC (42),Y    ; 0x71
 ADC 42,X      ; 0x75
 ROR 42,X      ; 0x76
@@ -86,7 +89,7 @@ TXA           ; 0x8A
 STY 1337      ; 0x8C
 STA 1337      ; 0x8D
 STX 1337      ; 0x8E
-BCC *+42        ; 0x90
+BCC *+44        ; 0x90
 STA (42),Y    ; 0x91
 STY 42,X      ; 0x94
 STA 42,X      ; 0x95
@@ -107,7 +110,7 @@ TAX           ; 0xAA
 LDY 1337      ; 0xAC
 LDA 1337      ; 0xAD
 LDX 1337      ; 0xAE
-BCS *+42        ; 0xB0
+BCS *+44        ; 0xB0
 LDA (42),Y    ; 0xB1
 LDY 42,X      ; 0xB4
 LDA 42,X      ; 0xB5
@@ -129,7 +132,7 @@ DEX           ; 0xCA
 CPY 1337      ; 0xCC
 CMP 1337      ; 0xCD
 DEC 1337      ; 0xCE
-BNE *+42        ; 0xD0
+BNE *+44        ; 0xD0
 CMP (42),Y    ; 0xD1
 CMP 42,X      ; 0xD5
 DEC 42,X      ; 0xD6
@@ -148,7 +151,7 @@ NOP           ; 0xEA
 CPX 1337      ; 0xEC
 SBC 1337      ; 0xED
 INC 1337      ; 0xEE
-BEQ *+42        ; 0xF0
+BEQ *+44        ; 0xF0
 SBC (42),Y    ; 0xF1
 SBC 42,X      ; 0xF5
 INC 42,X      ; 0xF6
