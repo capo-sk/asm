@@ -23,7 +23,7 @@ MacroText::~MacroText()
 void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
 {
 	filename = callfrom.get_name();
-	fileline = callfrom.get_line();
+	fileline = callfrom.get_linenum();
 	values = &pvalues;
 	current = text.begin();
 }
@@ -35,7 +35,7 @@ void MacroText::add_line(string const &tline)
 
 string MacroText::get_location() const
 {
-	return "&" + get_name() + ":" + to_string(get_line())
+	return "&" + get_name() + ":" + to_string(get_linenum())
 		+ "@" + filename + ":" + to_string(fileline);
 }
 

@@ -22,13 +22,13 @@ int Buffer::get_next()
 	} else {
 		if (refill) {
 			if (!getline(line, sizeof(line))) { // EOF
-				cerr << line << "\n";
+//				cerr << line << "\n";
 				eof = true;
 				return eofmark;
 			}
 			ptr = &line[0];
 			refill = false;
-			cerr << line << "\n";
+//			cerr << line << "\n";
 		}
 
 		if (*ptr != 0) { // not end of line yet

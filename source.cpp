@@ -27,7 +27,7 @@ void SrcText::rewind()
 	linenum = 1;
 }
 
-unsigned SrcText::get_line() const
+unsigned SrcText::get_linenum() const
 {
 	return linenum;
 }

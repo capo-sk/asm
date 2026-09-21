@@ -19,7 +19,7 @@ void SymbolTable::_add(char const *name, sym_type type, u16 value) {
 	insert({name, {type, value}});
 }
 
-void SymbolTable::add_new(char const *name, sym_type type, u16 value) {
+void SymbolTable::add_unique(char const *name, sym_type type, u16 value) {
 	if (count(name) != 0)
 		abort_fmt("Duplicate symbol %s", name);
 	else
