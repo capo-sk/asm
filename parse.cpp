@@ -18,13 +18,14 @@ using namespace std;
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
 	pass = 1;
-	uniq = 1;
+	uniq = 0;
 }
 	
 void Parser::first_pass() {
 	main_label.value[0] = 0;
 	pass = 1;
-	emit.set_pass(1);
+	emit.set_pass(pass);
+	uniq = 0;
 	p0_source();
 }
 
@@ -32,7 +33,8 @@ void Parser::second_pass() {
 	stream.reset();
 	main_label.value[0] = 0;
 	pass = 2;
-	emit.set_pass(2);
+	emit.set_pass(pass);
+	uniq = 0;
 	p0_source();
 }
 
@@ -144,6 +146,7 @@ int Parser::p2_instruction() {
 		case literal_chr:
 		case '!':
 		case '*':
+		case '^':
 			mode = abs_mode; size = 3;
 			stream.pushback();
 			value = p3_expression();
@@ -336,6 +339,9 @@ int Parser::pushback_and_newline() {
 }
 
 int Parser::p2_invoke_macro(void) {
+	// increase uniq counter
+	++uniq;
+
 	// find macro by name
 	auto macro_it = macros.find(first.value);
 	if (macro_it == macros.end())
@@ -520,6 +526,8 @@ u16 Parser::p4_expr_element(void) {
 			return p4_expr_element() & 0xFF;
 		case '>':
 			return (p4_expr_element()) >> 8 & 0xFF;
+		case '^':
+			return p4_expr_element() << 8;
 		case '*':
 			return emit.get_loc();
 		default:

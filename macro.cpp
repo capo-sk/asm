@@ -81,7 +81,7 @@ string _replace(string const &base, list<string> const &params, list<string> con
 	out = true;
 	char c;
 	while ((c = *current) != 0) {
-		if (c == ' ' || c == '9' || c == '!' || c == '$' || c == '+' || c == '-') {
+		if (!(isalnum(c) || c == '_')) {  // word (macro param) can contain letters, digits, underscore
 			if (!out) { // end of word
 				out = true;
 				string sword(word, current - word);

@@ -44,4 +44,16 @@ extra:	asl a			;0A
 	sta sum+1
 	.endm
 
+	.macro clrpage page
+	lda #0
+	tax
+..loop:
+	sta ^page,x
+	inx
+	bne ..loop
+	.endm
+
 	&addw $f0 $f2 $f4
+	&clrpage $50
+	&clrpage $51
+
