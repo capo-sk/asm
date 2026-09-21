@@ -18,6 +18,7 @@ using namespace std;
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
 	pass = 1;
+	uniq = 1;
 }
 	
 void Parser::first_pass() {
@@ -94,11 +95,11 @@ int Parser::p2_instruction() {
 			break;
 		case '#':
 			mode = imm_mode; size = 2;
-			value = p3_expr();
+			value = p3_expression();
 			break;
 		case '(':
 			mode = ind_mode; size = 3;
-			value = p3_expr();
+			value = p3_expression();
 			stream.read(tk2);
 			if (tk2.type == ',') {
 				stream.read(tk2);
@@ -145,7 +146,7 @@ int Parser::p2_instruction() {
 		case '*':
 			mode = abs_mode; size = 3;
 			stream.pushback();
-			value = p3_expr();
+			value = p3_expression();
 			if (value <= 0x100) {
 				mode = zp_mode; size = 2;
 			}
@@ -192,7 +193,7 @@ void Parser::p3_pseudo_word() {
 	Token tk;
 
 	do {
-		value = (u16) p3_expr();
+		value = (u16) p3_expression();
 		emit.emit_word(value);
 
 		stream.read(tk);
@@ -219,7 +220,7 @@ void Parser::p3_pseudo_byte() {
 			emit.emit_bytes((u8 *)tk.value, len);
 		} else {
 			stream.pushback();
-			value = (u8) p3_expr();
+			value = (u8) p3_expression();
 			emit.emit_byte(value);
 		}
 
@@ -361,6 +362,25 @@ int Parser::p2_invoke_macro(void) {
 	return 1;
 }
 
+void Parser::localise_label(Token &tk)
+{
+	string result;
+
+	if (tk.value[0] == '.') {
+		if (tk.value[1] == '.') {  // macro unique label
+			result = string(stream.get_current().get_name() + to_string(uniq) + string(&tk.value[1]));
+		} else {  // local label
+			result = string(main_label.value) + string(tk.value);
+		}
+
+		if (result.length() > MAX_TOKEN_LENGTH)
+			error_fmt("Symbol %s too long", result.c_str());
+	
+		strcpy(tk.value, result.c_str());
+	}
+}
+
+/*
 void Parser::make_local_label(char *local_label, char const *global_context, char const *local_part) {
 	unsigned len1, len2;
 	char *result;
@@ -374,12 +394,14 @@ void Parser::make_local_label(char *local_label, char const *global_context, cha
 	memmove(local_label + len1, local_part, len2 + 1);
 	memmove(local_label, global_context, len1);
 }
+*/
 
 void Parser::p2_labeldef(void) {
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
 	} else {                      /* local label */
-		make_local_label(first.value, main_label.value, first.value);
+		localise_label(first);
+		//make_local_label(first.value, main_label.value, first.value);
 	}
 
 	if (pass == 1) {
@@ -397,10 +419,11 @@ int Parser::p2_vardef(void) {
 		return -1;
 	}
 
-	value = (u16) p3_expr();
+	value = (u16) p3_expression();
 
 	if (first.value[0] == '.')
-		make_local_label(first.value, main_label.value, first.value);
+		localise_label(first);
+		//make_local_label(first.value, main_label.value, first.value);
 
 	sym.add_or_overwrite(first.value, sym_var, value);
 
@@ -416,12 +439,12 @@ int Parser::p2_location(void) {
 		return -1;
 	}
 
-	emit.set_loc((u16) p3_expr());
+	emit.set_loc((u16) p3_expression());
 
 	return expect_newline();
 }
 
-u32 Parser::p3_expr(void) {
+u32 Parser::p3_expression(void) {
 	Token tk;
 	u16 result;
 	u16 operand;
@@ -477,7 +500,8 @@ u16 Parser::p4_expr_element(void) {
 	switch (tk.type) {
 		case symbol_ref:
 			if (tk.value[0] == '.')  /* local label */
-				make_local_label(tk.value, main_label.value, tk.value);
+				localise_label(tk);
+				//make_local_label(tk.value, main_label.value, tk.value);
 
 			if (sym.get(tk.value, sym_anynum, value) != 0)
 				return value;
@@ -496,6 +520,8 @@ u16 Parser::p4_expr_element(void) {
 			return p4_expr_element() & 0xFF;
 		case '>':
 			return (p4_expr_element()) >> 8 & 0xFF;
+		case '*':
+			return emit.get_loc();
 		default:
 			error("Invalid expression");
 			return (u16) -1;

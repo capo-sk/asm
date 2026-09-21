@@ -25,6 +25,7 @@ private:
 	MacroText *current_macro;
 	Emitter &emit;
 	unsigned pass;
+	unsigned uniq;
 
 	void p0_source();
 
@@ -45,7 +46,7 @@ private:
 
 	int p2_location();
 
-	u32 p3_expr();
+	u32 p3_expression();
 	u16 p4_expr_element();
 	u16 p5_dec(char const *text);
 	u16 p5_hex(char const *text);
@@ -55,7 +56,8 @@ private:
 	int expect_newline();
 	int pushback_and_newline();
 
-	void make_local_label(char *local_label, char const *global_context, char const *local_part);
+	void localise_label(Token &tk);
+	//void make_local_label(char *local_label, char const *global_context, char const *local_part);
 
 //	friend Emitter;  // uses error methods
 
