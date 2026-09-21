@@ -34,3 +34,6 @@ deps: $(SRCS)
 	$(CPP) -MM $^ >Makefile.dep
 
 -include Makefile.dep
+
+test: asm
+	cd tests && ./all_tests.sh

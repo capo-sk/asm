@@ -5,6 +5,7 @@
 ;
 ; Manually inserted origin
 ; Manually corrected branch instruction operands
+; Manually added OPC A syntax
 
 * = $1234
 
@@ -159,3 +160,7 @@ SED           ; 0xF8
 SBC 1337,Y    ; 0xF9
 SBC 1337,X    ; 0xFD
 INC 1337,X    ; 0xFE
+ASL A
+ROL A
+LSR A
+ROR A

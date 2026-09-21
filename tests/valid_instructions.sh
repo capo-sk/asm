@@ -12,6 +12,6 @@ rm valid_instructions
 cmp -s $T.bin $T.ref
 R=$?
 
-rm -f $T $T.bin $T.ref
+rm -f $T $T.bin $T.ref $T.sym
 
 exit $R

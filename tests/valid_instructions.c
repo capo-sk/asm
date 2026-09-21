@@ -167,7 +167,14 @@ const OpcodeInfo opcodes_6502[] = {
     {0xF8, "SED", 0}, // Implied
     {0xF9, "SBC", 2}, // Absolute, Y
     {0xFD, "SBC", 2}, // Absolute, X
-    {0xFE, "INC", 2}  // Absolute, X
+    {0xFE, "INC", 2}, // Absolute, X
+
+    // repeat using "OPC A" syntax
+    {0x0A, "ASL", 0}, // Accumulator
+    {0x2A, "ROL", 0}, // Accumulator
+    {0x4A, "LSR", 0}, // Accumulator
+    {0x6A, "ROR", 0}, // Accumulator
+
 };
 
 // Calculate the number of valid opcodes (151 total)
