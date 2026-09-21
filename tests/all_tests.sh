@@ -1,7 +1,14 @@
 #!/bin/sh
 
-ALL=valid_instructions
+ALL=`cat <<EOL
+valid_instructions
+macro_nested
+local_labels
+duplicate_labels
+EOL
+`
 
+echo $ALL
 
 echo Test cases
 

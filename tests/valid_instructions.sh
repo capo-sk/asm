@@ -3,11 +3,12 @@
 set -e
 
 T=valid_instructions
+A=../asm
 
 cc -o $T $T.c
 ./$T
 rm valid_instructions
-../asm $T.s $T.bin $T.sym
+$A $T.s $T.bin $T.sym
  
 cmp -s $T.bin $T.ref
 R=$?
