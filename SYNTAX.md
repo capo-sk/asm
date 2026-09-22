@@ -30,6 +30,19 @@ In the example below, `.count` is qualified to `proc.count` and `.loop` to `proc
 		RTS
 ```
 
+A symbol starting with two dots is local to a macro invocation. It is qualified with the macro name and a unique sequence number.
+Example:
+```
+	.MACRO count num
+		LDX #num
+		BEQ ..finish
+	..loop:
+		DEX
+		BNE ..loop
+	..finish:
+	.ENDM
+```
+
 Literal values can be expressed as decimal `nnn`, hex `$xxx`, ASCII `'c'` and used anywhere a numerical value is expected.
 
 Character strings can be expressed as `"text"` and used (only) in .BYTE pseudo-instructions. A final null byte is not automatically included.
