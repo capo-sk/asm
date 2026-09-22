@@ -13,15 +13,15 @@ OBJS := assemble.o buffer.o emit.o error.o nfile.o opcodes.o parse.o srcfile.o s
 
 #####
 
-all: asm
+all: uasm
 
 clean:
-	rm *.o asm
+	rm *.o uasm
 
 deepclean:
-	rm *.o asm Makefile.dep
+	rm *.o uasm Makefile.dep
 
-asm: $(OBJS)
+uasm: $(OBJS)
 	$(CPP) $(LDFLAGS) -o $@ $^
 
 %.o: %.c

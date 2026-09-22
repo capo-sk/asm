@@ -1,23 +1,6 @@
 #!/bin/sh
 
-A=../asm
-T=duplicate_labels
+T=`basename $0 .sh`
 E="Duplicate symbol"
 
-$A $T.s $T.bin $T.sym 2>$T.err
-R=$?
-
-EC=0
-if [ $R -eq 0 ]
-then
-	EC=1
-fi
-
-if [ `cat $T.err | fgrep "$E" | wc -l` -eq 0 ]
-then
-	EC=1
-fi
-
-rm -f $T.bin $T.sym $T.err
-
-exit $EC
+sh cause_error.sh "$T" "$E"

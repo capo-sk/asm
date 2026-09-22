@@ -2,8 +2,4 @@
 
 T=`basename $0 .sh`
 
-cc -o $T $T.c
-./$T
-rm valid_instructions
-
 sh compare_with_ref.sh "$T"
