@@ -9,6 +9,7 @@ macro_nested
 local_labels
 duplicate_labels
 literals
+align
 EOL
 `
 

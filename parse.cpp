@@ -211,7 +211,8 @@ void Parser::p3_pseudo_word() {
 	} while (1);
 }
 	
-void Parser::p3_pseudo_byte() {
+void Parser::p3_pseudo_byte()
+{
 	u8 value;
 	u16 len;
 	Token tk;
@@ -239,7 +240,24 @@ void Parser::p3_pseudo_byte() {
 	} while (1);
 }
 	
-int Parser::p2_pseudo_instruction(void) {
+void Parser::p3_pseudo_align()
+{
+	u16 value, inc, mask;
+	u16 target_loc;
+	Token tk;
+	u8 zero = 0;
+
+	value = p3_expression();
+	inc = value - 1;
+	mask = ~inc;
+	target_loc = (emit.get_loc() + inc) & mask;
+	
+	while (emit.get_loc() != target_loc)
+		emit.emit_byte(zero);
+}
+
+int Parser::p2_pseudo_instruction()
+{
 	switch (first.value[0]) {
 		case 0: /* MACRO */
 			p3_macro_header();
@@ -255,6 +273,9 @@ int Parser::p2_pseudo_instruction(void) {
 			break;
 		case 4: /* .INCLUDE */
 			return p3_include();
+		case 5: /* .ALIGN */
+			p3_pseudo_align();
+			break;
 		default:
 			error("Internal error - no such pseudo-opcode");
 	}

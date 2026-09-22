@@ -39,6 +39,7 @@ private:
 	void p3_pseudo_byte();
 	int p3_include();
 	void p3_macro_header();
+	void p3_pseudo_align();
 
 	int p2_invoke_macro();
 
