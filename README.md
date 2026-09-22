@@ -1,6 +1,8 @@
+**United Assembler**
+
 An assembler for the 6502 8-bit CPU.
 
-It doesn't quite have a name yet. It is just a pet project born during a very long flight across the Pacific. Something to fill several hours without connectivity. By the end of the return flight, I had a prototype which could assemble a couple of opcodes.
+It is just a pet project born during a very long flight across the Pacific. Something to fill several hours without connectivity. By the end of the return flight, I had a prototype which could assemble a couple of opcodes.
 
 The original plan was to prototype it in C and then translate to 6502 assembly, self-assemble and self-host on C64. Kind of a bootstrap the hard way.
 
