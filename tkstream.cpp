@@ -407,6 +407,7 @@ int TokenStream::_get_next_token(Token *tk)
 		    (c >= '0' && c <= '9') ||
 		    c == '_' ||
 		    c == '$' ||
+			c == '%' ||
 		    c == '.' ||
 		    c == '&'
 		   ) {
@@ -430,6 +431,9 @@ int TokenStream::_get_next_token(Token *tk)
 		c = tk->value[0];
 		if (c == '$') {
 			tk->type = literal_hex;
+			memmove(tk->value, tk->value + 1, text_len);
+		} else if (c == '%') {
+			tk->type = literal_bin;
 			memmove(tk->value, tk->value + 1, text_len);
 		} else if (c >= '0' && c <= '9')
 			tk->type = literal_dec;

@@ -522,6 +522,8 @@ u16 Parser::p4_expr_element(void) {
 			return p5_dec(tk.value);
 		case literal_hex:
 			return p5_hex(tk.value);
+		case literal_bin:
+			return p5_bin(tk.value);
 		case '<':
 			return p4_expr_element() & 0xFF;
 		case '>':
@@ -557,7 +559,30 @@ error:
 	error_fmt("Invalid decimal number %s", text);
 }
 
-u16 Parser::p5_hex(char const *text) {
+u16 Parser::p5_bin(char const *text)
+{
+	u16 value = 0;
+	char const *p;
+	char c;
+
+	for (p = text; *p != 0; ++p) {
+		value <<= 1;
+		switch (*p) {
+			case '0': 
+				break;
+			case '1':
+				value |= 1;
+				break;
+			default:
+				error_fmt("Invalid binary literal %s", text);
+		}
+	}
+
+	return value;
+}
+
+u16 Parser::p5_hex(char const *text)
+{
 	u16 value = 0;
 	char const *p;
 	u8 c;

@@ -44,6 +44,7 @@ enum token_type {
 	symbol_ref,
 	literal_dec,
 	literal_hex,
+	literal_bin,
 	literal_chr,
 	literal_str,
 	macro_line = 0xc0,

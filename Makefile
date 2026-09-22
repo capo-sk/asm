@@ -35,5 +35,5 @@ deps: $(SRCS)
 
 -include Makefile.dep
 
-test: asm
+test: uasm
 	cd tests && ./all_tests.sh

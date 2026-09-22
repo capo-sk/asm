@@ -1,5 +1,5 @@
 *.o
-asm
+uasm
 old
 compile_commands.json
 examples/hello

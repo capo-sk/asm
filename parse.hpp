@@ -50,6 +50,7 @@ private:
 	u16 p4_expr_element();
 	u16 p5_dec(char const *text);
 	u16 p5_hex(char const *text);
+	u16 p5_bin(char const *text);
 
 	int p2_macro_line();
 
