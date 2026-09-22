@@ -471,6 +471,8 @@ u32 Parser::p3_expression(void) {
 		switch (tk.type) {
 			case '+':
 			case '-':
+			case '*':
+			case '/':
 				operation = tk.type;
 				break;
 			case ')':
@@ -487,8 +489,14 @@ u32 Parser::p3_expression(void) {
 			operand = p4_expr_element();
 			if (operation == '-')
 				result -= operand;
-			else
+			else if (operation == '+')
 				result += operand;
+			else if (operation == '*')
+				result *= operand;
+			else if (operation == '/')
+				result /= operand;
+			else
+			 	;  // can't be here
 		}
 	} while (operation != 0);
 

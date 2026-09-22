@@ -347,6 +347,7 @@ int TokenStream::_get_next_token(Token *tk)
 		    c == '(' ||
 		    c == ')' ||
 		    c == ',' ||
+			c == '/' ||
 		    c == 13 ||	/* cr */
 		    c == 10	/* lf */
 		   ) {
