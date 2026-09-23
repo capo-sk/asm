@@ -5,6 +5,38 @@
    See LICENSE file
 */
 
+/*
+	This is the lexical analyser.
+
+	It reads characters from a Buffer (wildly inadequate name), which is really the
+	serialised text of the main source file + include files (expanded where invoked),
+	including macro definitions, + macros expanded where invoked.
+
+	It combines characters into tokens.
+
+	It's all a big state machine.
+
+	Depending on /mode/ we break up the input in tokens in different ways:
+	- mode /assembly/: break it up in labels, opcodes, operands etc.
+	- mode /macro/ is for macro definitions; the whole line is a token, to be stored
+		for later invocation; we remove excess whitespace and convert to upper case;
+		a line consisting of ".ENDM" is recognised and returned as pseudo-opcode token
+	- mode /word/ is used for making tokens of macro parameters on invocation
+		any amount of non-whitespace makes up a "word" token which is passed on to
+		replace the positional parameters while the macro is expanded
+
+	/read/ returns the next Token
+	/pushback/ puts back the latest token to be read again
+	/rewind/ goes back to the beginning of the Buffer (for a second pass)
+	/reset/ is rewind + empty the list of include files, so we can include them again
+		(for the second pass)
+	/_get_next_.../ is where the magic happens for each of the modes
+
+	/nested_file/ and /nested_source/ are used to divert input to an include file
+	or expanded macro; they should probably be in Parser but Parser does not have
+	direct access to Buffer/SrcStack, so they are here
+*/
+
 #include "tkstream.hpp"
 #include "srcfile.hpp"
 #include <cctype>
