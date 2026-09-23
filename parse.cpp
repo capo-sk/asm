@@ -407,28 +407,11 @@ void Parser::localise_label(Token &tk)
 	}
 }
 
-/*
-void Parser::make_local_label(char *local_label, char const *global_context, char const *local_part) {
-	unsigned len1, len2;
-	char *result;
-
-	len1 = strlen(global_context);
-	len2 = strlen(local_part);
-
-	if (len1 + len2 > MAX_TOKEN_LENGTH)
-		error("Label too long");
-
-	memmove(local_label + len1, local_part, len2 + 1);
-	memmove(local_label, global_context, len1);
-}
-*/
-
 void Parser::p2_labeldef(void) {
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
 	} else {                      /* local label */
 		localise_label(first);
-		//make_local_label(first.value, main_label.value, first.value);
 	}
 
 	if (pass == 1) {
@@ -450,7 +433,6 @@ int Parser::p2_vardef(void) {
 
 	if (first.value[0] == '.')
 		localise_label(first);
-		//make_local_label(first.value, main_label.value, first.value);
 
 	sym.add_or_overwrite(first.value, sym_var, value);
 
@@ -536,7 +518,6 @@ uint16_t Parser::p4_expr_element(void) {
 		case symbol_ref:
 			if (tk.value[0] == '.')  /* local label */
 				localise_label(tk);
-				//make_local_label(tk.value, main_label.value, tk.value);
 
 			if (sym.get(tk.value, sym_anynum, value) != 0)
 				return value;
