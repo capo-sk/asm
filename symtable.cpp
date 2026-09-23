@@ -8,6 +8,7 @@
 #include "symtable.hpp"
 #include <cstring>
 #include "error.h"
+#include "util.hpp"
 
 SymbolTable::SymbolTable() {
 }
@@ -54,15 +55,15 @@ bool SymbolTable::get(char const *name, sym_type type, uint16_t &value) {
 	}
 }
 
-void SymbolTable::dump(NFile &where, int format) {
+void SymbolTable::dump(std::ostream &where, int format) {
 	static char const *decode[] = { "label", "variable", "macro", "param", "any" };
 
 	if (format == 0)
-		where.printf("Symbols\n");
+		where << "Symbols\n";
 
 	for (auto it = begin(); it != end(); ++it)
 		if (format == 0)  /* human consumption */
-			where.printf("%s(%s) = %u $%04X\n", it->first.c_str(), decode[it->second.type], it->second.value, it->second.value);
+			where << sfmt("%s(%s) = %u $%04X\n", it->first.c_str(), decode[it->second.type], it->second.value, it->second.value);
 		else  /* VICE monitor format */
-			where.printf("al C:%X .%s\n", it->second.value, it->first.c_str());
+			where << sfmt("al C:%X .%s\n", it->second.value, it->first.c_str());
 }

@@ -5,10 +5,11 @@
    See LICENSE file
 */
 
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <cstring>
 #include "error.h"
-#include "nfile.hpp"
 #include "buffer.hpp"
 #include "emit.hpp"
 #include "parse.hpp"
@@ -48,17 +49,17 @@ int main(int argc, char *argv[]) {
 
 	//Buffer in_buf(srcl);
 
-	NFile output_nfile(output_filename, m_wb);
+	ofstream output_nfile(output_filename, m_wb);
 
 	Emitter emit(output_nfile);
 
-	NFile *symbol_nfilep;
+	ostream *symbol_nfilep;
 	int symdump_format;
 	if (symbol_filename.length() > 0) {
-		symbol_nfilep = new NFile(symbol_filename, m_w);
+		symbol_nfilep = new ofstream(symbol_filename, m_w);
 		symdump_format = 1;
 	} else {
-		symbol_nfilep = new NFile(1);
+		symbol_nfilep = &cout;
 		symdump_format = 0;
 	}
 

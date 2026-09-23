@@ -9,9 +9,9 @@
 #define SYMTABLE_HPP
 
 #include <cstdint>
-#include "nfile.hpp"
 #include <map>
 #include <string>
+#include <ostream>
 
 enum sym_type {
 	sym_label,
@@ -37,7 +37,7 @@ public:
 	void add_or_overwrite(char const *name, sym_type type, uint16_t value);
 	void add_unique(char const *name, sym_type type, uint16_t value);
 	bool get(char const *name, sym_type type, uint16_t &value);
-	void dump(NFile &where, int format);
+	void dump(std::ostream &where, int format);
 };
 
 #endif

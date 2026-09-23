@@ -9,14 +9,13 @@
 #define SRCFILE_HPP
 
 #include "source.hpp"
-#include "nfile.hpp"
 #include <unordered_set>
 #include <stack>
 #include <string>
 
 class SrcFile: public SrcText {
 private:
-	NFile *nfile;
+	std::ifstream *nfile;
 
 public:
 	SrcFile(std::string const &fname);

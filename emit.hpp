@@ -9,12 +9,12 @@
 #define EMIT_HPP
 
 #include <cstdint>
-#include "nfile.hpp"
+#include <ostream>
 #include "errorpro.hpp"
 
 class Emitter {
 private:
-	NFile &nfile;
+	std::ostream &nfile;
 	ErrorProvider *err;
 	unsigned pass;
 	int flag;
@@ -24,7 +24,7 @@ private:
 	void emit_next(void);
 
 public:
-	Emitter(NFile &a_nfile);
+	Emitter(std::ostream &a_nfile);
 	void error_provider(ErrorProvider *ep);
 	uint16_t get_loc() { return loc; }
 	void set_loc(uint16_t a_loc) { loc = a_loc; }

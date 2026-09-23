@@ -12,6 +12,7 @@
 #include "emit.hpp"
 #include "macro.hpp"
 #include "error.h"
+#include "util.hpp"
 
 using namespace std;
 
@@ -553,20 +554,16 @@ uint16_t Parser::p5_dec(char const *text) {
 	uint8_t c;
 	char const *p;
 
-	c = *text;
-	if (c == 0 || c < '0' || c > '9') goto error;
-	value = (uint16_t) (c - '0');
+	for (p = text; (c = *p) != 0; ++p) {
+		if (c < '0' || c > '9')
+			error_fmt("Invalid decimal number %s", text);
 
-	for (p = text + 1; (c = *p) != 0; ++p) {
-		if (c < '0' || c > '9') goto error;
 		value *= 10;
-		value += (uint16_t)(c - '0');
+
+		value += (c - '0');
 	}
 
 	return value;
-
-error:
-	error_fmt("Invalid decimal number %s", text);
 }
 
 uint16_t Parser::p5_bin(char const *text)
@@ -584,7 +581,7 @@ uint16_t Parser::p5_bin(char const *text)
 				value |= 1;
 				break;
 			default:
-				error_fmt("Invalid binary literal %s", text);
+				error_fmt("Invalid binary number %s", text);
 		}
 	}
 
@@ -598,27 +595,20 @@ uint16_t Parser::p5_hex(char const *text)
 	uint8_t c;
 	uint8_t x;
 
-	c = *text;
-	if (c == 0 || c < '0' || c > 'F' || (c > '9' && c < 'A'))
-		goto error;
-	x = c - '0';
-		if (c >= 'A') x -= ('A' - '9' - 1);
-	value = x;
+	for (p = text; (c = *p) != 0; ++p) {
+		if (c < '0' || c > 'F' || (c > '9' && c < 'A'))
+			error_fmt("Invalid hex number %s", text);
 
-	for (p = text + 1; (c = *p) != 0; ++p) {
-		if (c == 0 || c < '0' || c > 'F' || (c > '9' && c < 'A'))
-			goto error;
 		value <<= 4;
+		
 		x = c - '0';
 		if (c >= 'A')
 			x -= ('A' - '9' - 1);
+
 		value += x;
 	}
 
 	return value;
-
-error:
-	error("Invalid decimal number");
 }
 
 [[noreturn]] void Parser::error(char const *txt) {
@@ -627,10 +617,11 @@ error:
 
 [[noreturn]] void Parser::error_fmt(char const *fmt, ...) {
 	va_list args;
-	char msg[256];
+	string msg;
 
 	va_start(args, fmt);
-	vsprintf(msg, fmt, args);
-	error(msg);
+	msg = vsfmt(fmt, args).c_str();
 	va_end(args);
+
+	error(msg.c_str());
 }

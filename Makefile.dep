@@ -1,17 +1,17 @@
-assemble.o: assemble.cpp error.h nfile.hpp buffer.hpp srcfile.hpp \
- source.hpp emit.hpp errorpro.hpp parse.hpp tkstream.hpp symtable.hpp \
- macro.hpp version.h
-buffer.o: buffer.cpp buffer.hpp srcfile.hpp source.hpp nfile.hpp
-emit.o: emit.cpp emit.hpp nfile.hpp errorpro.hpp opcodes.hpp
+assemble.o: assemble.cpp error.h buffer.hpp srcfile.hpp source.hpp \
+ emit.hpp errorpro.hpp parse.hpp tkstream.hpp symtable.hpp macro.hpp \
+ version.h
+buffer.o: buffer.cpp buffer.hpp srcfile.hpp source.hpp
+emit.o: emit.cpp emit.hpp errorpro.hpp opcodes.hpp
 error.o: error.c error.h
-nfile.o: nfile.cpp nfile.hpp
 opcodes.o: opcodes.cpp opcodes.hpp
 parse.o: parse.cpp parse.hpp errorpro.hpp buffer.hpp srcfile.hpp \
- source.hpp nfile.hpp tkstream.hpp symtable.hpp emit.hpp macro.hpp \
- opcodes.hpp error.h
-srcfile.o: srcfile.cpp srcfile.hpp source.hpp nfile.hpp error.h
-symtable.o: symtable.cpp symtable.hpp nfile.hpp error.h
+ source.hpp tkstream.hpp symtable.hpp emit.hpp macro.hpp opcodes.hpp \
+ error.h util.hpp
+srcfile.o: srcfile.cpp srcfile.hpp source.hpp error.h
+symtable.o: symtable.cpp symtable.hpp error.h util.hpp
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcfile.hpp source.hpp \
- nfile.hpp opcodes.hpp
+ opcodes.hpp
 source.o: source.cpp source.hpp
 macro.o: macro.cpp macro.hpp source.hpp
+util.o: util.cpp util.hpp

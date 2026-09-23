@@ -8,7 +8,7 @@
 #include "emit.hpp"
 #include "opcodes.hpp"
 
-Emitter::Emitter(NFile &a_nfile)
+Emitter::Emitter(std::ostream &a_nfile)
 : nfile(a_nfile)
 {
 	pass = 1;
