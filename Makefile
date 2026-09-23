@@ -16,7 +16,7 @@ OBJS := assemble.o buffer.o emit.o error.o nfile.o opcodes.o parse.o srcfile.o s
 all: uasm
 
 clean:
-	rm *.o uasm
+	rm *.o uasm version.c
 
 deepclean:
 	rm *.o uasm Makefile.dep

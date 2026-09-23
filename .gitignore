@@ -4,3 +4,4 @@ old
 compile_commands.json
 examples/hello
 .vscode
+version.c
