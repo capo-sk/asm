@@ -10,6 +10,7 @@ local_labels
 duplicate_labels
 literals
 align
+input_file_not_found
 EOL
 `
 
