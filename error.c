@@ -11,16 +11,19 @@
 #include <stdarg.h>
 #include <string.h>
 
-noreturn void abort_now() {
+noreturn void abort_now(void)
+{
 	exit(EXIT_FAILURE);
 }
 
-noreturn void abort_msg(char const *msg) {
+noreturn void abort_msg(char const *msg)
+{
 	fprintf(stderr, "%s\n", msg);
 	abort_now();
 }
 
-noreturn void abort_fmt(char const *fmt, ...) {
+noreturn void abort_fmt(char const *fmt, ...)
+{
 	va_list args;
 
 	char *fmtnl = malloc(strlen(fmt) + 2);
@@ -34,7 +37,8 @@ noreturn void abort_fmt(char const *fmt, ...) {
 	abort_now();
 }
 
-noreturn void abort_sys(char const *text) {
+noreturn void abort_sys(char const *text)
+{
 	perror(text);
 	abort_now();
 }

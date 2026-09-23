@@ -9,7 +9,6 @@
 #include <iostream>
 #include <cstdarg>
 #include <cstring>
-#include "error.h"
 
 using namespace std;
 

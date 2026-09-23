@@ -9,9 +9,7 @@
 #define TKSTREAM_HPP
 
 #include "buffer.hpp"
-#include "macro.hpp"
 #include <string>
-#include <cstdint>
 
 enum token_mode {
 	assembly,
