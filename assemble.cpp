@@ -9,10 +9,10 @@
 #include <cstring>
 #include "error.h"
 #include "nfile.hpp"
-#include "srcfile.hpp"
 #include "buffer.hpp"
 #include "emit.hpp"
 #include "parse.hpp"
+#include "version.h"
 
 using namespace std;
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
-		abort_fmt("Usage: %s <source.s> [<binary> [<symbols>]]", argv[0]);
+		abort_fmt("United Assembler -- version %s\n\nUsage: %s <source.s> [<binary> [<symbols>]]", version_string, argv[0]);
 
 	input_filename = argv[1];
 

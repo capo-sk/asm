@@ -6,6 +6,7 @@
 */
 
 #include "srcfile.hpp"
+#include "error.h"
 
 using namespace std;
 
@@ -15,6 +16,8 @@ SrcFile::SrcFile(std::string const &name)
 : SrcText(name)
 {
 	nfile = new NFile(name);
+	if (!*nfile)
+		abort_sys(name.c_str());
 }
 
 SrcFile::~SrcFile()

@@ -9,7 +9,7 @@ LDFLAGS :=
 #####
 
 SRCS := assemble.cpp buffer.cpp emit.cpp error.c nfile.cpp opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp source.cpp macro.cpp
-OBJS := assemble.o buffer.o emit.o error.o nfile.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o
+OBJS := assemble.o buffer.o emit.o error.o nfile.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o version.o
 
 #####
 
@@ -23,6 +23,9 @@ deepclean:
 
 uasm: $(OBJS)
 	$(CPP) $(LDFLAGS) -o $@ $^
+
+version.c: $(SRCS)
+	echo 'const char version_string[] = "'`date -u +%Y%m%d_%H%M`'";' >$@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
