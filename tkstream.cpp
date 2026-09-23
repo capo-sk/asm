@@ -6,6 +6,7 @@
 */
 
 #include "tkstream.hpp"
+#include "srcfile.hpp"
 #include <cctype>
 #include <cstring>
 #include "opcodes.hpp"

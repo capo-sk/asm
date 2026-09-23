@@ -10,7 +10,7 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include "srcfile.hpp"
+#include "srcstack.hpp"
 #include <string>
 
 #define _buf_line_max 255
