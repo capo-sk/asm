@@ -28,7 +28,7 @@ public:
 
 	virtual void rewind();
 
-	virtual bool getline(char *buffer, unsigned size) = 0;
+	virtual bool getline(std::string &buffer) = 0;
 };
 
 #endif

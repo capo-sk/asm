@@ -34,7 +34,7 @@ public:
 
 	virtual std::string get_location() const;
 
-    virtual bool getline(char *buffer, unsigned size);
+    virtual bool getline(std::string &buffer);
 
 	virtual void advance_line();
 	virtual void rewind();

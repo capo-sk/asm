@@ -7,6 +7,7 @@
 
 #include "macro.hpp"
 #include <cstring>
+#include <iostream>
 
 using namespace std;
 
@@ -108,16 +109,14 @@ string _replace(string const &base, list<string> const &params, list<string> con
 	return result;
 }
 
-bool MacroText::getline(char *buffer, unsigned max)
+bool MacroText::getline(string &buffer)
 {
 	if (current != text.end()) {
-		string tx = _replace(current->data(), params, *values);
-		strncpy(buffer, tx.c_str(), max - 1);
-		buffer[max - 1] = 0;
+		buffer = _replace(current->data(), params, *values);
 		advance_line();
 		return true;
 	} else {
-		buffer[0] = 0;
+		buffer.clear();
 		return false;
 	}
 }

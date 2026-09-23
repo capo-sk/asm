@@ -1,1 +1,1 @@
-const char version_string[] = "20260923_1120";
+const char version_string[] = "20260923_1202";

@@ -20,8 +20,8 @@ private:
 	int replay;
 	bool eof;
 	bool refill;
-	char *ptr;
-	char line[_buf_line_max + 1];
+	std::string sline;
+	size_t sidx;
 
 public:
 	Buffer(std::string const &fname);

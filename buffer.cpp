@@ -20,16 +20,16 @@ int Buffer::get_next()
 		replay &= 0xff;
 	} else {
 		if (refill) {
-			if (!getline(line, sizeof(line))) { // EOF
+			if (!getline(sline)) { // EOF
 				eof = true;
 				return eofmark;
 			}
-			ptr = &line[0];
+			sidx = 0;
 			refill = false;
 		}
 
-		if (*ptr != 0) { // not end of line yet
-			replay = *(unsigned char *)ptr++;
+		if (sidx < sline.length()) {  // not end of line yet
+			replay = sline[sidx++];
 		} else {  // reached end of line
 			replay = 10;
 			refill = true;
@@ -47,8 +47,8 @@ void Buffer::pushback()
 void Buffer::rewind() {
 	get_current().rewind();
 	replay = 0;
-	line[0] = 0;
-	ptr = &line[0];
+	sline.clear();
+	sidx = 0;
 	eof = false;
 }
 
@@ -56,32 +56,21 @@ Buffer::Buffer(string const &fname)
 : SrcStack(fname)
 {
 	replay = 0;
-	line[0] = 0;
-	ptr = &line[0];
+	sline.clear();
 	eof = false;
 	refill = true;
 }
-
-/*
-Buffer::Buffer(SrcStack &srcl) : slist(srcl) {
-	replay = 0;
-	line[0] = 0;
-	ptr = &line[0];
-	eof = false;
-	refill = true;
-}
-*/
 
 bool Buffer::close_file() {
 	replay = 0;
-	line[0] = 0;
-	ptr = &line[0];
+	sline.clear();
+	sidx = 0;
 	eof = false;
 	return Pop();
 }
 
 string Buffer::get_line_text()
 {
-	return string(line);
+	return sline;
 }
 

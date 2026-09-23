@@ -24,7 +24,7 @@ public:
 
 	virtual void rewind();
 
-	virtual bool getline(char *buffer, unsigned size);
+	virtual bool getline(std::string &buffer);
 };
 
 class SrcStack: public SrcText {
@@ -44,7 +44,8 @@ public:
 	virtual void rewind();
 	virtual void reset();
 	virtual std::string get_location();
-	virtual bool getline(char *buffer, unsigned max);
+//	virtual bool getline(char *buffer, unsigned max);
+	virtual bool getline(std::string &buffer);
 };
 
 #endif

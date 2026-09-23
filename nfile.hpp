@@ -18,8 +18,8 @@ private:
 public:
 	NFile(std::string const &name, std::ios_base::openmode mode = std::ios_base::in);
 	NFile(int which);
-	//NFile();
 	~NFile();
+
 	std::string const &get_name() { return name; };
 	void rewind();
 	void printf(char const *fmt, ...);

@@ -31,10 +31,11 @@ void SrcFile::rewind()
 	SrcText::rewind();
 }
 
-bool SrcFile::getline(char *buffer, unsigned size)
+bool SrcFile::getline(string &buffer)
 {
-	nfile->getline(buffer, size);
-	if (buffer[0] == 0 && nfile->eof())
+	std::getline(*nfile, buffer);
+//	nfile->getline(buffer, size);
+	if (buffer.length() == 0 && nfile->eof())
 		return false;
 	else {
 		advance_line();
@@ -117,9 +118,9 @@ SrcText &SrcStack::get_current()
 	return *sources.top();
 }
 
-bool SrcStack::getline(char *buffer, unsigned max)
+bool SrcStack::getline(string &buffer)
 {
-	return get_current().getline(buffer, max);
+	return get_current().getline(buffer);
 }
 
 void SrcStack::rewind()
