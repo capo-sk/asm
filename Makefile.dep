@@ -1,17 +1,17 @@
 assemble.o: assemble.cpp error.h nfile.hpp buffer.hpp srcfile.hpp \
- source.hpp emit.hpp errorpro.hpp parse.hpp tkstream.hpp macro.hpp \
- symtable.hpp version.h
+ source.hpp emit.hpp errorpro.hpp parse.hpp tkstream.hpp symtable.hpp \
+ macro.hpp version.h
 buffer.o: buffer.cpp buffer.hpp srcfile.hpp source.hpp nfile.hpp
 emit.o: emit.cpp emit.hpp nfile.hpp errorpro.hpp opcodes.hpp
 error.o: error.c error.h
-nfile.o: nfile.cpp nfile.hpp error.h
+nfile.o: nfile.cpp nfile.hpp
 opcodes.o: opcodes.cpp opcodes.hpp
 parse.o: parse.cpp parse.hpp errorpro.hpp buffer.hpp srcfile.hpp \
- source.hpp nfile.hpp tkstream.hpp macro.hpp symtable.hpp emit.hpp \
+ source.hpp nfile.hpp tkstream.hpp symtable.hpp emit.hpp macro.hpp \
  opcodes.hpp error.h
 srcfile.o: srcfile.cpp srcfile.hpp source.hpp nfile.hpp error.h
 symtable.o: symtable.cpp symtable.hpp nfile.hpp error.h
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcfile.hpp source.hpp \
- nfile.hpp macro.hpp opcodes.hpp
+ nfile.hpp opcodes.hpp
 source.o: source.cpp source.hpp
 macro.o: macro.cpp macro.hpp source.hpp
