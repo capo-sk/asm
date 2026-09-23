@@ -84,9 +84,9 @@ int Parser::p1_line() {
 int Parser::p2_instruction() {
 	Token tk1;
 	Token tk2;
-	u8 mode;
-	u8 size;
-	u32 value;
+	uint8_t mode;
+	uint8_t size;
+	uint32_t value;
 
 	stream.read(tk1);
 
@@ -186,17 +186,17 @@ int Parser::p2_instruction() {
 			error("Syntax error");
 	}
 
-	emit.emit_instruction(first.value[0], mode, (u16) value, size - 1);
+	emit.emit_instruction(first.value[0], mode, (uint16_t) value, size - 1);
 
 	return expect_newline();
 }
 
 void Parser::p3_pseudo_word() {
-	u16 value;
+	uint16_t value;
 	Token tk;
 
 	do {
-		value = (u16) p3_expression();
+		value = (uint16_t) p3_expression();
 		emit.emit_word(value);
 
 		stream.read(tk);
@@ -213,18 +213,18 @@ void Parser::p3_pseudo_word() {
 	
 void Parser::p3_pseudo_byte()
 {
-	u8 value;
-	u16 len;
+	uint8_t value;
+	uint16_t len;
 	Token tk;
 
 	do {
 		stream.read(tk);
 		if (tk.type == literal_str) {
 			len = strlen(tk.value);
-			emit.emit_bytes((u8 *)tk.value, len);
+			emit.emit_bytes((uint8_t *)tk.value, len);
 		} else {
 			stream.pushback();
-			value = (u8) p3_expression();
+			value = (uint8_t) p3_expression();
 			emit.emit_byte(value);
 		}
 
@@ -242,10 +242,10 @@ void Parser::p3_pseudo_byte()
 	
 void Parser::p3_pseudo_align()
 {
-	u16 value, inc, mask;
-	u16 target_loc;
+	uint16_t value, inc, mask;
+	uint16_t target_loc;
 	Token tk;
-	u8 zero = 0;
+	uint8_t zero = 0;
 
 	value = p3_expression();
 	inc = value - 1;
@@ -438,7 +438,7 @@ void Parser::p2_labeldef(void) {
 
 int Parser::p2_vardef(void) {
 	Token tk;
-	u16 value;
+	uint16_t value;
 
 	stream.read(tk);
 	if (tk.type != '=') {
@@ -446,7 +446,7 @@ int Parser::p2_vardef(void) {
 		return -1;
 	}
 
-	value = (u16) p3_expression();
+	value = (uint16_t) p3_expression();
 
 	if (first.value[0] == '.')
 		localise_label(first);
@@ -466,17 +466,17 @@ int Parser::p2_location(void) {
 		return -1;
 	}
 
-	emit.set_loc((u16) p3_expression());
+	emit.set_loc((uint16_t) p3_expression());
 
 	return expect_newline();
 }
 
-u32 Parser::p3_expression(void) {
+uint32_t Parser::p3_expression(void) {
 	Token tk;
-	u16 result;
-	u16 operand;
-	u8 operation;
-	u32 long_result = 0;
+	uint16_t result;
+	uint16_t operand;
+	uint8_t operation;
+	uint32_t long_result = 0;
 
 	stream.read(tk);
 	if (tk.type == '!')
@@ -526,9 +526,9 @@ u32 Parser::p3_expression(void) {
 	return long_result;
 }
 
-u16 Parser::p4_expr_element(void) {
+uint16_t Parser::p4_expr_element(void) {
 	Token tk;
-	u16 value;
+	uint16_t value;
 
 	stream.read(tk);
 
@@ -546,7 +546,7 @@ u16 Parser::p4_expr_element(void) {
 				else
 					error_fmt("Symbol %s not found", tk.value);
 		case literal_chr:
-			return (u16)tk.value[0];
+			return (uint16_t)tk.value[0];
 		case literal_dec:
 			return p5_dec(tk.value);
 		case literal_hex:
@@ -563,23 +563,23 @@ u16 Parser::p4_expr_element(void) {
 			return emit.get_loc();
 		default:
 			error("Invalid expression");
-			return (u16) -1;
+			return (uint16_t) -1;
 	}
 }
 
-u16 Parser::p5_dec(char const *text) {
-	u16 value = 0;
-	u8 c;
+uint16_t Parser::p5_dec(char const *text) {
+	uint16_t value = 0;
+	uint8_t c;
 	char const *p;
 
 	c = *text;
 	if (c == 0 || c < '0' || c > '9') goto error;
-	value = (u16) (c - '0');
+	value = (uint16_t) (c - '0');
 
 	for (p = text + 1; (c = *p) != 0; ++p) {
 		if (c < '0' || c > '9') goto error;
 		value *= 10;
-		value += (u16)(c - '0');
+		value += (uint16_t)(c - '0');
 	}
 
 	return value;
@@ -588,9 +588,9 @@ error:
 	error_fmt("Invalid decimal number %s", text);
 }
 
-u16 Parser::p5_bin(char const *text)
+uint16_t Parser::p5_bin(char const *text)
 {
-	u16 value = 0;
+	uint16_t value = 0;
 	char const *p;
 	char c;
 
@@ -610,12 +610,12 @@ u16 Parser::p5_bin(char const *text)
 	return value;
 }
 
-u16 Parser::p5_hex(char const *text)
+uint16_t Parser::p5_hex(char const *text)
 {
-	u16 value = 0;
+	uint16_t value = 0;
 	char const *p;
-	u8 c;
-	u8 x;
+	uint8_t c;
+	uint8_t x;
 
 	c = *text;
 	if (c == 0 || c < '0' || c > 'F' || (c > '9' && c < 'A'))

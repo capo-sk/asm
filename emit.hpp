@@ -8,7 +8,7 @@
 #ifndef EMIT_HPP
 #define EMIT_HPP
 
-#include "types.h"
+#include <cstdint>
 #include "nfile.hpp"
 #include "errorpro.hpp"
 
@@ -18,21 +18,21 @@ private:
 	ErrorProvider *err;
 	unsigned pass;
 	int flag;
-	u16 loc;
-	u16 last_loc;
+	uint16_t loc;
+	uint16_t last_loc;
 
 	void emit_next(void);
 
 public:
 	Emitter(NFile &a_nfile);
 	void error_provider(ErrorProvider *ep);
-	u16 get_loc() { return loc; }
-	void set_loc(u16 a_loc) { loc = a_loc; }
+	uint16_t get_loc() { return loc; }
+	void set_loc(uint16_t a_loc) { loc = a_loc; }
 	void set_pass(unsigned a_pass) { pass = a_pass; }
-	void emit_byte(u8 value);
-	void emit_word(u16 value);
-	void emit_bytes(u8 const *value, u16 count);
-	void emit_instruction(u8 index, u8 mode, u16 number, u8 size);
+	void emit_byte(uint8_t value);
+	void emit_word(uint16_t value);
+	void emit_bytes(uint8_t const *value, uint16_t count);
+	void emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uint8_t size);
 };
 
 #endif

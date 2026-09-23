@@ -11,7 +11,7 @@
 #include "buffer.hpp"
 #include "macro.hpp"
 #include <string>
-#include "types.h"
+#include <cstdint>
 
 enum token_mode {
 	assembly,

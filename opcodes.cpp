@@ -9,14 +9,14 @@
 
 #include "opcodes.hpp"
 
-const u8 multimode_select[11] =
+const uint8_t multimode_select[11] =
 	{ 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
-const u8 multimode2_select[11] =
+const uint8_t multimode2_select[11] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
-const u8 multimode3_select[11] =
+const uint8_t multimode3_select[11] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x1C, 0x1C, 0x1C, 0x08, 0x08, 0x14 };
 
-bool multimode_valid(u16 multi_bits, u8 mode) {
+bool multimode_valid(uint16_t multi_bits, uint8_t mode) {
 	if (mode > 10)
 		return false;
 
@@ -26,19 +26,19 @@ bool multimode_valid(u16 multi_bits, u8 mode) {
 		return false;
 }
 
-u8 multimode_opcode(u8 base_code, u8 mode) {
+uint8_t multimode_opcode(uint8_t base_code, uint8_t mode) {
 	return base_code | multimode_select[mode];
 }
-u8 multimode2_opcode(u8 base_code, u8 mode) {
+uint8_t multimode2_opcode(uint8_t base_code, uint8_t mode) {
 	return base_code | multimode2_select[mode];
 }
-u8 multimode3_opcode(u8 base_code, u8 mode) {
+uint8_t multimode3_opcode(uint8_t base_code, uint8_t mode) {
 	return base_code | multimode3_select[mode];
 }
 
-u8 multimode_compose(u8 index, u8 mode) {
-	u8 opc_mode = opcodes[index].mode;
-	u8 opc_base = opcodes[index].code;
+uint8_t multimode_compose(uint8_t index, uint8_t mode) {
+	uint8_t opc_mode = opcodes[index].mode;
+	uint8_t opc_base = opcodes[index].code;
 
 	switch (opc_mode) {
 		case multimode:
@@ -112,7 +112,7 @@ const opcode opcodes[] = {
 	{ "TXS", impl_mode, 0x9A },
 	{ "TYA", impl_mode, 0x98 },
 };
-const u8 num_opcodes = sizeof(opcodes) / sizeof(opcode);
+const uint8_t num_opcodes = sizeof(opcodes) / sizeof(opcode);
 
 const pseudo pseudos[] = {
 	{ ".MACRO" },
@@ -122,9 +122,9 @@ const pseudo pseudos[] = {
 	{ ".INCLUDE" },
 	{ ".ALIGN"}
 };
-const u8 num_pseudos = sizeof(pseudos) / sizeof(pseudo);
-const u8 pseudo_macro = 0;
+const uint8_t num_pseudos = sizeof(pseudos) / sizeof(pseudo);
+const uint8_t pseudo_macro = 0;
 
 
 const char *cpu_registers[] = { "A", "X", "Y" };
-const u8 num_registers = 3;
+const uint8_t num_registers = 3;

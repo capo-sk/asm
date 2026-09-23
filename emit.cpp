@@ -23,7 +23,7 @@ void Emitter::error_provider(ErrorProvider *ep)
 	err = ep;
 }
 
-void Emitter::emit_byte(u8 value)
+void Emitter::emit_byte(uint8_t value)
 {
 	if (pass > 1) {
 		if (flag == 0) {
@@ -39,13 +39,13 @@ void Emitter::emit_byte(u8 value)
 	last_loc = loc;
 }
 
-void Emitter::emit_word(u16 value)
+void Emitter::emit_word(uint16_t value)
 {
 	emit_byte(value & 0xFF);
 	emit_byte((value >> 8) & 0xFF);
 }
 
-void Emitter::emit_bytes(u8 const *value, u16 count)
+void Emitter::emit_bytes(uint8_t const *value, uint16_t count)
 {
 	while (count > 0) {
 		emit_byte(*value);
@@ -54,14 +54,14 @@ void Emitter::emit_bytes(u8 const *value, u16 count)
 	}
 }
 
-void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size)
+void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uint8_t size)
 {
-	u8 opc_mode = opcodes[index].mode;
-	u8 opc_code = opcodes[index].code;
-	u16 opc_multi = opcodes[index].multi;
-	u8 out_code;
-	i16 distance;
-	u8 upgraded_mode;
+	uint8_t opc_mode = opcodes[index].mode;
+	uint8_t opc_code = opcodes[index].code;
+	uint16_t opc_multi = opcodes[index].multi;
+	uint8_t out_code;
+	int16_t distance;
+	uint8_t upgraded_mode;
 
 	if (opc_mode == mode) {
 		out_code = opc_code;
@@ -71,10 +71,10 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size)
 				if (mode == abs_mode || mode == zp_mode) {
 					mode = rel_mode;
 					out_code = opc_code;
-					distance = (i16) (number - loc - 2);
+					distance = (int16_t) (number - loc - 2);
 					if (distance > 127 || distance < -128)
 						err->error("Relative address too far");
-					number = (u8) distance;
+					number = (uint8_t) distance;
 					size = 1;
 				} else
 					err->error("Invalid mode");
@@ -126,7 +126,7 @@ void Emitter::emit_instruction(u8 index, u8 mode, u16 number, u8 size)
 		case 0:
 			break;
 		case 1:
-			emit_byte((u8) number);
+			emit_byte((uint8_t) number);
 			break;
 		case 2:
 			emit_word(number);

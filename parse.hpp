@@ -47,11 +47,11 @@ private:
 
 	int p2_location();
 
-	u32 p3_expression();
-	u16 p4_expr_element();
-	u16 p5_dec(char const *text);
-	u16 p5_hex(char const *text);
-	u16 p5_bin(char const *text);
+	uint32_t p3_expression();
+	uint16_t p4_expr_element();
+	uint16_t p5_dec(char const *text);
+	uint16_t p5_hex(char const *text);
+	uint16_t p5_bin(char const *text);
 
 	int p2_macro_line();
 

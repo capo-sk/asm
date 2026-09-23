@@ -10,7 +10,7 @@
 #ifndef OPCODES_HPP
 #define OPCODES_HPP
 
-#include "types.h"
+#include <cstdint>
 
 #define indx_mode 0	// OPC (byte,X)
 #define zp_mode   1	// OPC byte
@@ -44,36 +44,36 @@
 #define rega_bits (rega_bit | impl_bit)
 #define zpy_bit   (1u << zpy_mode)
 
-extern const u8 multimode_select[];
-extern const u8 multimode2_select[];
-extern const u8 multimode3_select[];
+extern const uint8_t multimode_select[];
+extern const uint8_t multimode2_select[];
+extern const uint8_t multimode3_select[];
 
 typedef struct {
 	char mnemonic[4];
-	u8 mode;
-	u8 code;
-	u16 multi;
+	uint8_t mode;
+	uint8_t code;
+	uint16_t multi;
 } opcode;
 
 extern const opcode opcodes[];
-extern const u8 num_opcodes;
+extern const uint8_t num_opcodes;
 
 typedef struct {
 	char const *mnemonic;
 } pseudo;
 
 extern const pseudo pseudos[];
-extern const u8 num_pseudos;
-extern const u8 pseudo_macro;
+extern const uint8_t num_pseudos;
+extern const uint8_t pseudo_macro;
 
 /* registers */
 extern const char *cpu_registers[];
-extern const u8 num_registers;
+extern const uint8_t num_registers;
 
-u8 multimode_opcode(u8 base_code, u8 mode);
-u8 multimode2_opcode(u8 base_code, u8 mode);
-u8 multimode3_opcode(u8 base_code, u8 mode);
-bool multimode_valid(u16 multi_bits, u8 mode);
-u8 multimode_compose(u8 index, u8 mode);
+uint8_t multimode_opcode(uint8_t base_code, uint8_t mode);
+uint8_t multimode2_opcode(uint8_t base_code, uint8_t mode);
+uint8_t multimode3_opcode(uint8_t base_code, uint8_t mode);
+bool multimode_valid(uint16_t multi_bits, uint8_t mode);
+uint8_t multimode_compose(uint8_t index, uint8_t mode);
 
 #endif

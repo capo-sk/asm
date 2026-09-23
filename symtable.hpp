@@ -8,7 +8,7 @@
 #ifndef SYMTABLE_HPP
 #define SYMTABLE_HPP
 
-#include "types.h"
+#include <cstdint>
 #include "nfile.hpp"
 #include <map>
 #include <string>
@@ -23,20 +23,20 @@ enum sym_type {
 
 struct sym_type_value {
 	sym_type type;
-	u16 value;
+	uint16_t value;
 };
 
 class SymbolTable: std::map<std::string, sym_type_value> {
 private:
-	void _add(char const *name, sym_type type, u16 value);
+	void _add(char const *name, sym_type type, uint16_t value);
 
 public:
 	SymbolTable();
 	~SymbolTable();
 
-	void add_or_overwrite(char const *name, sym_type type, u16 value);
-	void add_unique(char const *name, sym_type type, u16 value);
-	bool get(char const *name, sym_type type, u16 &value);
+	void add_or_overwrite(char const *name, sym_type type, uint16_t value);
+	void add_unique(char const *name, sym_type type, uint16_t value);
+	bool get(char const *name, sym_type type, uint16_t &value);
 	void dump(NFile &where, int format);
 };
 

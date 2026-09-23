@@ -15,18 +15,18 @@ SymbolTable::SymbolTable() {
 SymbolTable::~SymbolTable() {
 }
 
-void SymbolTable::_add(char const *name, sym_type type, u16 value) {
+void SymbolTable::_add(char const *name, sym_type type, uint16_t value) {
 	insert({name, {type, value}});
 }
 
-void SymbolTable::add_unique(char const *name, sym_type type, u16 value) {
+void SymbolTable::add_unique(char const *name, sym_type type, uint16_t value) {
 	if (count(name) != 0)
 		abort_fmt("Duplicate symbol %s", name);
 	else
 		_add(name, type, value);
 }
 
-void SymbolTable::add_or_overwrite(char const *name, sym_type type, u16 value) {
+void SymbolTable::add_or_overwrite(char const *name, sym_type type, uint16_t value) {
 	auto it = find(name);
 
 	if (it == end())
@@ -38,7 +38,7 @@ void SymbolTable::add_or_overwrite(char const *name, sym_type type, u16 value) {
 			abort_fmt("Symbol %s type mismatch", name);
 }
 
-bool SymbolTable::get(char const *name, sym_type type, u16 &value) {
+bool SymbolTable::get(char const *name, sym_type type, uint16_t &value) {
 	auto it = find(name);
 
 	if (it == end())

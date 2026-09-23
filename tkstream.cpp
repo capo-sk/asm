@@ -453,7 +453,7 @@ int TokenStream::_get_next_token(Token *tk)
 			/* is it an opcode? */
 			for (i = 0; i < num_opcodes; ++i) {
 				if (strcmp(tk->value, opcodes[i].mnemonic) == 0) {
-					tk->value[0] = (u8)i;
+					tk->value[0] = (uint8_t)i;
 					tk->type = actual_opcode;
 					goto update_ctx;
 				}
@@ -462,7 +462,7 @@ int TokenStream::_get_next_token(Token *tk)
 			/* is it a pseudo-opcode? */
 			for (i = 0; i < num_pseudos; ++i) {
 				if (strcmp(tk->value, pseudos[i].mnemonic) == 0) {
-					tk->value[0] = (u8)i;
+					tk->value[0] = (uint8_t)i;
 					tk->type = pseudo_opcode;
 					if (i == pseudo_macro)
 						ctx = macro_header1;
