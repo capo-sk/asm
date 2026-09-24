@@ -79,7 +79,7 @@ string _replace(string const &base, list<string> const &params, list<string> con
 	current = base.c_str();
 	word = current;
 	out = true;
-	char c;
+	unsigned char c;  // unsigned because isalnum is undefined for negative char
 	while ((c = *current) != 0) {
 		if (!(isalnum(c) || c == '_')) {  // word (macro param) can contain letters, digits, underscore
 			if (!out) { // end of word

@@ -15,6 +15,7 @@ output_file_error
 symbol_file_error
 align0
 div0
+banner
 EOL
 `
 
