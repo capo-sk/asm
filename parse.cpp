@@ -242,18 +242,16 @@ void Parser::p3_pseudo_byte()
 	
 void Parser::p3_pseudo_align()
 {
-	uint16_t value, inc, mask;
-	uint16_t target_loc;
-	Token tk;
-	uint8_t zero = 0;
+	const uint8_t zero = 0;
 
-	value = p3_expression();
-	inc = value - 1;
-	mask = ~inc;
-	target_loc = (emit.get_loc() + inc) & mask;
-	
-	while (emit.get_loc() != target_loc)
-		emit.emit_byte(zero);
+	uint16_t value = p3_expression();
+	if (value == 0 || value >0x8000)
+		error(std::format("Invalid align multiple {}", value));
+
+	uint16_t odd = emit.get_loc() % value;
+	if (odd > 0)
+		for (uint16_t count = value - odd; count; --count)
+			emit.emit_byte(zero);
 }
 
 int Parser::p2_pseudo_instruction()

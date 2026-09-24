@@ -11,6 +11,9 @@ duplicate_labels
 literals
 align
 input_file_not_found
+output_file_error
+symbol_file_error
+align0
 EOL
 `
 

@@ -24,7 +24,8 @@ int main(int argc, char *argv[]) {
 	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
-		abort_fmt("United Assembler -- version %s\n\nUsage: %s <source.s> [<binary> [<symbols>]]", version_string, argv[0]);
+		abort_fmt("United Assembler -- version %s\n\n"
+			"Usage: %s <source.s> [<binary> [<symbols>]]", version_string, argv[0]);
 
 	input_filename = argv[1];
 
@@ -49,17 +50,23 @@ int main(int argc, char *argv[]) {
 
 	//Buffer in_buf(srcl);
 
-	ofstream output_nfile(output_filename, m_wb);
+	ofstream output_file(output_filename, m_wb);
+	if (!output_file)
+		abort_sys(output_filename.c_str());
 
-	Emitter emit(output_nfile);
+	Emitter emit(output_file);
 
-	ostream *symbol_nfilep;
+	ostream *symbol_filep;
+	ofstream symbol_file;
 	int symdump_format;
 	if (symbol_filename.length() > 0) {
-		symbol_nfilep = new ofstream(symbol_filename, m_w);
+		symbol_file.open(symbol_filename, m_w);
+		if (!symbol_file)
+			abort_sys(symbol_filename.c_str());
+		symbol_filep = &symbol_file;
 		symdump_format = 1;
 	} else {
-		symbol_nfilep = &cout;
+		symbol_filep = &std::cout;
 		symdump_format = 0;
 	}
 
@@ -70,7 +77,7 @@ int main(int argc, char *argv[]) {
 
 	parser.first_pass();
 
-	symtab.dump(*symbol_nfilep, symdump_format);
+	symtab.dump(*symbol_filep, symdump_format);
 
 	parser.second_pass();
 
