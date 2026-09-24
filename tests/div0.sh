@@ -1,6 +1,6 @@
 #!/bin/sh
 
 T=`basename $0 .sh`
-E="Invalid align multiple"
+E="Division by zero"
 
 sh cause_error.sh "$T" "$E"

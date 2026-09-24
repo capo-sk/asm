@@ -14,6 +14,7 @@ input_file_not_found
 output_file_error
 symbol_file_error
 align0
+div0
 EOL
 `
 

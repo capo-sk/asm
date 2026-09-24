@@ -494,9 +494,11 @@ uint32_t Parser::p3_expression(void) {
 				result += operand;
 			else if (operation == '*')
 				result *= operand;
-			else if (operation == '/')
+			else if (operation == '/') {
+				if (operand == 0)
+					error("Division by zero");
 				result /= operand;
-			else
+			} else
 			 	;  // can't be here
 		}
 	} while (operation != 0);
