@@ -12,7 +12,6 @@
 #include "emit.hpp"
 #include "macro.hpp"
 #include "error.h"
-#include "util.hpp"
 
 using namespace std;
 
@@ -367,7 +366,7 @@ int Parser::p2_invoke_macro(void) {
 	// find macro by name
 	auto macro_it = macros.find(first.value);
 	if (macro_it == macros.end())
-		error_fmt("Unknown macro %s", first.value);
+		error(format("Unknown macro {}", first.value));
 
 	// parse parameters
 	auto *values = new list<string>;
@@ -402,7 +401,7 @@ void Parser::localise_label(Token &tk)
 		}
 
 		if (result.length() > MAX_TOKEN_LENGTH)
-			error_fmt("Symbol %s too long", result.c_str());
+			error(format("Symbol {} too long", result));
 	
 		strcpy(tk.value, result.c_str());
 	}
@@ -526,7 +525,7 @@ uint16_t Parser::p4_expr_element(void) {
 				if (pass == 1)
 					return emit.get_loc();
 				else
-					error_fmt("Symbol %s not found", tk.value);
+					error(format("Symbol {} not found", tk.value));
 		case literal_chr:
 			return (uint16_t)tk.value[0];
 		case literal_dec:
@@ -556,7 +555,7 @@ uint16_t Parser::p5_dec(char const *text) {
 
 	for (p = text; (c = *p) != 0; ++p) {
 		if (c < '0' || c > '9')
-			error_fmt("Invalid decimal number %s", text);
+			error(format("Invalid decimal number {}", text));
 
 		value *= 10;
 
@@ -581,7 +580,7 @@ uint16_t Parser::p5_bin(char const *text)
 				value |= 1;
 				break;
 			default:
-				error_fmt("Invalid binary number %s", text);
+				error(format("Invalid binary number {}", text));
 		}
 	}
 
@@ -597,7 +596,7 @@ uint16_t Parser::p5_hex(char const *text)
 
 	for (p = text; (c = *p) != 0; ++p) {
 		if (c < '0' || c > 'F' || (c > '9' && c < 'A'))
-			error_fmt("Invalid hex number %s", text);
+			error(format("Invalid hex number {}", text));
 
 		value <<= 4;
 		
@@ -611,17 +610,20 @@ uint16_t Parser::p5_hex(char const *text)
 	return value;
 }
 
-[[noreturn]] void Parser::error(char const *txt) {
-	abort_fmt("%s: %s\n%s\n", stream.get_location().c_str(), txt, stream.get_line_text().c_str());
+[[noreturn]] void Parser::error(string const &txt)
+{
+	string err = format("{}: {}\n{}\n",
+		stream.get_location(),
+		txt, stream.get_line_text());
+
+	abort_msg(err.c_str());
 }
 
-[[noreturn]] void Parser::error_fmt(char const *fmt, ...) {
-	va_list args;
-	string msg;
+/*
+[[noreturn]] void Parser::error_fmt(format_string<Args...> fmt, Args &&... args)
+{
+	string msg = vformat(fmt.get(), make_format_args(args...));
 
-	va_start(args, fmt);
-	msg = vsfmt(fmt, args).c_str();
-	va_end(args);
-
-	error(msg.c_str());
+	error(msg);
 }
+*/

@@ -8,7 +8,7 @@
 #include "symtable.hpp"
 #include <cstring>
 #include "error.h"
-#include "util.hpp"
+#include <format>
 
 SymbolTable::SymbolTable() {
 }
@@ -63,7 +63,7 @@ void SymbolTable::dump(std::ostream &where, int format) {
 
 	for (auto it = begin(); it != end(); ++it)
 		if (format == 0)  /* human consumption */
-			where << sfmt("%s(%s) = %u $%04X\n", it->first.c_str(), decode[it->second.type], it->second.value, it->second.value);
+			where << std::format("{0}({2}) = {1} ${1:04X}\n", it->first, it->second.value, decode[it->second.type]);
 		else  /* VICE monitor format */
-			where << sfmt("al C:%X .%s\n", it->second.value, it->first.c_str());
+			where << std::format("al C:{1:X} .{0}\n", it->first, it->second.value);
 }

@@ -8,10 +8,12 @@
 #ifndef ERRORPRO_HPP
 #define ERRORPRO_HPP
 
+#include <string>
+
 class ErrorProvider {
 public:
-	[[noreturn]] virtual void error(char const *txt) = 0;
-	[[noreturn]] virtual void error_fmt(char const *fmt, ...) = 0;
+	[[noreturn]] virtual void error(std::string const &msg) = 0;
+	//[[noreturn]] virtual void error_fmt(char const *fmt, ...) = 0;
 };
 
 #endif

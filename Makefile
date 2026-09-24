@@ -1,15 +1,15 @@
-CC := gcc
-CFLAGS := -g -Wfatal-errors
+CC=gcc
+CFLAGS=-g
 
-CPP := g++
-CPPFLAGS := $(CFLAGS)
+CPP=g++
+CPPFLAGS=-g -std=c++20
 
-LDFLAGS :=
+LDFLAGS=
 
 #####
 
-SRCS := assemble.cpp buffer.cpp emit.cpp error.c opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp source.cpp macro.cpp util.cpp srcstack.cpp
-OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o util.o srcstack.o version.o
+SRCS := assemble.cpp buffer.cpp emit.cpp error.c opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp source.cpp macro.cpp srcstack.cpp
+OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o srcstack.o version.o
 
 #####
 
@@ -30,11 +30,11 @@ version.c: $(SRCS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%o: %.cpp
-	echo $(CPP) $(CPPFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CPP) $(CPPFLAGS) -c $< -o $@
 
 deps: $(SRCS)
-	$(CPP) -MM $^ >Makefile.dep
+	$(CPP) $(CPPFLAGS) -MM $^ >Makefile.dep
 
 -include Makefile.dep
 

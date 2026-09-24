@@ -7,12 +7,11 @@ error.o: error.c error.h
 opcodes.o: opcodes.cpp opcodes.hpp
 parse.o: parse.cpp parse.hpp errorpro.hpp buffer.hpp srcstack.hpp \
  source.hpp tkstream.hpp symtable.hpp emit.hpp macro.hpp opcodes.hpp \
- error.h util.hpp
+ error.h
 srcfile.o: srcfile.cpp srcfile.hpp source.hpp error.h
-symtable.o: symtable.cpp symtable.hpp error.h util.hpp
+symtable.o: symtable.cpp symtable.hpp error.h
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcstack.hpp source.hpp \
  srcfile.hpp opcodes.hpp
 source.o: source.cpp source.hpp
 macro.o: macro.cpp macro.hpp source.hpp
-util.o: util.cpp util.hpp
 srcstack.o: srcstack.cpp srcstack.hpp source.hpp srcfile.hpp

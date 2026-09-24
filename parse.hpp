@@ -14,6 +14,7 @@
 #include "symtable.hpp"
 #include "emit.hpp"
 #include "macro.hpp"
+#include <format>
 
 class Parser : public ErrorProvider {
 private:
@@ -69,8 +70,8 @@ public:
 	void first_pass(void);
 	void second_pass(void);
 
-	[[noreturn]] virtual void error(char const *txt);
-	[[noreturn]] virtual void error_fmt(char const *fmt, ...);
+	[[noreturn]] virtual void error(std::string const &txt);
+	//[[noreturn]] virtual void error_fmt(std::format_string<Args...> fmt, Args &&... args);
 };
 
 #endif
