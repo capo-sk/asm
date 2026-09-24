@@ -120,6 +120,11 @@ bool MacroText::getline(string &buffer)
 	}
 }
 
+unsigned MacroText::get_param_count() const
+{
+	return params.size();
+}
+
 void MacroTable::add(MacroText &macro)
 {
 	insert({macro.get_name(), macro});

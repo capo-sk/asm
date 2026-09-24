@@ -16,6 +16,8 @@ symbol_file_error
 align0
 div0
 banner
+macro_mismatch
+macro_recursive
 EOL
 `
 

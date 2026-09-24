@@ -366,6 +366,10 @@ int Parser::p2_invoke_macro(void) {
 	if (macro_it == macros.end())
 		error(format("Unknown macro {}", first.value));
 
+	// prevent recursive macro
+	if (macro_it->first == stream.get_current().get_name())
+		error("Macro may not invoke itself");
+
 	// parse parameters
 	auto *values = new list<string>;
 	Token tk;
@@ -377,6 +381,10 @@ int Parser::p2_invoke_macro(void) {
 	}
 	stream.set_mode(assembly);
 	pushback_and_newline();
+
+	// number of values must match number of parameters
+	if (values->size() != macro_it->second.get_param_count())
+		error("Argument count mismatch");
 
 	// invoke macro with parameters
 	macro_it->second.invoke(stream.get_current(), *values);

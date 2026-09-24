@@ -29,7 +29,8 @@ public:
 
 	void add_line(std::string const &tline);
 	void add_param(std::string const &param);
-
+	unsigned get_param_count() const;
+	
 	void invoke(SrcText const &callfrom, std::list<std::string> const &values);
 
 	virtual std::string get_location() const;
