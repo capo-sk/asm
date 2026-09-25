@@ -16,10 +16,10 @@ OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.
 all: uasm
 
 clean:
-	rm *.o uasm version.c
+	rm *.o uasm version.c tests/make_dep
 
-deepclean:
-	rm *.o uasm Makefile.dep
+deepclean: clean
+	rm Makefile.dep
 
 uasm: $(OBJS)
 	$(CPP) $(LDFLAGS) -o $@ $^
