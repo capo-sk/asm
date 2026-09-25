@@ -50,12 +50,15 @@ enum token_type {
 	skip = 0xf0
 };
 
-#define VALUE_SIZE 64
-#define MAX_TOKEN_LENGTH (VALUE_SIZE - 1)
-
 struct Token {
 	token_type type;
-	char value[VALUE_SIZE];
+	std::string value;
+
+	Token();
+	void clear();
+
+	unsigned number() const;
+	void set_number(unsigned char x);
 };
 
 class TokenStream {
@@ -66,10 +69,10 @@ private:
 	Token latest;
 	bool reuse;
 
-	int _get_next_token_multimode(Token *tk);
-	int _get_next_token(Token *tk);
-	int _get_next_macro_line(Token *tk);
-	int _get_next_word(Token *tk);
+	int _get_next_token_multimode(Token &tk);
+	int _get_next_token(Token &tk);
+	int _get_next_macro_line(Token &tk);
+	int _get_next_word(Token &tk);
 
 public:
 	TokenStream(Buffer &in_buf);
@@ -81,7 +84,7 @@ public:
 	void set_mode(token_mode a_mode);
 	std::string get_location();
 	std::string get_line_text();
-	void nested_file(char const *name);
+	void nested_file(std::string const &name);
 	void nested_source(SrcText &source);
 	SrcText &get_current();
 };

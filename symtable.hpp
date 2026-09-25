@@ -12,6 +12,9 @@
 #include <map>
 #include <string>
 #include <ostream>
+#include "errorpro.hpp"
+
+using std::string;
 
 enum sym_type {
 	sym_label,
@@ -26,17 +29,17 @@ struct sym_type_value {
 	uint16_t value;
 };
 
-class SymbolTable: std::map<std::string, sym_type_value> {
+class SymbolTable: public ErrorConsumer, std::map<string, sym_type_value> {
 private:
-	void _add(char const *name, sym_type type, uint16_t value);
+	void _add(string const &name, sym_type type, uint16_t value);
 
 public:
-	SymbolTable();
-	~SymbolTable();
+	SymbolTable() = default;
+	~SymbolTable() = default;
 
-	void add_or_overwrite(char const *name, sym_type type, uint16_t value);
-	void add_unique(char const *name, sym_type type, uint16_t value);
-	bool get(char const *name, sym_type type, uint16_t &value);
+	void add_or_overwrite(string const &name, sym_type type, uint16_t value);
+	void add_unique(string const &name, sym_type type, uint16_t value);
+	bool get(string const &name, sym_type type, uint16_t &value);
 	void dump(std::ostream &where, int format);
 };
 

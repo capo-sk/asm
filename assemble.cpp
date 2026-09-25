@@ -8,7 +8,6 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include <cstring>
 #include "error.h"
 #include "buffer.hpp"
 #include "emit.hpp"
@@ -73,7 +72,8 @@ int main(int argc, char *argv[]) {
 	SymbolTable symtab;
 
 	Parser parser(in_buf, emit, symtab);
-	emit.error_provider(&parser);
+	emit.set_error_provider(&parser);
+	symtab.set_error_provider(&parser);
 
 	parser.first_pass();
 

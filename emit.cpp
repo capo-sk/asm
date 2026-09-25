@@ -18,11 +18,6 @@ Emitter::Emitter(std::ostream &a_nfile)
 	err = NULL;
 }
 
-void Emitter::error_provider(ErrorProvider *ep)
-{
-	err = ep;
-}
-
 void Emitter::emit_byte(uint8_t value)
 {
 	if (pass > 1) {
@@ -73,11 +68,11 @@ void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uin
 					out_code = opc_code;
 					distance = (int16_t) (number - loc - 2);
 					if (distance > 127 || distance < -128)
-						err->error("Relative address too far");
+						error("Relative address too far");
 					number = (uint8_t) distance;
 					size = 1;
 				} else
-					err->error("Invalid mode");
+					error("Invalid mode");
 				break;
 			case abs_ind_modes:
 				if (mode == abs_mode)
@@ -85,7 +80,7 @@ void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uin
 				else if (mode == ind_mode)
 					out_code = opc_multi;
 				else
-					err->error("Invalid mode");
+					error("Invalid mode");
 				break;
 			case multimode:
 			case multimode2:
@@ -111,10 +106,10 @@ void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uin
 				if (multimode_valid(opc_multi, upgraded_mode))
 					out_code = multimode_compose(index, upgraded_mode);
 				else
-					err->error("Invalid mode");
+					error("Invalid mode");
 				break;
 			default:
-				err->error("Internal error - no such mode");
+				error("Internal error - no such mode");
 		}
 	}
 
@@ -132,7 +127,7 @@ void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uin
 			emit_word(number);
 			break;
 		default:
-			err->error("Internal error - invalid size");
+			error("Internal error - invalid size");
 	}
 }
 

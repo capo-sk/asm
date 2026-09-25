@@ -12,10 +12,9 @@
 #include <ostream>
 #include "errorpro.hpp"
 
-class Emitter {
+class Emitter: public ErrorConsumer {
 private:
 	std::ostream &nfile;
-	ErrorProvider *err;
 	unsigned pass;
 	int flag;
 	uint16_t loc;
@@ -25,7 +24,6 @@ private:
 
 public:
 	Emitter(std::ostream &a_nfile);
-	void error_provider(ErrorProvider *ep);
 	uint16_t get_loc() { return loc; }
 	void set_loc(uint16_t a_loc) { loc = a_loc; }
 	void set_pass(unsigned a_pass) { pass = a_pass; }
