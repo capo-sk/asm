@@ -11,7 +11,7 @@
 using namespace std;
 
 MacroText::MacroText(string const &mname)
-: SrcText(mname), values(NULL)
+: SrcText(mname)
 {
 	current = text.begin();
 }
@@ -20,13 +20,13 @@ MacroText::~MacroText()
 {
 }
 
-void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
+/*void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
 {
 	filename = callfrom.get_name();
 	fileline = callfrom.get_linenum();
 	values = &pvalues;
 	current = text.begin();
-}
+}*/
 
 void MacroText::add_line(string const &tline)
 {
@@ -51,12 +51,7 @@ void MacroText::rewind()
 	SrcText::rewind();
 }
 
-void MacroText::add_param(string const &param)
-{
-	params.push_back(param);
-}
-
-string _replace_1(string const &word, list<string> const &params, list<string> const &values)
+static string _replace_1(string const &word, list<string> const &params, list<string> const &values)
 {
 	auto pi = params.cbegin();
 	auto vi = values.cbegin();
@@ -70,7 +65,7 @@ string _replace_1(string const &word, list<string> const &params, list<string> c
 	return word;
 }
 
-string _replace(string const &base, list<string> const &params, list<string> const &values)
+static string _replace(string const &base, list<string> const &params, list<string> const &values)
 {
 	char const *current, *word;
 	bool out;
@@ -111,7 +106,7 @@ string _replace(string const &base, list<string> const &params, list<string> con
 bool MacroText::getline(string &buffer)
 {
 	if (current != text.end()) {
-		buffer = _replace(current->data(), params, *values);
+		buffer = _replace(current->data(), params, values);
 		advance_line();
 		return true;
 	} else {
@@ -120,9 +115,30 @@ bool MacroText::getline(string &buffer)
 	}
 }
 
+void MacroText::add_param(string const &param)
+{
+	params.push_back(param);
+}
+
 unsigned MacroText::get_param_count() const
 {
 	return params.size();
+}
+
+void MacroText::new_invocation()
+{
+	values.clear();
+	rewind();
+}
+
+void MacroText::add_value(std::string const &value)
+{
+	values.push_back(value);
+}
+
+unsigned MacroText::get_value_count() const
+{
+	return values.size();
 }
 
 void MacroTable::add(MacroText &macro)

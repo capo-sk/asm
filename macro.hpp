@@ -21,17 +21,22 @@ private:
 	std::string filename;
 	unsigned fileline;
 	std::list<std::string> params;
-	std::list<std::string> const *values;
+	std::list<std::string> values;
 
 public:
 	MacroText(std::string const &mname);
 	virtual ~MacroText();
 
 	void add_line(std::string const &tline);
+
 	void add_param(std::string const &param);
 	unsigned get_param_count() const;
 	
-	void invoke(SrcText const &callfrom, std::list<std::string> const &values);
+	void new_invocation();
+	void add_value(std::string const &value);
+	unsigned get_value_count() const;
+
+//	void invoke(SrcText const &callfrom, std::list<std::string> const &values);
 
 	virtual std::string get_location() const;
 

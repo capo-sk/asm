@@ -1,6 +1,0 @@
-#!/bin/sh
-
-T=`basename $0 .sh`
-E="Invalid align multiple"
-
-sh cause_error.sh "$T" "$E"

@@ -9,9 +9,10 @@ parse.o: parse.cpp parse.hpp errorpro.hpp buffer.hpp srcstack.hpp \
  source.hpp tkstream.hpp symtable.hpp emit.hpp macro.hpp opcodes.hpp \
  error.h
 srcfile.o: srcfile.cpp srcfile.hpp source.hpp error.h
-symtable.o: symtable.cpp symtable.hpp error.h
+symtable.o: symtable.cpp symtable.hpp errorpro.hpp
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcstack.hpp source.hpp \
  srcfile.hpp opcodes.hpp
 source.o: source.cpp source.hpp
 macro.o: macro.cpp macro.hpp source.hpp
 srcstack.o: srcstack.cpp srcstack.hpp source.hpp srcfile.hpp
+errorpro.o: errorpro.cpp errorpro.hpp error.h

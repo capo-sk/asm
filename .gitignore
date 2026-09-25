@@ -5,3 +5,4 @@ compile_commands.json
 examples/hello
 .vscode
 version.c
+test/make_ref
