@@ -56,19 +56,20 @@ typedef struct {
 } opcode;
 
 extern const opcode opcodes[];
-extern const uint8_t num_opcodes;
+extern const unsigned num_opcodes;
 
 typedef struct {
 	char const *mnemonic;
 } pseudo;
 
 extern const pseudo pseudos[];
-extern const uint8_t num_pseudos;
-extern const uint8_t pseudo_macro;
+extern const unsigned num_pseudos;
+extern const unsigned pseudo_macro;
+extern const unsigned pseudo_endm;
 
 /* registers */
 extern const char *cpu_registers[];
-extern const uint8_t num_registers;
+extern const unsigned num_registers;
 
 uint8_t multimode_opcode(uint8_t base_code, uint8_t mode);
 uint8_t multimode2_opcode(uint8_t base_code, uint8_t mode);

@@ -47,7 +47,7 @@ using std::string;
 
 Token::Token()
 {
-	clear();
+	type = invalid;
 }
 
 void Token::clear()
@@ -56,17 +56,20 @@ void Token::clear()
 	value.clear();
 }
 
-Token &Token::operator=(Token const &tk)
+void Token::set_number(unsigned char x)
 {
-	type = tk.type;
-
-	if (type == actual_opcode || type == pseudo_opcode)
-		number = tk.number;
-	else
-	 	value = tk.value;
-
-	return *this;
+	value.clear();
+	value += (char) x;
 }
+
+unsigned Token::number() const
+{
+	if (value.length() == 0)
+		return 0;
+	else
+	 	return (unsigned char) value[0];
+}
+
 TokenStream::TokenStream(Buffer &in_buf) : buf(in_buf) {
 	mode = assembly;
 	ctx = line_start;
@@ -140,7 +143,7 @@ int TokenStream::_get_next_word(Token &tk)
 		c = toupper(c);
 
 		/* whitespace */
-		if (isspace(c)) {
+		if (isblank(c)) {
 			if (tk.value.length() == 0) {
 				// ignore starting whitespace
 				continue;
@@ -209,7 +212,7 @@ int TokenStream::_get_next_macro_line(Token &tk)
 		c = toupper(c);
 
 		// whitespace
-		if (isspace(c)) {
+		if (isblank(c)) {
 			c = ' ';  // compress any amount of whitespace between words to one space
 			if (tk.value.length() == 0 || prev == ' ') {
 				// ignore starting space or more than one space
@@ -301,7 +304,7 @@ int TokenStream::_get_next_token(Token &tk)
 
 		// if we are in a comment, ignore all until newline
 		if (inside_comment) {
-			if ('\n') {  // newline ends comment
+			if (c == '\n') {  // newline ends comment
 				tk.type = endline;
 				ctx = line_start;
 				return 1;
@@ -324,7 +327,7 @@ int TokenStream::_get_next_token(Token &tk)
 			}
 
 			// ignore starting whitespace
-			if (isspace(c))
+			if (isblank(c))
 				continue;
 
 			// colon may not start a token
@@ -399,7 +402,7 @@ int TokenStream::_get_next_token(Token &tk)
 			for (i = 0; i < num_opcodes; ++i) {
 				if (tk.value == opcodes[i].mnemonic) {
 					tk.type = actual_opcode;
-					tk.number = i;
+					tk.set_number(i);
 					goto found;
 				}
 			}
@@ -408,7 +411,7 @@ int TokenStream::_get_next_token(Token &tk)
 			for (i = 0; i < num_pseudos; ++i) {
 				if (tk.value == pseudos[i].mnemonic) {
 					tk.type = pseudo_opcode;
-					tk.number = i;
+					tk.set_number(i);
 					if (i == pseudo_macro)
 						ctx = macro_header1;
 					goto found;
@@ -442,7 +445,7 @@ std::string TokenStream::get_location()
 	return buf.get_location();
 }
 
-void TokenStream::nested_file(char const *name)
+void TokenStream::nested_file(std::string const &name)
 {
 	if (!buf.is_present(name)) {
 		SrcFile *f = new SrcFile(name);

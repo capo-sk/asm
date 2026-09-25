@@ -6,6 +6,7 @@
 */
 
 #include "parse.hpp"
+#include <cstdint>
 #include <cstring>
 #include <cstdarg>
 #include "opcodes.hpp"
@@ -13,7 +14,7 @@
 #include "macro.hpp"
 #include "error.h"
 
-using namespace std;
+using std::string;
 
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
@@ -22,7 +23,7 @@ Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 }
 	
 void Parser::first_pass() {
-	main_label.value[0] = 0;
+	main_label.clear();
 	pass = 1;
 	emit.set_pass(pass);
 	uniq = 0;
@@ -31,7 +32,7 @@ void Parser::first_pass() {
 
 void Parser::second_pass() {
 	stream.reset();
-	main_label.value[0] = 0;
+	main_label.clear();
 	pass = 2;
 	emit.set_pass(pass);
 	uniq = 0;
@@ -43,7 +44,6 @@ void Parser::p0_source() {
 
 	while ((ret = p1_line()) > 0)
 		;
-		//stream.AdvanceLine();
 
 	if (ret < 0)
 		error("Parse error");
@@ -106,7 +106,7 @@ int Parser::p2_instruction() {
 			if (tk2.type == ',') {
 				stream.read(tk2);
 				if (tk2.type == cpu_register)
-					if (tk2.value[0] == 'X') {
+					if (tk2.number() == 'X') {
 						mode = indx_mode;
 						size = 2;
 					} else
@@ -122,7 +122,7 @@ int Parser::p2_instruction() {
 			if (tk2.type == ',') {
 				stream.read(tk2);
 				if (tk2.type == cpu_register)
-					if (tk2.value[0] == 'Y') {
+					if (tk2.number() == 'Y') {
 						mode = indy_mode;
 						size = 2;
 					} else
@@ -133,7 +133,7 @@ int Parser::p2_instruction() {
 				stream.pushback();
 			break;
 		case cpu_register:
-			if (tk1.value[0] == 'A') {
+			if (tk1.number() == 'A') {
 				mode = impl_rega; size = 1;
 				break;
 			} else {
@@ -159,7 +159,7 @@ int Parser::p2_instruction() {
 			} else {
 				stream.read(tk2);
 				if (tk2.type == cpu_register) {
-					switch (tk2.value[0]) {
+					switch (tk2.number()) {
 						case 'X':
 							if (mode == abs_mode)
 								mode = absx_mode;
@@ -186,7 +186,7 @@ int Parser::p2_instruction() {
 			error("Syntax error");
 	}
 
-	emit.emit_instruction(first.value[0], mode, (uint16_t) value, size - 1);
+	emit.emit_instruction(first.number(), mode, (uint16_t) value, size - 1);
 
 	return expect_newline();
 }
@@ -220,8 +220,8 @@ void Parser::p3_pseudo_byte()
 	do {
 		stream.read(tk);
 		if (tk.type == literal_str) {
-			len = strlen(tk.value);
-			emit.emit_bytes((uint8_t *)tk.value, len);
+			len = tk.value.length();  // ignoring the case that length > 64K
+			emit.emit_bytes((uint8_t *)tk.value.c_str(), len);
 		} else {
 			stream.pushback();
 			value = (uint8_t) p3_expression();
@@ -256,7 +256,7 @@ void Parser::p3_pseudo_align()
 
 int Parser::p2_pseudo_instruction()
 {
-	switch (first.value[0]) {
+	switch (first.number()) {
 		case 0: /* MACRO */
 			p3_macro_header();
 			return 1;  // already consumed newline
@@ -330,7 +330,6 @@ int Parser::p3_include() {
 		error("Expected filename");
 
 	result = expect_newline();
-	//stream.pushback();
 
 	stream.nested_file(tk.value);
 
@@ -371,23 +370,26 @@ int Parser::p2_invoke_macro(void) {
 		error("Macro may not invoke itself");
 
 	// parse parameters
-	auto *values = new list<string>;
+//	auto *values = new list<string>;
+	MacroText &macro = macro_it->second;
+	macro.new_invocation();
 	Token tk;
 	stream.set_mode(words);
 	stream.read(tk);
 	while (tk.type == word) {
-		values->push_back(tk.value);
+		macro.add_value(tk.value);
+//		values->push_back(tk.value);
 		stream.read(tk);
 	}
 	stream.set_mode(assembly);
 	pushback_and_newline();
 
 	// number of values must match number of parameters
-	if (values->size() != macro_it->second.get_param_count())
+	if (macro.get_value_count() != macro.get_param_count())
 		error("Argument count mismatch");
 
 	// invoke macro with parameters
-	macro_it->second.invoke(stream.get_current(), *values);
+//	macro_it->second.invoke(stream.get_current(), *values);
 
 	// switch input to macro
 	stream.nested_source(macro_it->second);
@@ -395,29 +397,32 @@ int Parser::p2_invoke_macro(void) {
 	return 1;
 }
 
-void Parser::localise_label(Token &tk)
+void Parser::localise_symbol(Token &tk)
 {
 	string result;
 
-	if (tk.value[0] == '.') {
-		if (tk.value[1] == '.') {  // macro unique label
-			result = string(stream.get_current().get_name() + to_string(uniq) + string(&tk.value[1]));
-		} else {  // local label
+	if (tk.value.length() > 1 && tk.value[0] == '.') {
+		if (tk.value.length() > 2 && tk.value[1] == '.') {
+			// macro unique label
+			result = string(stream.get_current().get_name() + std::to_string(uniq) + string(&tk.value[1]));
+		} else {
+			// local label
 			result = string(main_label.value) + string(tk.value);
 		}
 
-		if (result.length() > MAX_TOKEN_LENGTH)
-			error(format("Symbol {} too long", result));
+//		if (result.length() > MAX_TOKEN_LENGTH)
+//			error(format("Symbol {} too long", result));
 	
-		strcpy(tk.value, result.c_str());
+		tk.value = result;
 	}
 }
 
 void Parser::p2_labeldef(void) {
+	// first is the label token; we know length is >= 1
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
 	} else {                      /* local label */
-		localise_label(first);
+		localise_symbol(first);
 	}
 
 	if (pass == 1) {
@@ -437,16 +442,19 @@ int Parser::p2_vardef(void) {
 
 	value = (uint16_t) p3_expression();
 
+	// local variable
 	if (first.value[0] == '.')
-		localise_label(first);
+		localise_symbol(first);
 
 	sym.add_or_overwrite(first.value, sym_var, value);
 
 	return expect_newline();
 }
 
-int Parser::p2_location(void) {
+int Parser::p2_location(void)
+{
 	Token tk;
+	uint16_t value;
 
 	stream.read(tk);
 	if (tk.type != '=') {
@@ -454,12 +462,14 @@ int Parser::p2_location(void) {
 		return -1;
 	}
 
-	emit.set_loc((uint16_t) p3_expression());
+	value = (uint16_t) p3_expression();
+	emit.set_loc(value);
 
 	return expect_newline();
 }
 
-uint32_t Parser::p3_expression(void) {
+uint32_t Parser::p3_expression()
+{
 	Token tk;
 	uint16_t result;
 	uint16_t operand;
@@ -525,7 +535,7 @@ uint16_t Parser::p4_expr_element(void) {
 	switch (tk.type) {
 		case symbol_ref:
 			if (tk.value[0] == '.')  /* local label */
-				localise_label(tk);
+				localise_symbol(tk);
 
 			if (sym.get(tk.value, sym_anynum, value) != 0)
 				return value;
@@ -537,11 +547,11 @@ uint16_t Parser::p4_expr_element(void) {
 		case literal_chr:
 			return (uint16_t)tk.value[0];
 		case literal_dec:
-			return p5_dec(tk.value);
+			return p5_dec(tk.value.c_str());
 		case literal_hex:
-			return p5_hex(tk.value);
+			return p5_hex(tk.value.c_str());
 		case literal_bin:
-			return p5_bin(tk.value);
+			return p5_bin(tk.value.c_str());
 		case '<':
 			return p4_expr_element() & 0xFF;
 		case '>':
@@ -562,8 +572,8 @@ uint16_t Parser::p5_dec(char const *text) {
 	char const *p;
 
 	for (p = text; (c = *p) != 0; ++p) {
-		if (c < '0' || c > '9')
-			error(format("Invalid decimal number {}", text));
+		if (!isdigit(c))
+			error(std::format("Invalid decimal number {}", text));
 
 		value *= 10;
 
@@ -588,7 +598,7 @@ uint16_t Parser::p5_bin(char const *text)
 				value |= 1;
 				break;
 			default:
-				error(format("Invalid binary number {}", text));
+				error(std::format("Invalid binary number {}", text));
 		}
 	}
 
@@ -603,8 +613,8 @@ uint16_t Parser::p5_hex(char const *text)
 	uint8_t x;
 
 	for (p = text; (c = *p) != 0; ++p) {
-		if (c < '0' || c > 'F' || (c > '9' && c < 'A'))
-			error(format("Invalid hex number {}", text));
+		if (!isxdigit(c))
+			error(std::format("Invalid hex number {}", text));
 
 		value <<= 4;
 		

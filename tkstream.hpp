@@ -52,16 +52,13 @@ enum token_type {
 
 struct Token {
 	token_type type;
-	union {
-		std::string value;
-		unsigned number;
-	};
+	std::string value;
 
 	Token();
-	~Token() {};
-	Token &operator=(Token const &tk);
-
 	void clear();
+
+	unsigned number() const;
+	void set_number(unsigned char x);
 };
 
 class TokenStream {
@@ -87,7 +84,7 @@ public:
 	void set_mode(token_mode a_mode);
 	std::string get_location();
 	std::string get_line_text();
-	void nested_file(char const *name);
+	void nested_file(std::string const &name);
 	void nested_source(SrcText &source);
 	SrcText &get_current();
 };

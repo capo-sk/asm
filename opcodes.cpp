@@ -112,7 +112,7 @@ const opcode opcodes[] = {
 	{ "TXS", impl_mode, 0x9A },
 	{ "TYA", impl_mode, 0x98 },
 };
-const uint8_t num_opcodes = sizeof(opcodes) / sizeof(opcode);
+const unsigned num_opcodes = sizeof(opcodes) / sizeof(opcode);
 
 const pseudo pseudos[] = {
 	{ ".MACRO" },
@@ -122,9 +122,9 @@ const pseudo pseudos[] = {
 	{ ".INCLUDE" },
 	{ ".ALIGN"}
 };
-const uint8_t num_pseudos = sizeof(pseudos) / sizeof(pseudo);
-const uint8_t pseudo_macro = 0;
+const unsigned num_pseudos = sizeof(pseudos) / sizeof(pseudo);
+const unsigned pseudo_macro = 0;
 
 
 const char *cpu_registers[] = { "A", "X", "Y" };
-const uint8_t num_registers = 3;
+const unsigned num_registers = 3;

@@ -59,7 +59,7 @@ private:
 	int expect_newline();
 	int pushback_and_newline();
 
-	void localise_label(Token &tk);
+	void localise_symbol(Token &tk);
 	//void make_local_label(char *local_label, char const *global_context, char const *local_part);
 
 //	friend Emitter;  // uses error methods

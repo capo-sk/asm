@@ -13,7 +13,15 @@
 class ErrorProvider {
 public:
 	[[noreturn]] virtual void error(std::string const &msg) = 0;
-	//[[noreturn]] virtual void error_fmt(char const *fmt, ...) = 0;
+};
+
+class ErrorConsumer {
+protected:
+   ErrorProvider *err;
+	[[noreturn]] void error(std::string const &msg);
+   
+public:
+	void set_error_provider(ErrorProvider *ep);
 };
 
 #endif
