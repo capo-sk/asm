@@ -50,12 +50,18 @@ enum token_type {
 	skip = 0xf0
 };
 
-#define VALUE_SIZE 64
-#define MAX_TOKEN_LENGTH (VALUE_SIZE - 1)
-
 struct Token {
 	token_type type;
-	char value[VALUE_SIZE];
+	union {
+		std::string value;
+		unsigned number;
+	};
+
+	Token();
+	~Token() {};
+	Token &operator=(Token const &tk);
+
+	void clear();
 };
 
 class TokenStream {
@@ -66,10 +72,10 @@ private:
 	Token latest;
 	bool reuse;
 
-	int _get_next_token_multimode(Token *tk);
-	int _get_next_token(Token *tk);
-	int _get_next_macro_line(Token *tk);
-	int _get_next_word(Token *tk);
+	int _get_next_token_multimode(Token &tk);
+	int _get_next_token(Token &tk);
+	int _get_next_macro_line(Token &tk);
+	int _get_next_word(Token &tk);
 
 public:
 	TokenStream(Buffer &in_buf);

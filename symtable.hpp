@@ -31,8 +31,8 @@ private:
 	void _add(char const *name, sym_type type, uint16_t value);
 
 public:
-	SymbolTable();
-	~SymbolTable();
+	SymbolTable() = default;
+	~SymbolTable() = default;
 
 	void add_or_overwrite(char const *name, sym_type type, uint16_t value);
 	void add_unique(char const *name, sym_type type, uint16_t value);

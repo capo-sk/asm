@@ -10,12 +10,6 @@
 #include "error.h"
 #include <format>
 
-SymbolTable::SymbolTable() {
-}
-
-SymbolTable::~SymbolTable() {
-}
-
 void SymbolTable::_add(char const *name, sym_type type, uint16_t value) {
 	insert({name, {type, value}});
 }

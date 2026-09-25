@@ -40,12 +40,33 @@
 #include "tkstream.hpp"
 #include "srcfile.hpp"
 #include <cctype>
-#include <cstring>
 #include "opcodes.hpp"
 #include <string>
 
-using namespace std;
+using std::string;
 
+Token::Token()
+{
+	clear();
+}
+
+void Token::clear()
+{
+	type = invalid;
+	value.clear();
+}
+
+Token &Token::operator=(Token const &tk)
+{
+	type = tk.type;
+
+	if (type == actual_opcode || type == pseudo_opcode)
+		number = tk.number;
+	else
+	 	value = tk.value;
+
+	return *this;
+}
 TokenStream::TokenStream(Buffer &in_buf) : buf(in_buf) {
 	mode = assembly;
 	ctx = line_start;
@@ -59,7 +80,7 @@ int TokenStream::read(Token &tk) {
 		reuse = false;
 		retval = 1;
 	} else {
-		retval = _get_next_token_multimode(&latest);
+		retval = _get_next_token_multimode(latest);
 	}
 
 	tk = latest;
@@ -84,7 +105,7 @@ void TokenStream::reset()
 }
 
 
-int TokenStream::_get_next_token_multimode(Token *tk)
+int TokenStream::_get_next_token_multimode(Token &tk)
 {
 	switch (mode) {
 		case assembly:
@@ -98,66 +119,58 @@ int TokenStream::_get_next_token_multimode(Token *tk)
 	}
 }
 
-int TokenStream::_get_next_word(Token *tk)
+int TokenStream::_get_next_word(Token &tk)
 {
 	int c;
-	unsigned text_len = 0;
 	bool incomplete_token = true;
 
-	tk->type = invalid;  /* until we know better */
+	tk.clear();  // start with type=invalid, value=""
+
 	while (incomplete_token) {
 		c = buf.get_next();
 
+		/* end of line or file */
+		if (c == '\n' || c == Buffer::eofmark) {
+			buf.pushback();
+			incomplete_token = false;
+			break;
+		}
+
 		/* convert to uppercase */
-		if (islower(c))
-			c = toupper(c);
+		c = toupper(c);
 
 		/* whitespace */
-		if (
-		    c == ' ' ||
-		    c == 9  /* tab */
-		   ) {
-			if (text_len == 0) {
-				/* ignore starting whitespace */
+		if (isspace(c)) {
+			if (tk.value.length() == 0) {
+				// ignore starting whitespace
 				continue;
-			} else {  /* whitespace terminates word */
-				tk->value[text_len] = 0;
+			} else {
+				// whitespace terminates word
 				incomplete_token = false;
 				break;
 			}
 		}
 
-		/* end of line */
-		if (c == 13 ||	/* cr */
-		    c == 10	/* lf */
-		   ) {
-			buf.pushback();
-			tk->value[text_len] = 0;
-			incomplete_token = false;
-			break;
-		}
-
-		/* anything else */
-		tk->value[text_len++] = c;
+		// anything else accumulates into the value
+		tk.value += (char)c;
 	}
 
-	if (text_len > 0) {
-		tk->type = word;
+	if (tk.value.length() > 0) {
+		tk.type = word;
 		return 1;
 	} else {
-		tk->type = skip;
+		tk.type = skip;
 		return 0;
 	}
 }
 
-int TokenStream::_get_next_macro_line(Token *tk)
+int TokenStream::_get_next_macro_line(Token &tk)
 {
 	int c, prev;
 	bool incomplete_token = true;
-	unsigned text_len = 0;
 	bool inside_comment = false;
 
-	tk->type = invalid;  /* until we know better */
+	tk.clear();  // start with type=invalid, value=""
 
 	c = 0;
 	while (incomplete_token) {
@@ -165,9 +178,8 @@ int TokenStream::_get_next_macro_line(Token *tk)
 		c = buf.get_next();
 
 		if (c == Buffer::eofmark) {
-			if (text_len == 0) {  // reached end of file
-				tk->type = endline;
-				tk->value[0] = 0;
+			if (tk.value.length() == 0) {  // reached end of file
+				tk.type = endline;
 				if (buf.close_file() == 0) { // no more files
 					ctx = end_of_file;
 					return 0;
@@ -177,84 +189,60 @@ int TokenStream::_get_next_macro_line(Token *tk)
 				}
 			} else {  // EOF terminates word
 				buf.pushback();
-				tk->value[text_len] = 0;
 				incomplete_token = false;
 				break;
 			}
 		}
 
-		/* if we are in a comment, ignore all until newline */
-		if (inside_comment) {
-			if (c == 13 || c == 10) {  // newline ends comment
-				tk->type = endline;
-				tk->value[0] = 0;
-				ctx = line_start;
-				return 1;
-			}
-			continue;
-		}
-
-		/* convert to uppercase */
-		if (islower(c))
-			c = toupper(c);
-
-		/* start comment */
-		if (c == ';') {
-			if (text_len == 0) {
-				inside_comment = true;
-				continue;
-			} else {
-				tk->value[text_len] = 0;
-				buf.pushback();
-				incomplete_token = false;
-				break;
-			}
-		}
-
-		/* whitespace */
-		if (
-		    c == ' ' ||
-		    c == 9  /* tab */
-		   ) {
-			c = ' ';
-			if (text_len == 0) {
-				/* ignore starting whitespace */
-				continue;
-			} else if (prev != ' ') {
-				/* compress whitespace between words to one space */
-				tk->value[text_len++] = c;
-				continue;
-			} else {
-				/* ignore additional spaces */
-				continue;
-			}
-		}
-
-		/* end of line */
-		if (c == 13 ||	/* cr */
-		    c == 10	/* lf */
-		   ) {
-			//buf.rewind_1();
-			tk->value[text_len] = 0;
+		// end of line
+		if (c == '\n') {
+			// token is complete (whole line)
 			incomplete_token = false;
 			break;
 		}
 
-		/* anything else */
-		tk->value[text_len++] = c;
+		// if we are in a comment, ignore all until newline or eof
+		if (inside_comment)
+			continue;
+
+		// convert to uppercase
+		c = toupper(c);
+
+		// whitespace
+		if (isspace(c)) {
+			c = ' ';  // compress any amount of whitespace between words to one space
+			if (tk.value.length() == 0 || prev == ' ') {
+				// ignore starting space or more than one space
+				continue;
+			} else {
+				// first space is appended
+				tk.value += (char)c;
+				continue;
+			}
+		}
+
+		// ; starts comment
+		if (c == ';') {
+			// process the comment (ignore until newline)
+			inside_comment = true;
+			continue;
+		}
+
+		// anything else: append to the output
+		tk.value += (char)c;
 	}
 
-	/* remove trailing space if any */
-	if (text_len > 1 && tk->value[text_len - 1] == ' ')
-		tk->value[--text_len] = 0;
+	// remove trailing space if any
+	if (tk.value.length() > 1 && tk.value[tk.value.length() - 1] == ' ')
+		tk.value.erase(tk.value.length() - 1);
 
-	/* if the line is MEND then return MEND token, otherwise the line is the token */
-	const unsigned mend_opcode = 1;
-	if (strcmp(pseudos[mend_opcode].mnemonic, tk->value) == 0) {
-		tk->type = pseudo_opcode;
-		tk->value[0] = mend_opcode;
+	// if the line is ENDM then return ENDM token, otherwise the line is the token
+	const unsigned endm_opcode_idx = 1;
+	if (tk.value == pseudos[endm_opcode_idx].mnemonic) {
+		tk.type = pseudo_opcode;
+		tk.value[0] = endm_opcode_idx;
 	} else {
-		tk->type = macro_line;
+		tk.type = macro_line;
 	}
 
 	return 1;
@@ -266,25 +254,22 @@ return: 1 if valid token, 0 if eof, -1 error
 update: in_buf as consumed
 update: ctx with new context if changed
 */
-int TokenStream::_get_next_token(Token *tk)
+int TokenStream::_get_next_token(Token &tk)
 {
 	int c;
 	unsigned char literal_delimiter;
-	unsigned i;
 	bool incomplete_token = true;
-	unsigned text_len = 0;
 	bool inside_string_literal = false;
 	bool inside_comment = false;
 
-	tk->type = invalid;  /* until we know better */
+	tk.clear();  // start with type=invalid, value=""
 
 	while (incomplete_token) {
 		c = buf.get_next();
 
 		if (c == Buffer::eofmark) {
-			if (text_len == 0) {  // reached end of file
-				tk->type = endline;
-				tk->value[0] = 0;
+			if (tk.value.length() == 0) {  // reached end of file
+				tk.type = endline;
 				if (buf.close_file() == 0) { // no more files
 					ctx = end_of_file;
 					return 0;
@@ -294,230 +279,158 @@ int TokenStream::_get_next_token(Token *tk)
 				}
 			} else {  // EOF terminates word
 				buf.pushback();
-				tk->value[text_len] = 0;
 				incomplete_token = false;
 				break;
 			}
 		}
 
-		/* if we are inside a string literal, accumulate until we
-		   find the end delimiter */
+		// if we are inside a string literal, accumulate until we find the end delimiter
 		if (inside_string_literal) {
 			if (c == literal_delimiter) {
-				tk->value[text_len] = 0;
 				if (literal_delimiter == '"')
-					tk->type = literal_str;
+					tk.type = literal_str;
 				else
-					tk->type = literal_chr;
-				goto update_ctx;
-			}
-			if (text_len < MAX_TOKEN_LENGTH) {
-				tk->value[text_len] = c;
-				++text_len;
-				continue;
+					tk.type = literal_chr;
+				incomplete_token = false;
+				break;
 			} else {
-				ctx = err_too_long;
-				return -1;
+				tk.value += (char)c;
+				continue;
 			}
 		}
 
-		/* if we are in a comment, ignore all until newline */
+		// if we are in a comment, ignore all until newline
 		if (inside_comment) {
-			if (c == 13 || c == 10) {  // newline ends comment
-				tk->type = endline;
-				tk->value[0] = 0;
+			if ('\n') {  // newline ends comment
+				tk.type = endline;
 				ctx = line_start;
 				return 1;
 			}
 			continue;
 		}
 
-		/* convert to uppercase */
-		if (islower(c))
-			c = toupper(c);
-
-		/* start char/string literal 'c' "str" */
-		if (
-		    c == '"' ||
-		    c == '\''
-		   ) {
-			if (text_len == 0) {
+		if (tk.value.length() == 0) {
+			// start char/string literal 'c' "str"
+			if (c == '"' || c == '\'') {
 				literal_delimiter = c;
 				inside_string_literal = true;
 				continue;
-			} else {
-				tk->value[text_len] = 0;
-				buf.pushback();
-				incomplete_token = false;
-				break;
 			}
-		}
 
-		/* start comment */
-		if (c == ';') {
-			if (text_len == 0) {
+			// start comment
+			if (c == ';') {
 				inside_comment = true;
 				continue;
-			} else {
-				tk->value[text_len] = 0;
-				buf.pushback();
-				incomplete_token = false;
-				break;
 			}
-		}
 
-		/* special symbols */
-		if (
-		    c == '#' ||
-		    c == '*' ||
-		    c == '=' ||
-		    c == '!' ||
-		    c == '<' ||
-		    c == '>' ||
-			c == '^' ||
-		    c == '+' ||
-		    c == '-' ||
-		    c == '(' ||
-		    c == ')' ||
-		    c == ',' ||
-			c == '/' ||
-		    c == 13 ||	/* cr */
-		    c == 10	/* lf */
-		   ) {
-			if (text_len == 0) {	/* c is the token */
-				if (c == 13 || c == 10) {
-					tk->type = endline;
-					ctx = line_start;
-				} else {
-					tk->type = (token_type) c;
-					ctx = line_middle;
-				}
-				tk->value[0] = 0;  /* no value */
-				return 1;
-			} else {		/* c is not part of the token */
-				buf.pushback();
-				tk->value[text_len] = 0;
-				incomplete_token = false;
-				break;
-			}
-		}
-
-		/* whitespace */
-		if (
-		    c == ' ' ||
-		    c == 9  /* tab */
-		   ) {
-			if (text_len == 0) {
-				/* ignore starting whitespace */
+			// ignore starting whitespace
+			if (isspace(c))
 				continue;
-			} else {
-				/* end of word */
-				tk->value[text_len] = 0;
-				incomplete_token = false;
-				break;
+
+			// colon may not start a token
+			if (c == ':') {
+				tk.type = invalid;
+				tk.value = ':';
+				ctx = line_middle;
+				return 1;
 			}
 		}
+	
+		// convert to uppercase
+		c = toupper(c);
 
-		/* colon signals end of label */
+		// accumulate word characters
+		if (isalnum(c) || c == '_' || c == '$' || c == '%' || c == '.' || c == '&') {
+			tk.value += (char)c;
+			continue;
+		}
+
+		// colon signals end of label
 		if (c == ':') {
-			if (text_len == 0) {
-				/* bare colon */
-				tk->type = invalid;
-				tk->value[0] = c;
-				tk->value[1] = 0;
-				ctx = line_middle;
-				return 1;
-			} else {
-				tk->type = label_def;
-				tk->value[text_len] = 0;
-				ctx = line_middle;
-				return 1;
-			}
+			tk.type = label_def;
+			ctx = line_middle;
+			return 1;
 		}
-			
-		/* word */
-		if (
-		    (c >= 'A' && c <= 'Z') ||
-		    (c >= '0' && c <= '9') ||
-		    c == '_' ||
-		    c == '$' ||
-			c == '%' ||
-		    c == '.' ||
-		    c == '&'
-		   ) {
-			if (text_len <= MAX_TOKEN_LENGTH) {
-				tk->value[text_len++] = c;
-				continue;
+	
+		// anything else (special symbols, space, return etc.) terminates the token
+		// if first character, the symbol is the token
+		if (tk.value.length() == 0) {
+			// c is the token
+			if (c == '\n') {
+				tk.type = endline;
+				ctx = line_start;
 			} else {
-				ctx = err_too_long;
-				return -1;
+					tk.type = (token_type)c;
+					ctx = line_middle;
 			}
+			return 1;
+		} else {		/* c is not part of the token */
+			buf.pushback();
+			incomplete_token = false;
+			break;
 		}
-
-		/* invalid character */
-		tk->value[0] = c;
-		tk->value[1] = 0;
-		ctx = err_invalid_chr;
-		return -1;
 	}
 
-	if (tk->type == invalid) {
-		c = tk->value[0];
+	if (tk.type == invalid) {
+		c = tk.value[0];
 		if (c == '$') {
-			tk->type = literal_hex;
-			memmove(tk->value, tk->value + 1, text_len);
+			tk.type = literal_hex;
+			tk.value.erase(0, 1);
 		} else if (c == '%') {
-			tk->type = literal_bin;
-			memmove(tk->value, tk->value + 1, text_len);
-		} else if (c >= '0' && c <= '9')
-			tk->type = literal_dec;
+			tk.type = literal_bin;
+			tk.value.erase(0, 1);
+		} else if (isdigit(c))
+			tk.type = literal_dec;
 		else if (c == '&') {
-			tk->type = macro_ref;
-			memmove(tk->value, tk->value + 1, text_len);
+			tk.type = macro_ref;
+			tk.value.erase(0, 1);
 		} else {
-			/* is it a register? */
+			unsigned i;
+
+			// is it a register?
 			for (i = 0; i < num_registers; ++i) {
-				if (strcmp(tk->value, cpu_registers[i]) == 0) {
-					tk->type = cpu_register;
-					goto update_ctx;
+				if (tk.value == cpu_registers[i]) {
+					tk.type = cpu_register;
+					goto found;
 				}
 			}
 
-			/* is it an opcode? */
+			// is it an opcode?
 			for (i = 0; i < num_opcodes; ++i) {
-				if (strcmp(tk->value, opcodes[i].mnemonic) == 0) {
-					tk->value[0] = (uint8_t)i;
-					tk->type = actual_opcode;
-					goto update_ctx;
+				if (tk.value == opcodes[i].mnemonic) {
+					tk.type = actual_opcode;
+					tk.number = i;
+					goto found;
 				}
 			}
 
-			/* is it a pseudo-opcode? */
+			// is it a pseudo-opcode?
 			for (i = 0; i < num_pseudos; ++i) {
-				if (strcmp(tk->value, pseudos[i].mnemonic) == 0) {
-					tk->value[0] = (uint8_t)i;
-					tk->type = pseudo_opcode;
+				if (tk.value == pseudos[i].mnemonic) {
+					tk.type = pseudo_opcode;
+					tk.number = i;
 					if (i == pseudo_macro)
 						ctx = macro_header1;
-					goto update_ctx;
+					goto found;
 				}
 			}
 
-			/* what type of identifier is it? */
+			// what type of identifier is it?
 			if (ctx == line_start) {
-				tk->type = var_def;
+				tk.type = var_def;
 			} else if (ctx == macro_header1) {
-				tk->type = macro_def;
+				tk.type = macro_def;
 				ctx = macro_header2;
 			} else if (ctx == macro_header2) {
-				tk->type = macro_par;
+				tk.type = macro_par;
 			} else {
-				tk->type = symbol_ref;
+				tk.type = symbol_ref;
 			}
 		}
 	}
 
-update_ctx:
+found:
+
 	if (ctx == line_start)
 		ctx = line_middle;
 
