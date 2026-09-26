@@ -50,15 +50,16 @@ void Buffer::rewind() {
 	sline.clear();
 	sidx = 0;
 	eof = false;
+	refill = true;
 }
 
 Buffer::Buffer(string const &fname)
-: SrcStack(fname)
+: SrcStack(fname), replay(0), eof(false), refill(true)
 {
-	replay = 0;
-	sline.clear();
-	eof = false;
-	refill = true;
+//	replay = 0;
+//	sline.clear();
+//	eof = false;
+//	refill = true;
 }
 
 bool Buffer::close_file() {
@@ -66,7 +67,8 @@ bool Buffer::close_file() {
 	sline.clear();
 	sidx = 0;
 	eof = false;
-	return Pop();
+	refill = true;
+	return pop();
 }
 
 string Buffer::get_line_text()

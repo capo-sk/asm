@@ -39,7 +39,7 @@ bool SrcStack::is_present(std::string const &name)
 	return names.count(name) > 0;
 }
 
-bool SrcStack::Pop()
+bool SrcStack::pop()
 {
 	if (sources.size() > 1) {
 		sources.pop();

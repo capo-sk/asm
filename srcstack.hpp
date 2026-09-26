@@ -26,7 +26,7 @@ public:
 	bool is_present(std::string const &name);
 	void new_source(SrcText *source);
 	void new_source_once(SrcText *source);
-	bool Pop();
+	bool pop();
 	virtual void rewind();
 	virtual void reset();
 	virtual std::string get_location();
