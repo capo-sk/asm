@@ -9,19 +9,21 @@
 #define SRCFILE_HPP
 
 #include "source.hpp"
+
 #include <string>
+using std::string;
 
 class SrcFile: public SrcText {
 private:
 	std::ifstream *nfile;
 
 public:
-	SrcFile(std::string const &fname);
+	SrcFile(string const &fname);
 	virtual ~SrcFile();
 
 	virtual void rewind();
 
-	virtual bool getline(std::string &buffer);
+	virtual bool getline(string &buffer);
 };
 
 #endif

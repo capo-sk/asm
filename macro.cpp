@@ -6,9 +6,6 @@
 */
 
 #include "macro.hpp"
-#include <cstring>
-
-using namespace std;
 
 MacroText::MacroText(string const &mname)
 : SrcText(mname)
@@ -35,8 +32,8 @@ void MacroText::add_line(string const &tline)
 
 string MacroText::get_location() const
 {
-	return "&" + get_name() + ":" + to_string(get_linenum())
-		+ "@" + filename + ":" + to_string(fileline);
+	return "&" + get_name() + ":" + std::to_string(get_linenum())
+		+ "@" + filename + ":" + std::to_string(fileline);
 }
 
 void MacroText::advance_line()
@@ -51,7 +48,7 @@ void MacroText::rewind()
 	SrcText::rewind();
 }
 
-static string _replace_1(string const &word, list<string> const &params, list<string> const &values)
+static string _replace_1(string const &word, std::list<string> const &params, std::list<string> const &values)
 {
 	auto pi = params.cbegin();
 	auto vi = values.cbegin();
@@ -65,7 +62,7 @@ static string _replace_1(string const &word, list<string> const &params, list<st
 	return word;
 }
 
-static string _replace(string const &base, list<string> const &params, list<string> const &values)
+static string _replace(string const &base, std::list<string> const &params, std::list<string> const &values)
 {
 	char const *current, *word;
 	bool out;
@@ -131,7 +128,7 @@ void MacroText::new_invocation()
 	rewind();
 }
 
-void MacroText::add_value(std::string const &value)
+void MacroText::add_value(string const &value)
 {
 	values.push_back(value);
 }

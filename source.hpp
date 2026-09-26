@@ -10,25 +10,27 @@
 
 #include <string>
 
+using std::string;
+
 class SrcText {
 private:
-	std::string textname;
+	string textname;
 	unsigned linenum;
 
 protected:
 	virtual void advance_line();
 
 public:
-	SrcText(std::string const &tname);
+	SrcText(string const &tname);
 	virtual ~SrcText() = default;
 
-	virtual std::string get_location() const;
-	virtual std::string const &get_name() const;
+	virtual string get_location() const;
+	virtual string const &get_name() const;
 	virtual unsigned get_linenum() const;
 
 	virtual void rewind();
 
-	virtual bool getline(std::string &buffer) = 0;
+	virtual bool getline(string &buffer) = 0;
 };
 
 #endif

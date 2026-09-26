@@ -9,7 +9,9 @@
 #define TKSTREAM_HPP
 
 #include "buffer.hpp"
+
 #include <string>
+using std::string;
 
 enum token_mode {
 	assembly,
@@ -82,9 +84,9 @@ public:
 	void rewind();
 	void reset();
 	void set_mode(token_mode a_mode);
-	std::string get_location();
-	std::string get_line_text();
-	void nested_file(std::string const &name);
+	string get_location();
+//	string get_line_text();
+	void nested_file(string const &name);
 	void nested_source(SrcText &source);
 	SrcText &get_current();
 };

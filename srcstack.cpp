@@ -10,7 +10,7 @@
 
 // class SrcFileList
 
-SrcStack::SrcStack(std::string const &fname)
+SrcStack::SrcStack(string const &fname)
 : SrcText(fname)
 {
 	new_source_once(new SrcFile(fname));
@@ -34,7 +34,7 @@ void SrcStack::new_source_once(SrcText *source)
 	}
 }
 
-bool SrcStack::is_present(std::string const &name)
+bool SrcStack::is_present(string const &name) const
 {
 	return names.count(name) > 0;
 }
@@ -60,7 +60,7 @@ void SrcStack::reset()
 	rewind();
 }
 
-std::string SrcStack::get_location()
+std::string SrcStack::get_location() const
 {
 	return sources.top()->get_location();
 }

@@ -6,17 +6,15 @@
 */
 
 #include "srcfile.hpp"
-#include "error.h"
+#include "error.hpp"
 #include <fstream>
-
-using namespace std;
 
 // class SrcFile
 
-SrcFile::SrcFile(std::string const &name)
+SrcFile::SrcFile(string const &name)
 : SrcText(name)
 {
-	nfile = new ifstream(name);
+	nfile = new std::ifstream(name);
 	if (!*nfile)
 		abort_sys(name.c_str());
 }
@@ -33,7 +31,7 @@ void SrcFile::rewind()
 {
 	// clear eof/err and go back to beginning of the file
 	nfile->clear();
-	nfile->seekg(0, ios::beg);
+	nfile->seekg(0, std::ios::beg);
 
 	SrcText::rewind();
 }

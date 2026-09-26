@@ -15,7 +15,6 @@ Emitter::Emitter(std::ostream &a_nfile)
 	flag = 0;
 	loc = 0x0000;
 	last_loc = 0xFFFF;
-	err = NULL;
 }
 
 void Emitter::emit_byte(uint8_t value)

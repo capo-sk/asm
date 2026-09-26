@@ -5,14 +5,16 @@
    See LICENSE file
 */
 
-#include <fstream>
-#include <iostream>
-#include <string>
-#include "error.h"
+#include "error.hpp"
 #include "buffer.hpp"
 #include "emit.hpp"
 #include "parse.hpp"
 #include "version.h"
+
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <format>
 
 using namespace std;
 
@@ -23,8 +25,8 @@ int main(int argc, char *argv[]) {
 	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
-		abort_fmt("United Assembler -- version %s\n\n"
-			"Usage: %s <source.s> [<binary> [<symbols>]]", version_string, argv[0]);
+		abort_msg(std::format("United Assembler -- version {}\n\nUsage: {} <source.s> [<binary> [<symbols>]]",
+			string(version_string), string(argv[0])));
 
 	input_filename = argv[1];
 
@@ -44,10 +46,8 @@ int main(int argc, char *argv[]) {
 		symbol_filename = "";
 
 	Buffer in_buf(input_filename);
-	//srcl.new_source_once(new SrcFile(input_filename));
-	//srcl.AdvanceLine();  // otherwise it starts from 0; can't be bothered fixing it properly
 
-	//Buffer in_buf(srcl);
+	ErrorProvider ep(in_buf);
 
 	ofstream output_file(output_filename, m_wb);
 	if (!output_file)
@@ -72,8 +72,9 @@ int main(int argc, char *argv[]) {
 	SymbolTable symtab;
 
 	Parser parser(in_buf, emit, symtab);
-	emit.set_error_provider(&parser);
-	symtab.set_error_provider(&parser);
+	emit.set_error_provider(ep);
+	symtab.set_error_provider(ep);
+	parser.set_error_provider(ep);
 
 	parser.first_pass();
 

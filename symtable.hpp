@@ -8,11 +8,11 @@
 #ifndef SYMTABLE_HPP
 #define SYMTABLE_HPP
 
+#include "error.hpp"
 #include <cstdint>
 #include <map>
-#include <string>
 #include <ostream>
-#include "errorpro.hpp"
+#include <string>
 
 using std::string;
 

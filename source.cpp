@@ -7,12 +7,12 @@
 
 #include "source.hpp"
 
-SrcText::SrcText(std::string const &tname)
+SrcText::SrcText(string const &tname)
 : textname(tname), linenum(0)
 {
 }
 
-std::string SrcText::get_location() const
+string SrcText::get_location() const
 {
 	return textname + ":" + std::to_string(linenum);
 }

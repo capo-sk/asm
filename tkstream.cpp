@@ -39,11 +39,9 @@
 
 #include "tkstream.hpp"
 #include "srcfile.hpp"
-#include <cctype>
 #include "opcodes.hpp"
-#include <string>
 
-using std::string;
+#include <cctype>
 
 Token::Token()
 {
@@ -440,12 +438,12 @@ found:
 	return 1;
 }
 
-std::string TokenStream::get_location()
+string TokenStream::get_location()
 {
 	return buf.get_location();
 }
 
-void TokenStream::nested_file(std::string const &name)
+void TokenStream::nested_file(string const &name)
 {
 	if (!buf.is_present(name)) {
 		SrcFile *f = new SrcFile(name);
@@ -458,10 +456,10 @@ void TokenStream::set_mode(token_mode a_mode)
 	mode = a_mode;
 }
 
-string TokenStream::get_line_text()
+/*string TokenStream::get_line_text()
 {
 	return buf.get_line_text();
-}
+}*/
 
 SrcText &TokenStream::get_current()
 {

@@ -8,15 +8,15 @@ LDFLAGS=
 
 #####
 
-SRCS := assemble.cpp buffer.cpp emit.cpp error.c opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp source.cpp macro.cpp srcstack.cpp errorpro.cpp
-OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o srcstack.o version.o errorpro.o
+SRCS := assemble.cpp buffer.cpp emit.cpp error.cpp opcodes.cpp parse.cpp srcfile.cpp symtable.cpp tkstream.cpp source.cpp macro.cpp srcstack.cpp
+OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.o tkstream.o source.o macro.o srcstack.o version.o
 
 #####
 
 all: uasm
 
 clean:
-	rm *.o uasm version.c tests/make_dep
+	rm *.o uasm version.c tests/make_ref
 
 deepclean: clean
 	rm Makefile.dep

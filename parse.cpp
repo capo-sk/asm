@@ -6,14 +6,14 @@
 */
 
 #include "parse.hpp"
-#include <cstddef>
-#include <cstdint>
-#include <cstring>
-#include <cstdarg>
 #include "opcodes.hpp"
 #include "emit.hpp"
 #include "macro.hpp"
-#include "error.h"
+
+//#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <format>
 
 using std::string;
 
@@ -636,7 +636,7 @@ uint64_t Parser::p5_hex(char const *text)
 	return value;
 }
 
-[[noreturn]] void Parser::error(string const &txt)
+/*[[noreturn]] void Parser::error(string const &txt)
 {
 	string err = format("{}: {}\n{}\n",
 		stream.get_location(),
@@ -645,7 +645,6 @@ uint64_t Parser::p5_hex(char const *text)
 	abort_msg(err.c_str());
 }
 
-/*
 [[noreturn]] void Parser::error_fmt(format_string<Args...> fmt, Args &&... args)
 {
 	string msg = vformat(fmt.get(), make_format_args(args...));

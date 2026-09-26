@@ -29,7 +29,7 @@ public:
 	int get_next();
 	void pushback();
 	void rewind();
-	std::string get_line_text();
+	std::string get_line_text() const;
 	bool close_file();
 	
 	static const int eofmark = -1;

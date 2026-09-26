@@ -71,7 +71,7 @@ bool Buffer::close_file() {
 	return pop();
 }
 
-string Buffer::get_line_text()
+string Buffer::get_line_text() const
 {
 	return sline;
 }

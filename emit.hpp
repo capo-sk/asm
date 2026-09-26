@@ -10,7 +10,7 @@
 
 #include <cstdint>
 #include <ostream>
-#include "errorpro.hpp"
+#include "error.hpp"
 
 class Emitter: public ErrorConsumer {
 private:

@@ -8,15 +8,14 @@
 #ifndef PARSE_HPP
 #define PARSE_HPP
 
-#include "errorpro.hpp"
+#include "error.hpp"
 #include "buffer.hpp"
 #include "tkstream.hpp"
 #include "symtable.hpp"
 #include "emit.hpp"
 #include "macro.hpp"
-#include <format>
 
-class Parser : public ErrorProvider {
+class Parser : public ErrorConsumer {
 private:
 	TokenStream stream;
 	Token first;
@@ -69,9 +68,6 @@ public:
 
 	void first_pass(void);
 	void second_pass(void);
-
-	[[noreturn]] virtual void error(std::string const &txt);
-	//[[noreturn]] virtual void error_fmt(std::format_string<Args...> fmt, Args &&... args);
 };
 
 #endif
