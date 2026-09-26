@@ -75,6 +75,10 @@ void Emitter::emit_instruction(uint8_t index, uint8_t mode, uint16_t number, uin
 					error("Invalid mode");
 				break;
 			case abs_ind_modes:
+				if (mode == zp_mode) {
+					mode = abs_mode;
+					size++;
+				}
 				if (mode == abs_mode)
 					out_code = opc_code;
 				else if (mode == ind_mode)

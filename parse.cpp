@@ -24,25 +24,23 @@ Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 }
 	
 void Parser::first_pass() {
-	main_label.clear();
 	pass = 1;
-	emit.set_pass(pass);
-	uniq = 0;
 	p0_source();
 }
 
 void Parser::second_pass() {
 	stream.reset();
-	main_label.clear();
 	pass = 2;
-	emit.set_pass(pass);
-	uniq = 0;
 	p0_source();
 }
 
 void Parser::p0_source() {
-	int ret;
+	emit.set_pass(pass);
+	emit.set_loc(0);
+	main_label.clear();
+	uniq = 0;
 
+	int ret;
 	while ((ret = p1_line()) > 0)
 		;
 

@@ -1,3 +1,4 @@
+			;-00 00
 label:
 	jmp label	;-4C 00 00
 	jmp .local	;-4C 06 00
