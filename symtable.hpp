@@ -19,8 +19,8 @@ using std::string;
 enum sym_type {
 	sym_label,
 	sym_var,
-	sym_macro,
-	sym_param,
+//	sym_macro,
+//	sym_param,
 	sym_anynum
 };
 
