@@ -6,6 +6,7 @@
 */
 
 #include "parse.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 #include <cstdarg>
@@ -262,6 +263,7 @@ int Parser::p2_pseudo_instruction()
 			return 1;  // already consumed newline
 		case 1: /* ENDM */
 			stream.set_mode(assembly);
+			current_macro = NULL;
 			return 1;
 		case 2: /* .BYTE */
 			p3_pseudo_byte();
@@ -402,7 +404,7 @@ void Parser::localise_symbol(Token &tk)
 	string result;
 
 	if (tk.value.length() > 1 && tk.value[0] == '.') {
-		if (tk.value.length() > 2 && tk.value[1] == '.') {
+		if (typeid(stream.get_current()) == typeid(MacroText) && tk.value.length() > 2 && tk.value[1] == '.') {
 			// macro unique label
 			result = string(stream.get_current().get_name() + std::to_string(uniq) + string(&tk.value[1]));
 		} else {
