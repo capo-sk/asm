@@ -6,4 +6,4 @@ cc -o $T $T.c
 ./$T
 rm valid_instructions
 
-sh compare_with_ref.sh "$T"
+compare_with_ref.sh "$T"

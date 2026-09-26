@@ -16,7 +16,7 @@ OBJS := assemble.o buffer.o emit.o error.o opcodes.o parse.o srcfile.o symtable.
 all: uasm
 
 clean:
-	rm *.o uasm version.c tests/make_ref
+	rm *.o uasm version.c tests/helper/make_ref
 
 deepclean: clean
 	rm Makefile.dep
@@ -38,8 +38,8 @@ deps: $(SRCS)
 
 -include Makefile.dep
 
-tests/make_ref: tests/make_ref.cpp
+tests/helper/make_ref: tests/helper/make_ref.cpp
 	$(CPP) $(CPPFLAGS) -o $@ $<
 
-test: uasm tests/make_ref
+test: uasm tests/helper/make_ref
 	cd tests && ./all_tests.sh

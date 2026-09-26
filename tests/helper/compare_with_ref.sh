@@ -7,7 +7,7 @@ $UA $T.s $T.bin $T.sym
 DEL_REF=
 if [ ! -e $T.ref ]
 then
-	./make_ref $T.s $T.ref
+	make_ref $T.s $T.ref
 	DEL_REF=$T.ref
 fi
 
