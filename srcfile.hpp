@@ -10,12 +10,13 @@
 
 #include "source.hpp"
 
+#include <fstream>
 #include <string>
 using std::string;
 
 class SrcFile: public SrcText {
 private:
-	std::ifstream *nfile;
+	std::ifstream nfile;
 
 public:
 	SrcFile(string const &fname);

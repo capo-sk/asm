@@ -1,6 +1,7 @@
-duplicate_labels,Duplicate symbol
+duplicate_label,Duplicate symbol
 input_file_not_found,No such file
 align0,Invalid align multiple
 div0,Division by zero
 macro_mismatch,Argument count mismatch
 macro_recursive,Macro may not invoke itself
+duplicate_macro,Duplicate symbol

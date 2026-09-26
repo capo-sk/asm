@@ -293,19 +293,19 @@ void Parser::p3_macro_header()
 		current_macro = new MacroText(tk.value);
 	}
 
-//	unsigned parct = 0;
+	unsigned parct = 0;
 	Token tk2;
 	stream.read(tk2);
 	while (tk2.type == macro_par) {
 		if (pass == 1) {
 			current_macro->add_param(tk2.value);
-//			parct++;
+			parct++;
 		}
 		stream.read(tk2);
 	}
 
 	if (pass == 1) {
-//		sym.add_unique(tk.value, sym_macro, parct);
+		sym.add_unique(tk.value, sym_macro, parct);
 		macros.add(*current_macro);
 	}
 
