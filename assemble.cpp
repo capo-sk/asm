@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 	Buffer in_buf(input_filename);
 
-	ErrorProvider ep(in_buf);
+	set_error_source(in_buf);
 
 	ofstream output_file(output_filename, m_wb);
 	if (!output_file)
@@ -72,9 +72,6 @@ int main(int argc, char *argv[]) {
 	SymbolTable symtab;
 
 	Parser parser(in_buf, emit, symtab);
-	emit.set_error_provider(ep);
-	symtab.set_error_provider(ep);
-	parser.set_error_provider(ep);
 
 	parser.first_pass();
 

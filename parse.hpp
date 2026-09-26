@@ -8,14 +8,13 @@
 #ifndef PARSE_HPP
 #define PARSE_HPP
 
-#include "error.hpp"
 #include "buffer.hpp"
 #include "tkstream.hpp"
 #include "symtable.hpp"
 #include "emit.hpp"
 #include "macro.hpp"
 
-class Parser : public ErrorConsumer {
+class Parser {
 private:
 	TokenStream stream;
 	Token first;

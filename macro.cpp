@@ -6,6 +6,9 @@
 */
 
 #include "macro.hpp"
+#include "error.hpp"
+
+#include <format>
 
 MacroText::MacroText(string const &mname)
 : SrcText(mname)
@@ -138,7 +141,11 @@ unsigned MacroText::get_value_count() const
 	return values.size();
 }
 
-void MacroTable::add(MacroText &macro)
+void MacroTable::add(std::unique_ptr<MacroText> macrop)
 {
-	insert({macro.get_name(), macro});
+	string name = macrop->get_name();
+	auto [it, result] = try_emplace(name, std::move(macrop));
+
+	if (!result)
+		error(std::format("Duplicate macro {}", name));
 }

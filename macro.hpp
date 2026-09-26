@@ -11,6 +11,7 @@
 #include "source.hpp"
 #include <list>
 #include <map>
+#include <memory>
 
 using std::string;
 
@@ -46,9 +47,9 @@ public:
 	virtual void rewind();
 };
 
-class MacroTable: public std::map<string, MacroText &> {
+class MacroTable: public std::map<string, std::unique_ptr<MacroText>> {
 public:
-	void add(MacroText &macro);
+	void add(std::unique_ptr<MacroText> macrop);
 };
 
 #endif

@@ -9,9 +9,11 @@
 #include "opcodes.hpp"
 #include "emit.hpp"
 #include "macro.hpp"
+#include "error.hpp"
 
 //#include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <format>
 
@@ -284,13 +286,16 @@ int Parser::p2_pseudo_instruction()
 void Parser::p3_macro_header()
 {
 	Token tk;
+	std::unique_ptr<MacroText> macrop;
 
 	stream.read(tk);
 	if (tk.type != macro_def)
 		error("Expected macro name");
 
 	if (pass == 1) {
-		current_macro = new MacroText(tk.value);
+		macrop = std::make_unique<MacroText>(tk.value);
+		// we are transferring the resource to MacroTable but still need to refer to it while recording the text
+		current_macro = macrop.get();  
 	}
 
 	unsigned parct = 0;
@@ -298,7 +303,7 @@ void Parser::p3_macro_header()
 	stream.read(tk2);
 	while (tk2.type == macro_par) {
 		if (pass == 1) {
-			current_macro->add_param(tk2.value);
+			macrop->add_param(tk2.value);
 			parct++;
 		}
 		stream.read(tk2);
@@ -306,7 +311,7 @@ void Parser::p3_macro_header()
 
 	if (pass == 1) {
 		sym.add_unique(tk.value, sym_macro, parct);
-		macros.add(*current_macro);
+		macros.add(std::move(macrop));
 	}
 
 	pushback_and_newline();
@@ -372,7 +377,7 @@ int Parser::p2_invoke_macro(void) {
 
 	// parse parameters
 //	auto *values = new list<string>;
-	MacroText &macro = macro_it->second;
+	MacroText &macro = *(macro_it->second);
 	macro.new_invocation();
 	Token tk;
 	stream.set_mode(words);
@@ -393,7 +398,7 @@ int Parser::p2_invoke_macro(void) {
 //	macro_it->second.invoke(stream.get_current(), *values);
 
 	// switch input to macro
-	stream.nested_source(macro_it->second);
+	stream.nested_source(macro);
 
 	return 1;
 }

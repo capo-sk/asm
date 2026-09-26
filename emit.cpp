@@ -7,6 +7,7 @@
 
 #include "emit.hpp"
 #include "opcodes.hpp"
+#include "error.hpp"
 
 Emitter::Emitter(std::ostream &a_nfile)
 : nfile(a_nfile)

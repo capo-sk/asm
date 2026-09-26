@@ -6,6 +6,8 @@
 */
 
 #include "symtable.hpp"
+#include "error.hpp"
+
 #include <format>
 
 void SymbolTable::_add(string const &name, sym_type type, uint16_t value) {

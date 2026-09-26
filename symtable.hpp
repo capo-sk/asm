@@ -8,7 +8,6 @@
 #ifndef SYMTABLE_HPP
 #define SYMTABLE_HPP
 
-#include "error.hpp"
 #include <cstdint>
 #include <map>
 #include <ostream>
@@ -29,7 +28,7 @@ struct sym_type_value {
 	uint16_t value;
 };
 
-class SymbolTable: public ErrorConsumer, std::map<string, sym_type_value> {
+class SymbolTable: std::map<string, sym_type_value> {
 private:
 	void _add(string const &name, sym_type type, uint16_t value);
 

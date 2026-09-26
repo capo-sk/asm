@@ -10,9 +10,8 @@
 
 #include <cstdint>
 #include <ostream>
-#include "error.hpp"
 
-class Emitter: public ErrorConsumer {
+class Emitter {
 private:
 	std::ostream &nfile;
 	unsigned pass;

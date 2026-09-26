@@ -6,9 +6,32 @@
 */
 
 #include "error.hpp"
+#include "buffer.hpp"
 
 #include <iostream>
 #include <format>
+
+// yes, this is a global variable
+// no point having a pointer to the same thing in all objects
+static Buffer const *source;
+
+void set_error_source(Buffer const &src)
+{
+	source = &src;
+}
+
+// issue an error with context
+[[noreturn]] void error(string const &txt)
+{
+	string err;
+	
+	if (source)
+		err = std::format("{}: {}\n{}\n", source->get_location(), txt, source->get_line_text());
+	else
+	 	err = std::format("ERROR: {}", txt);
+
+	abort_msg(err);
+}
 
 [[noreturn]] void abort_now()
 {
@@ -21,59 +44,8 @@
 	abort_now();
 }
 
-/*noreturn void abort_fmt(char const *fmt, ...)
-{
-	va_list args;
-
-	char *fmtnl = malloc(strlen(fmt) + 2);
-	strcpy(fmtnl, fmt);
-	strcat(fmtnl, "\n");
-
-	va_start(args, fmt);
-	vfprintf(stderr, fmtnl, args);
-	va_end(args);
-
-	abort_now();
-}*/
-
 [[noreturn]] void abort_sys(string const &text)
 {
 	perror(text.c_str());
 	abort_now();
 }
-
-// class ErrorProvider
-
-[[noreturn]] void ErrorProvider::error(string const &txt) const
-{
-	string err = std::format("{}: {}\n{}\n",
-		source->get_location(),
-		txt,
-        source->get_line_text());
-
-	abort_msg(err);
-
-}
-
-// class ErrorConsumer
-
-[[noreturn]] void ErrorConsumer::error(std::string const &msg) const
-{
-    if (err)
-        err->error(msg);
-    else
-        abort_msg(string("ERROR: ") + msg);
-
-    abort_now();  // only because GCC gets confused and claims function returns
-}
-
-void ErrorConsumer::set_error_provider(ErrorProvider const &ep)
-{
-	err = &ep;
-}
-
-void ErrorConsumer::clear_error_provider()
-{
-    err = NULL;
-}
-
