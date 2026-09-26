@@ -49,10 +49,10 @@ private:
 	int p2_location();
 
 	uint32_t p3_expression();
-	uint16_t p4_expr_element();
-	uint16_t p5_dec(char const *text);
-	uint16_t p5_hex(char const *text);
-	uint16_t p5_bin(char const *text);
+	uint64_t p4_expr_element();
+	uint64_t p5_dec(char const *text);
+	uint64_t p5_hex(char const *text);
+	uint64_t p5_bin(char const *text);
 
 	int p2_macro_line();
 

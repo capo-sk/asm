@@ -473,14 +473,14 @@ int Parser::p2_location(void)
 uint32_t Parser::p3_expression()
 {
 	Token tk;
-	uint16_t result;
-	uint16_t operand;
-	uint8_t operation;
-	uint32_t long_result = 0;
+	uint64_t result;
+	uint64_t operand;
+	uint32_t force_word = 0;
+	int operation;
 
 	stream.read(tk);
 	if (tk.type == '!')
-		long_result = 0x10000ul;
+		force_word = 0x10000ul;
 	else
 		stream.pushback();
 
@@ -496,13 +496,14 @@ uint32_t Parser::p3_expression()
 			case '/':
 				operation = tk.type;
 				break;
-			case ')':
-			case endline:
-			case ',':
-				stream.pushback();
-				break;
+//			case ')':
+//			case endline:
+//			case ',':
+//				stream.pushback();
+//				break;
 			default:
-				error("Invalid expression");
+				stream.pushback();
+//				error("Invalid expression");
 				break;
 		}
 
@@ -523,12 +524,21 @@ uint32_t Parser::p3_expression()
 		}
 	} while (operation != 0);
 
-	long_result |= result;
+	int64_t max_uword = 65535L;
+	int64_t min_sword = -32768;
 
-	return long_result;
+	// calculations use unsigned arithmetics but for this final check
+	// we accept both unsigned/positive values up to 65535
+	// and 2-complement values down to -32768
+	int64_t sresult = (int64_t) result;
+	if (sresult > max_uword || sresult < min_sword)
+		error(std::format("Expression value is larger than 16 bits ({})", sresult));
+
+	return (result & max_uword) | force_word;
 }
 
-uint16_t Parser::p4_expr_element(void) {
+uint64_t Parser::p4_expr_element()
+{
 	Token tk;
 	uint16_t value;
 
@@ -547,7 +557,7 @@ uint16_t Parser::p4_expr_element(void) {
 				else
 					error(format("Symbol {} not found", tk.value));
 		case literal_chr:
-			return (uint16_t)tk.value[0];
+			return (unsigned char) tk.value[0];
 		case literal_dec:
 			return p5_dec(tk.value.c_str());
 		case literal_hex:
@@ -559,7 +569,7 @@ uint16_t Parser::p4_expr_element(void) {
 		case '>':
 			return (p4_expr_element()) >> 8 & 0xFF;
 		case '^':
-			return p4_expr_element() << 8;
+			return (p4_expr_element() & 0xFF) << 8;
 		case '*':
 			return emit.get_loc();
 		default:
@@ -568,8 +578,8 @@ uint16_t Parser::p4_expr_element(void) {
 	}
 }
 
-uint16_t Parser::p5_dec(char const *text) {
-	uint16_t value = 0;
+uint64_t Parser::p5_dec(char const *text) {
+	uint64_t value = 0;
 	uint8_t c;
 	char const *p;
 
@@ -585,9 +595,9 @@ uint16_t Parser::p5_dec(char const *text) {
 	return value;
 }
 
-uint16_t Parser::p5_bin(char const *text)
+uint64_t Parser::p5_bin(char const *text)
 {
-	uint16_t value = 0;
+	uint64_t value = 0;
 	char const *p;
 	char c;
 
@@ -607,9 +617,9 @@ uint16_t Parser::p5_bin(char const *text)
 	return value;
 }
 
-uint16_t Parser::p5_hex(char const *text)
+uint64_t Parser::p5_hex(char const *text)
 {
-	uint16_t value = 0;
+	uint64_t value = 0;
 	char const *p;
 	uint8_t c;
 	uint8_t x;
@@ -620,9 +630,7 @@ uint16_t Parser::p5_hex(char const *text)
 
 		value <<= 4;
 		
-		x = c - '0';
-		if (c >= 'A')
-			x -= ('A' - '9' - 1);
+		x = (c >= 'A') ? (c - 'A' + 10) : (c - '0');
 
 		value += x;
 	}

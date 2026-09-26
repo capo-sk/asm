@@ -55,12 +55,14 @@ Exampes:
 		.BYTE "null-terminated string",0
 ```
 
-Expressions are evaluated as 16-bit unsigned integers. The can include numeric literals and symbols (variables and labels). The following operators are supported:
-* `+` and `-`
+Expressions yield 16-bit unsigned integer results. They can include numeric literals and symbols (variables and labels). The following operators are supported:
+* the four basic arithmetic operations `+`, `-`, `*` and `/`
+* `*` can also be used as operand, in which case it takes the value of the current location
 * `<` and `>` (low-byte and high-byte)
 * `^` (shift left by 8 bits, i.e. takes a page number and makes it an address)
 * `!` (force the value to be 16-bit)
-Parentheses are not supported (nor they would make a difference with only additions and subtractions).
+Operands and intermediate results are computed as 64-bit unsigned integers (because it's 2026 not 1986) but the result must fit in 16 bits; values from (two-s complement of) -32768 to +65535 are allowed.
+Operations are left-associative and there is no precedence (e.g. of multiplication over addition); parentheses for precedence are not supported.
 
 The standard 6502 opcodes and addressing modes are supported.
 `ASL A` and `ASL` are both valid and equivalent.
@@ -70,19 +72,23 @@ Pseudo-instructions are:
 * `.BYTE`: sequence of bytes
 * `.WORD`: sequence of 16-bit words, in low-endian order
 * `.INCLUDE`: process an include file; repeat includes are ignored
+* `.ALIGN`: align location to the next multiple
 * `.MACRO name [par ...]`: beginning of a macro definition
 * `.ENDM`: end of macro defintion
 * `&name [par ...]`: invocation of a macro
-* `.IFDEF symbol`, `.IFNDEF symbol`: conditional block, if symbol is/isn't defined
-* `.IFZ/.IFNZ expression`: conditional block - if value of expression is zero/nonzero
-* `.ENDIF`: end of conditional block
-Please note that conditional blocks are not implemented yet.
-I do not plan on supporting nested macros (macros defined inside macros). Nested macro invocations are supported.
-I do not plan on supporting nested conditional blocks.
+I do not plan on supporting nested macro definitions (macros defined inside macros). Nested macro invocations (one macro invoking another) are supported, but not recursive invocations: a macro invoking itself is blocked; indirect recursion is not blocked but the behaviour is undefined.
+
+Potential enhancements being considered, but not implemented yet:
+* conditional blocks (`.IF expression / .ELIF / .ELSE / .ENDIF`); expression is true if non-zero
+* variants: `.IFZ` (true if zero); `.IFP / .IFN` (if positive / negative)
+* that should cover all usual conditions (e.g. `.IF a-b` is true if *a* equals *b*, `.IFP a-b` is true if *a* is greater than *b*)
+* maybe a `.DEFINED(symbol)` function; or maybe `.IFDEF / .IFNDEF` instead
+* repeats for e.g. unrolling loops (`.REPEAT expression / .ENDR`)
+I do not plan on supporting nested conditional blocks or nested repeat loops.
 
 This is a two-pass assembler.
 The first pass populates the symbol table. The second pass emits the code.
-If there are inconsistencies between first and second pass, the code will be incorrect or an erro will occur.
+If there are inconsistencies between first and second pass, the code will be incorrect or an error will occur.
 After the first pass, the symbol table is output to stdout (human readable) or to a text file (VICE monitor format).
 
 Ambiguity between absolute and zero page modes is resolved (independently during each pass) based on the value of the argument: if the value is 0-255, zero page mode is preferred; if not, absolute is needed. `!` can be used to force 16-bit argument and therefore absolute mode.
