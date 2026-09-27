@@ -41,9 +41,7 @@ bool SymbolTable::get(string const &name, sym_type type, uint16_t &value)
 	if (it == end())
 		return false;
 	else {
-		if ( (type == it->second.type) || 
-			( type == sym_anynum && (it->second.type == sym_label || it->second.type == sym_var) )
-			) {
+		if (type == it->second.type || type == sym_anynum) {
 			value = it->second.value;
 			return true;
 		} else

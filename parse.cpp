@@ -243,7 +243,7 @@ void Parser::p3_pseudo_align()
 	const uint8_t zero = 0;
 
 	uint16_t value = p3_expression();
-	if (value == 0 || value >0x8000)
+	if (value == 0 || value > 0x8000)
 		error(format("Invalid align multiple {}", value));
 
 	uint16_t odd = emit.get_loc() % value;
