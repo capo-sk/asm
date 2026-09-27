@@ -24,8 +24,8 @@ deepclean: clean
 uasm: $(OBJS)
 	$(CPP) $(LDFLAGS) -o $@ $^
 
-version.c: $(SRCS)
-	echo 'const char version_string[] = "'`date -u +%Y%m%d_%H%M`'";' >$@
+#version.c: $(SRCS)
+#	echo 'const char version_string[] = "'`date -u +%Y%m%d_%H%M`'";' >$@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@

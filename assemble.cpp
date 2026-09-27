@@ -9,7 +9,7 @@
 #include "buffer.hpp"
 #include "emit.hpp"
 #include "parse.hpp"
-#include "version.h"
+//#include "version.h"
 
 #include <fstream>
 #include <iostream>
@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
 	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
-		abort_msg(std::format("United Assembler -- version {}\n\nUsage: {} <source.s> [<binary> [<symbols>]]",
-			string(version_string), string(argv[0])));
+		abort_msg(std::format("United Assembler v1.0\n\nUsage: {} <source.s> [<binary> [<symbols>]]",
+			string(argv[0])));
 
 	input_filename = argv[1];
 
