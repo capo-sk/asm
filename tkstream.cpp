@@ -40,7 +40,6 @@
 #include "tkstream.hpp"
 #include "srcfile.hpp"
 #include "opcodes.hpp"
-
 #include <cctype>
 
 Token::Token()
@@ -446,8 +445,8 @@ string TokenStream::get_location()
 void TokenStream::nested_file(string const &name)
 {
 	if (!buf.is_present(name)) {
-		std::unique_ptr<SrcFile> f = std::make_unique<SrcFile>(name);
-		buf.new_source_once(std::move(f));
+		unique_ptr<SrcFile> f = make_unique<SrcFile>(name);
+		buf.new_source_once(move(f));
 	}
 }
 
@@ -466,7 +465,7 @@ SrcText &TokenStream::get_current()
 	return buf.get_current();
 }
 
-void TokenStream::nested_source(std::unique_ptr<SrcText> source)
+void TokenStream::nested_source(unique_ptr<SrcText> source)
 {
-	buf.new_source(std::move(source));
+	buf.new_source(move(source));
 }

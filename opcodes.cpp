@@ -9,14 +9,15 @@
 
 #include "opcodes.hpp"
 
-const uint8_t multimode_select[11] =
+static const uint8_t multimode_select[11] =
 	{ 0x00, 0x04, 0x08, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
-const uint8_t multimode2_select[11] =
+static const uint8_t multimode2_select[11] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x14, 0x18, 0x1C, 0x08, 0x08, 0x14 };
-const uint8_t multimode3_select[11] =
+static const uint8_t multimode3_select[11] =
 	{ 0x00, 0x04, 0x00, 0x0C, 0x10, 0x1C, 0x1C, 0x1C, 0x08, 0x08, 0x14 };
 
-bool multimode_valid(uint16_t multi_bits, uint8_t mode) {
+bool multimode_valid(uint16_t multi_bits, uint8_t mode)
+{
 	if (mode > 10)
 		return false;
 
@@ -26,17 +27,21 @@ bool multimode_valid(uint16_t multi_bits, uint8_t mode) {
 		return false;
 }
 
-uint8_t multimode_opcode(uint8_t base_code, uint8_t mode) {
+static uint8_t multimode_opcode(uint8_t base_code, uint8_t mode)
+{
 	return base_code | multimode_select[mode];
 }
-uint8_t multimode2_opcode(uint8_t base_code, uint8_t mode) {
+static uint8_t multimode2_opcode(uint8_t base_code, uint8_t mode)
+{
 	return base_code | multimode2_select[mode];
 }
-uint8_t multimode3_opcode(uint8_t base_code, uint8_t mode) {
+static uint8_t multimode3_opcode(uint8_t base_code, uint8_t mode)
+{
 	return base_code | multimode3_select[mode];
 }
 
-uint8_t multimode_compose(uint8_t index, uint8_t mode) {
+static uint8_t multimode_compose(uint8_t index, uint8_t mode)
+{
 	uint8_t opc_mode = opcodes[index].mode;
 	uint8_t opc_base = opcodes[index].code;
 
@@ -51,7 +56,6 @@ uint8_t multimode_compose(uint8_t index, uint8_t mode) {
 			return 0xFF;
 	}
 }
-
 
 const opcode opcodes[] = {
 	{ "ADC", multimode, 0x61, all_bits },
@@ -124,7 +128,6 @@ const pseudo pseudos[] = {
 };
 const unsigned num_pseudos = sizeof(pseudos) / sizeof(pseudo);
 const unsigned pseudo_macro = 0;
-
 
 const char *cpu_registers[] = { "A", "X", "Y" };
 const unsigned num_registers = 3;

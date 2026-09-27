@@ -8,11 +8,9 @@
 #ifndef SRCFILE_HPP
 #define SRCFILE_HPP
 
+#include "common.hpp"
 #include "source.hpp"
-
 #include <fstream>
-#include <string>
-using std::string;
 
 class SrcFile: public SrcText {
 private:

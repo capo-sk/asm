@@ -8,48 +8,26 @@
 #include "macro.hpp"
 #include "error.hpp"
 
-#include <format>
-
-/*MacroDefinition::MacroDefinition(string const &mname)
-{
-}
-
-MacroDefinition::~MacroDefinition()
-{
-}*/
-
-/*void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
-{
-	filename = callfrom.get_name();
-	fileline = callfrom.get_linenum();
-	values = &pvalues;
-	current = text.begin();
-}*/
+// class MacroDefinition
 
 void MacroDefinition::add_line(string const &tline)
 {
 	text.push_back(tline);
 }
 
-string MacroInvocation::get_location() const
+void MacroDefinition::add_param(string const &param)
 {
-	return "&" + get_name() + ":" + std::to_string(get_linenum())
-		+ "@" + filename + ":" + std::to_string(fileline);
+	params.push_back(param);
 }
 
-void MacroInvocation::advance_line()
+unsigned MacroDefinition::get_param_count() const
 {
-	++current;
-	SrcText::advance_line();
+	return params.size();
 }
 
-void MacroInvocation::rewind()
-{
-	current = definition->text.begin();
-	SrcText::rewind();
-}
+// auxiliary functions
 
-static string _replace_1(string const &word, std::list<string> const &params, std::list<string> const &values)
+static string replace_1(string const &word, std::list<string> const &params, std::list<string> const &values)
 {
 	auto pi = params.cbegin();
 	auto vi = values.cbegin();
@@ -63,7 +41,7 @@ static string _replace_1(string const &word, std::list<string> const &params, st
 	return word;
 }
 
-static string _replace(string const &base, std::list<string> const &params, std::list<string> const &values)
+static string replace(string const &base, std::list<string> const &params, std::list<string> const &values)
 {
 	char const *current, *word;
 	bool out;
@@ -78,7 +56,7 @@ static string _replace(string const &base, std::list<string> const &params, std:
 			if (!out) { // end of word
 				out = true;
 				string sword(word, current - word);
-				result.append(_replace_1(sword, params, values));
+				result.append(replace_1(sword, params, values));
 				word = current;
 			}
 		} else {
@@ -95,16 +73,18 @@ static string _replace(string const &base, std::list<string> const &params, std:
 		result.append(word, current - word);
 	else {
 		string sword(word, current - word);
-		result.append(_replace_1(sword, params, values));
+		result.append(replace_1(sword, params, values));
 	}
 
 	return result;
 }
 
+// class MacroInvocation
+
 bool MacroInvocation::getline(string &buffer)
 {
 	if (current != definition->text.end()) {
-		buffer = _replace(current->data(), definition->params, values);
+		buffer = replace(current->data(), definition->params, values);
 		advance_line();
 		return true;
 	} else {
@@ -113,14 +93,22 @@ bool MacroInvocation::getline(string &buffer)
 	}
 }
 
-void MacroDefinition::add_param(string const &param)
+string MacroInvocation::get_location() const
 {
-	params.push_back(param);
+	return "&" + get_name() + ":" + to_string(get_linenum())
+		+ "@" + filename + ":" + to_string(fileline);
 }
 
-unsigned MacroDefinition::get_param_count() const
+void MacroInvocation::advance_line()
 {
-	return params.size();
+	++current;
+	SrcText::advance_line();
+}
+
+void MacroInvocation::rewind()
+{
+	current = definition->text.begin();
+	SrcText::rewind();
 }
 
 MacroInvocation::MacroInvocation(string const &name, MacroDefinition const *def, SrcText const &callfrom)
@@ -147,10 +135,10 @@ unsigned MacroInvocation::get_value_count() const
 	return values.size();
 }
 
-void MacroTable::add(string const &name, std::unique_ptr<MacroDefinition> macrop)
+void MacroTable::add(string const &name, unique_ptr<MacroDefinition> macrop)
 {
-	auto [it, result] = try_emplace(name, std::move(macrop));
+	auto [it, result] = try_emplace(name, move(macrop));
 
 	if (!result)
-		error(std::format("Duplicate macro {}", name));
+		error(format("Duplicate macro {}", name));
 }

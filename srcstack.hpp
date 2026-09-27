@@ -8,16 +8,14 @@
 #ifndef SRCSTACK_HPP
 #define SRCSTACK_HPP
 
+#include "common.hpp"
 #include "source.hpp"
 #include <unordered_set>
 #include <stack>
-#include <memory>
-#include <string>
-using std::string;
 
 class SrcStack: public SrcText {
 private:
-	std::stack<std::unique_ptr<SrcText>> sources;
+	std::stack<unique_ptr<SrcText>> sources;
 	std::unordered_set<string> names;
 	string first;
 
@@ -26,12 +24,12 @@ public:
 
 	SrcText &get_current();
 	bool is_present(string const &name) const;
-	void new_source(std::unique_ptr<SrcText> source);
-	void new_source_once(std::unique_ptr<SrcText> source);
+	void new_source(unique_ptr<SrcText> source);
+	void new_source_once(unique_ptr<SrcText> source);
 	bool pop();
 	virtual void rewind();
 	virtual void reset();
-	virtual std::string get_location() const;
+	virtual string get_location() const;
 	virtual bool getline(string &buffer);
 };
 

@@ -6,10 +6,7 @@
 */
 
 #include "error.hpp"
-#include "buffer.hpp"
-
 #include <iostream>
-#include <format>
 
 // yes, this is a global variable
 // no point having a pointer to the same thing in all objects
@@ -26,9 +23,9 @@ void set_error_source(Buffer const &src)
 	string err;
 	
 	if (source)
-		err = std::format("{}: {}\n{}\n", source->get_location(), txt, source->get_line_text());
+		err = format("{}: {}\n{}\n", source->get_location(), txt, source->get_line_text());
 	else
-	 	err = std::format("ERROR: {}", txt);
+	 	err = format("ERROR: {}", txt);
 
 	abort_msg(err);
 }

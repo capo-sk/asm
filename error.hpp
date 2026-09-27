@@ -8,10 +8,8 @@
 #ifndef ERROR_HPP
 #define ERROR_HPP
 
+#include "common.hpp"
 #include "buffer.hpp"
-
-#include <string>
-using std::string;
 
 void set_error_source(Buffer const &src);
 [[noreturn]] void error(string const &txt);

@@ -8,30 +8,28 @@
 #include "srcstack.hpp"
 #include "srcfile.hpp"
 
-// class SrcFileList
-
 SrcStack::SrcStack(string const &fname)
 : SrcText(fname)
 {
-	auto source = make_unique<SrcFile>(fname);
-	new_source_once(std::move(source));
+	unique_ptr<SrcFile> source = make_unique<SrcFile>(fname);
+	new_source_once(move(source));
 }
 
-void SrcStack::new_source(std::unique_ptr<SrcText> source)
+void SrcStack::new_source(unique_ptr<SrcText> source)
 {
-	sources.push(std::move(source));
+	sources.push(move(source));
 }
 
-void SrcStack::new_source_once(std::unique_ptr<SrcText> source)
+void SrcStack::new_source_once(unique_ptr<SrcText> source)
 {
-	std::string name = source->get_name();
+	string name = source->get_name();
 
 	if (!is_present(name)) {
 		if (names.size() == 0)
 			first = name;
 		names.insert(name);
 
-		new_source(std::move(source));
+		new_source(move(source));
 	}
 }
 
@@ -61,7 +59,7 @@ void SrcStack::reset()
 	rewind();
 }
 
-std::string SrcStack::get_location() const
+string SrcStack::get_location() const
 {
 	return sources.top()->get_location();
 }
@@ -71,7 +69,7 @@ SrcText &SrcStack::get_current()
 	return *sources.top();
 }
 
-bool SrcStack::getline(std::string &buffer)
+bool SrcStack::getline(string &buffer)
 {
 	return get_current().getline(buffer);
 }

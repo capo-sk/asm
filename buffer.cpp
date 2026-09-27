@@ -9,8 +9,6 @@
 
 #include "buffer.hpp"
 
-using namespace std;
-
 int Buffer::get_next()
 {
 	if (eof)
@@ -44,7 +42,8 @@ void Buffer::pushback()
 	replay |= 0x100;
 }
 
-void Buffer::rewind() {
+void Buffer::rewind()
+{
 	get_current().rewind();
 	replay = 0;
 	sline.clear();
@@ -62,7 +61,8 @@ Buffer::Buffer(string const &fname)
 //	refill = true;
 }
 
-bool Buffer::close_file() {
+bool Buffer::close_file()
+{
 	replay = 0;
 	sline.clear();
 	sidx = 0;

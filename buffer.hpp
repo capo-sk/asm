@@ -10,8 +10,8 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
+#include "common.hpp"
 #include "srcstack.hpp"
-#include <string>
 
 #define _buf_line_max 255
 
@@ -20,16 +20,16 @@ private:
 	int replay;
 	bool eof;
 	bool refill;
-	std::string sline;
+	string sline;
 	size_t sidx;
 
 public:
-	Buffer(std::string const &fname);
+	Buffer(string const &fname);
 
 	int get_next();
 	void pushback();
 	void rewind();
-	std::string get_line_text() const;
+	string get_line_text() const;
 	bool close_file();
 	
 	static const int eofmark = -1;

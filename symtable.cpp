@@ -8,15 +8,13 @@
 #include "symtable.hpp"
 #include "error.hpp"
 
-#include <format>
-
 void SymbolTable::_add(string const &name, sym_type type, uint16_t value) {
 	insert({name, {type, value}});
 }
 
 void SymbolTable::add_unique(string const &name, sym_type type, uint16_t value) {
 	if (count(name) != 0)
-		error(std::format("Duplicate symbol {}", name));
+		error(format("Duplicate symbol {}", name));
 	else
 		_add(name, type, value);
 }
@@ -30,7 +28,7 @@ void SymbolTable::add_or_overwrite(string const &name, sym_type type, uint16_t v
 		if (it->second.type == type)
 			it->second.value = value;
 		else
-			error(std::format("Symbol {} type mismatch", name));
+			error(format("Symbol {} type mismatch", name));
 }
 
 bool SymbolTable::get(string const &name, sym_type type, uint16_t &value) {
@@ -45,7 +43,7 @@ bool SymbolTable::get(string const &name, sym_type type, uint16_t &value) {
 			value = it->second.value;
 			return true;
 		} else
-			error(std::format("Symbol {} type mismatch", name));
+			error(format("Symbol {} type mismatch", name));
 	}
 }
 
@@ -57,7 +55,7 @@ void SymbolTable::dump(std::ostream &where, int format) {
 
 	for (auto it = begin(); it != end(); ++it)
 		if (format == 0)  /* human consumption */
-			where << std::format("{0}({2}) = {1} ${1:04X}\n", it->first, it->second.value, decode[it->second.type]);
+			where << format("{0}({2}) = {1} ${1:04X}\n", it->first, it->second.value, decode[it->second.type]);
 		else  /* VICE monitor format */
-			where << std::format("al C:{1:X} .{0}\n", it->first, it->second.value);
+			where << format("al C:{1:X} .{0}\n", it->first, it->second.value);
 }

@@ -8,18 +8,14 @@
 #ifndef SYMTABLE_HPP
 #define SYMTABLE_HPP
 
+#include "common.hpp"
 #include <cstdint>
 #include <map>
 #include <ostream>
-#include <string>
-
-using std::string;
 
 enum sym_type {
 	sym_label,
 	sym_var,
-//	sym_macro,
-//	sym_param,
 	sym_anynum
 };
 

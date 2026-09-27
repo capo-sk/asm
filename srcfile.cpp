@@ -13,7 +13,6 @@
 SrcFile::SrcFile(string const &name)
 : SrcText(name), nfile(name)
 {
-//	nfile = new std::ifstream(name);
 	if (!nfile)
 		abort_sys(name.c_str());
 }

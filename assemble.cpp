@@ -5,16 +5,14 @@
    See LICENSE file
 */
 
+#include "common.hpp"
+#include <fstream>
+#include <iostream>
 #include "error.hpp"
 #include "buffer.hpp"
 #include "emit.hpp"
 #include "parse.hpp"
 #include "version.h"
-
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <format>
 
 using namespace std;
 

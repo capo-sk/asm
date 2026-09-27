@@ -8,9 +8,7 @@
 #ifndef SOURCE_HPP
 #define SOURCE_HPP
 
-#include <string>
-
-using std::string;
+#include "common.hpp"
 
 class SrcText {
 private:

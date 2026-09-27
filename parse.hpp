@@ -8,6 +8,7 @@
 #ifndef PARSE_HPP
 #define PARSE_HPP
 
+#include "common.hpp"
 #include "buffer.hpp"
 #include "tkstream.hpp"
 #include "symtable.hpp"
@@ -22,7 +23,7 @@ private:
 	SymbolTable &sym;
 	MacroTable macros;
 	string current_macro_name;
-	std::unique_ptr<MacroDefinition> current_macro_def;
+	unique_ptr<MacroDefinition> current_macro_def;
 	Emitter &emit;
 	unsigned pass;
 	unsigned uniq;
@@ -59,9 +60,6 @@ private:
 	int pushback_and_newline();
 
 	void localise_symbol(Token &tk);
-	//void make_local_label(char *local_label, char const *global_context, char const *local_part);
-
-//	friend Emitter;  // uses error methods
 
 public:
 	Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtable);

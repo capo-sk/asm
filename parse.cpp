@@ -7,17 +7,8 @@
 
 #include "parse.hpp"
 #include "opcodes.hpp"
-#include "emit.hpp"
-#include "macro.hpp"
 #include "error.hpp"
-
-//#include <cstddef>
 #include <cstdint>
-#include <memory>
-#include <string>
-#include <format>
-
-using std::string;
 
 Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	: stream(in_buf), emit(emitter), sym(symtab) {
@@ -247,7 +238,7 @@ void Parser::p3_pseudo_align()
 
 	uint16_t value = p3_expression();
 	if (value == 0 || value >0x8000)
-		error(std::format("Invalid align multiple {}", value));
+		error(format("Invalid align multiple {}", value));
 
 	uint16_t odd = emit.get_loc() % value;
 	if (odd > 0)
@@ -264,7 +255,7 @@ int Parser::p2_pseudo_instruction()
 		case 1: /* ENDM */
 			stream.set_mode(assembly);
 			if (pass == 1)
-				macros.add(std::move(current_macro_name), std::move(current_macro_def));
+				macros.add(move(current_macro_name), move(current_macro_def));
 			return 1;
 		case 2: /* .BYTE */
 			p3_pseudo_byte();
@@ -294,7 +285,7 @@ void Parser::p3_macro_header()
 
 	if (pass == 1) {
 		current_macro_name = tk.value;
-		current_macro_def = std::make_unique<MacroDefinition>();
+		current_macro_def = make_unique<MacroDefinition>();
 	}
 
 	unsigned parct = 0;
@@ -307,11 +298,6 @@ void Parser::p3_macro_header()
 		}
 		stream.read(tk2);
 	}
-
-//	if (pass == 1) {
-//		sym.add_unique(tk.value, sym_macro, parct);
-//		macros.add(std::move(macrop));
-//	}
 
 	pushback_and_newline();
 
@@ -380,8 +366,8 @@ int Parser::p2_invoke_macro()
 		error("Macro may not invoke itself");
 
 	// parse parameters
-	std::unique_ptr<MacroInvocation> macro_inv =
-		std::make_unique<MacroInvocation>(first.value, macro_def->second.get(), stream.get_current());
+	unique_ptr<MacroInvocation> macro_inv =
+		make_unique<MacroInvocation>(first.value, macro_def->second.get(), stream.get_current());
 	Token tk;
 	stream.set_mode(words);
 	stream.read(tk);
@@ -398,7 +384,7 @@ int Parser::p2_invoke_macro()
 		error("Argument count mismatch");
 
 	// switch input to macro
-	stream.nested_source(std::move(macro_inv));
+	stream.nested_source(move(macro_inv));
 
 	return 1;
 }
@@ -410,15 +396,12 @@ void Parser::localise_symbol(Token &tk)
 	if (tk.value.length() > 1 && tk.value[0] == '.') {
 		if (typeid(stream.get_current()) == typeid(MacroInvocation) && tk.value.length() > 2 && tk.value[1] == '.') {
 			// macro unique label
-			result = string(stream.get_current().get_name() + std::to_string(uniq) + string(&tk.value[1]));
+			result = string(stream.get_current().get_name() + to_string(uniq) + string(&tk.value[1]));
 		} else {
 			// local label
 			result = string(main_label.value) + string(tk.value);
 		}
 
-//		if (result.length() > MAX_TOKEN_LENGTH)
-//			error(format("Symbol {} too long", result));
-	
 		tk.value = result;
 	}
 }
@@ -536,7 +519,7 @@ uint32_t Parser::p3_expression()
 	// and 2-complement values down to -32768
 	int64_t sresult = (int64_t) result;
 	if (sresult > max_uword || sresult < min_sword)
-		error(std::format("Expression value is larger than 16 bits ({})", sresult));
+		error(format("Expression value is larger than 16 bits ({})", sresult));
 
 	return (result & max_uword) | force_word;
 }
@@ -589,7 +572,7 @@ uint64_t Parser::p5_dec(char const *text) {
 
 	for (p = text; (c = *p) != 0; ++p) {
 		if (!isdigit(c))
-			error(std::format("Invalid decimal number {}", text));
+			error(format("Invalid decimal number {}", text));
 
 		value *= 10;
 
@@ -614,7 +597,7 @@ uint64_t Parser::p5_bin(char const *text)
 				value |= 1;
 				break;
 			default:
-				error(std::format("Invalid binary number {}", text));
+				error(format("Invalid binary number {}", text));
 		}
 	}
 
@@ -630,7 +613,7 @@ uint64_t Parser::p5_hex(char const *text)
 
 	for (p = text; (c = *p) != 0; ++p) {
 		if (!isxdigit(c))
-			error(std::format("Invalid hex number {}", text));
+			error(format("Invalid hex number {}", text));
 
 		value <<= 4;
 		

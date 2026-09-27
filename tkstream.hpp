@@ -8,10 +8,8 @@
 #ifndef TKSTREAM_HPP
 #define TKSTREAM_HPP
 
+#include "common.hpp"
 #include "buffer.hpp"
-
-#include <string>
-using std::string;
 
 enum token_mode {
 	assembly,
@@ -54,7 +52,7 @@ enum token_type {
 
 struct Token {
 	token_type type;
-	std::string value;
+	string value;
 
 	Token();
 	void clear();
@@ -87,7 +85,7 @@ public:
 	string get_location();
 //	string get_line_text();
 	void nested_file(string const &name);
-	void nested_source(std::unique_ptr<SrcText> source);
+	void nested_source(unique_ptr<SrcText> source);
 	SrcText &get_current();
 };
 

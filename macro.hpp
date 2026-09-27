@@ -9,11 +9,9 @@
 #define MACRO_HPP
 
 #include "source.hpp"
+#include "common.hpp"
 #include <list>
 #include <map>
-#include <memory>
-
-using std::string;
 
 // MacroDefinition's are instantiated and populated by Parser during pass 1
 // and accumulated into a MacroTable
@@ -37,9 +35,6 @@ private:
 	friend MacroInvocation;
 
 public:
-	MacroDefinition() = default;
-//	virtual ~MacroDefinition();
-
 	void add_line(string const &tline);
 
 	void add_param(string const &param);
@@ -52,6 +47,7 @@ public:
 };
 
 class MacroInvocation: public SrcText {
+private:
 	MacroDefinition const *definition;
 	std::string filename;
 	unsigned fileline;
@@ -61,7 +57,6 @@ class MacroInvocation: public SrcText {
 public:
 	MacroInvocation(string const &name, MacroDefinition const *def, SrcText const &callfrom);
 
-//	void new_invocation();
 	void add_value(string const &value);
 	unsigned get_value_count() const;
 

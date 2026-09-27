@@ -14,7 +14,7 @@ SrcText::SrcText(string const &tname)
 
 string SrcText::get_location() const
 {
-	return textname + ":" + std::to_string(linenum);
+	return textname + ":" + to_string(linenum);
 }
 
 void SrcText::advance_line()
@@ -32,7 +32,7 @@ unsigned SrcText::get_linenum() const
 	return linenum;
 }
 
-std::string const &SrcText::get_name() const
+string const &SrcText::get_name() const
 {
 	return textname;
 }
