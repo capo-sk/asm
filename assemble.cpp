@@ -14,16 +14,15 @@
 #include "parse.hpp"
 #include "version.h"
 
-using namespace std;
-
-int main(int argc, char *argv[]) {
-	const ios::openmode m_r = ios::in;
-	const ios::openmode m_w = ios::out | ios::trunc;
-	const ios::openmode m_wb = m_w | ios_base::binary;
+int main(int argc, char *argv[])
+{
+	const std::ios::openmode m_r = std::ios::in;
+	const std::ios::openmode m_w = std::ios::out | std::ios::trunc;
+	const std::ios::openmode m_wb = m_w | std::ios::binary;
 	string input_filename, output_filename, symbol_filename;
 
 	if (argc < 2)
-		abort_msg(std::format("United Assembler -- version {}\n\nUsage: {} <source.s> [<binary> [<symbols>]]",
+		abort_msg(format("United Assembler -- version {}\n\nUsage: {} <source.s> [<binary> [<symbols>]]",
 			string(version_string), string(argv[0])));
 
 	input_filename = argv[1];
@@ -47,14 +46,14 @@ int main(int argc, char *argv[]) {
 
 	set_error_source(in_buf);
 
-	ofstream output_file(output_filename, m_wb);
+	std::ofstream output_file(output_filename, m_wb);
 	if (!output_file)
 		abort_sys(output_filename.c_str());
 
 	Emitter emit(output_file);
 
-	ostream *symbol_filep;
-	ofstream symbol_file;
+	std::ostream *symbol_filep;
+	std::ofstream symbol_file;
 	int symdump_format;
 	if (symbol_filename.length() > 0) {
 		symbol_file.open(symbol_filename, m_w);

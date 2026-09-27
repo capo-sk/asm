@@ -40,7 +40,7 @@ static uint8_t multimode3_opcode(uint8_t base_code, uint8_t mode)
 	return base_code | multimode3_select[mode];
 }
 
-static uint8_t multimode_compose(uint8_t index, uint8_t mode)
+uint8_t multimode_compose(uint8_t index, uint8_t mode)
 {
 	uint8_t opc_mode = opcodes[index].mode;
 	uint8_t opc_base = opcodes[index].code;

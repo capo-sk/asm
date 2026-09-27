@@ -16,18 +16,21 @@ Parser::Parser(Buffer &in_buf, Emitter &emitter, SymbolTable &symtab)
 	uniq = 0;
 }
 	
-void Parser::first_pass() {
+void Parser::first_pass()
+{
 	pass = 1;
 	p0_source();
 }
 
-void Parser::second_pass() {
+void Parser::second_pass()
+{
 	stream.reset();
 	pass = 2;
 	p0_source();
 }
 
-void Parser::p0_source() {
+void Parser::p0_source()
+{
 	emit.set_pass(pass);
 	emit.set_loc(0);
 	main_label.clear();
@@ -41,7 +44,8 @@ void Parser::p0_source() {
 		error("Parse error");
 }
 
-int Parser::p1_line() {
+int Parser::p1_line()
+{
 	int ret;
 
 	ret = stream.read(first);
@@ -73,7 +77,8 @@ int Parser::p1_line() {
 	}
 }
 
-int Parser::p2_instruction() {
+int Parser::p2_instruction()
+{
 	Token tk1;
 	Token tk2;
 	uint8_t mode;
@@ -183,7 +188,8 @@ int Parser::p2_instruction() {
 	return expect_newline();
 }
 
-void Parser::p3_pseudo_word() {
+void Parser::p3_pseudo_word()
+{
 	uint16_t value;
 	Token tk;
 
@@ -406,7 +412,8 @@ void Parser::localise_symbol(Token &tk)
 	}
 }
 
-void Parser::p2_labeldef(void) {
+void Parser::p2_labeldef(void)
+{
 	// first is the label token; we know length is >= 1
 	if (first.value[0] != '.') {  /* global label */
 		main_label = first;
@@ -419,7 +426,8 @@ void Parser::p2_labeldef(void) {
 	}
 }
 
-int Parser::p2_vardef(void) {
+int Parser::p2_vardef(void)
+{
 	Token tk;
 	uint16_t value;
 
@@ -483,14 +491,8 @@ uint32_t Parser::p3_expression()
 			case '/':
 				operation = tk.type;
 				break;
-//			case ')':
-//			case endline:
-//			case ',':
-//				stream.pushback();
-//				break;
 			default:
 				stream.pushback();
-//				error("Invalid expression");
 				break;
 		}
 
@@ -565,7 +567,8 @@ uint64_t Parser::p4_expr_element()
 	}
 }
 
-uint64_t Parser::p5_dec(char const *text) {
+uint64_t Parser::p5_dec(char const *text)
+{
 	uint64_t value = 0;
 	uint8_t c;
 	char const *p;
@@ -624,20 +627,3 @@ uint64_t Parser::p5_hex(char const *text)
 
 	return value;
 }
-
-/*[[noreturn]] void Parser::error(string const &txt)
-{
-	string err = format("{}: {}\n{}\n",
-		stream.get_location(),
-		txt, stream.get_line_text());
-
-	abort_msg(err.c_str());
-}
-
-[[noreturn]] void Parser::error_fmt(format_string<Args...> fmt, Args &&... args)
-{
-	string msg = vformat(fmt.get(), make_format_args(args...));
-
-	error(msg);
-}
-*/

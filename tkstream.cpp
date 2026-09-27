@@ -73,7 +73,8 @@ TokenStream::TokenStream(Buffer &in_buf) : buf(in_buf) {
 	reuse = false;
 }
 
-int TokenStream::read(Token &tk) {
+int TokenStream::read(Token &tk)
+{
 	int retval;
 
 	if (reuse) {
@@ -88,11 +89,13 @@ int TokenStream::read(Token &tk) {
 	return retval;
 }
 
-void TokenStream::pushback() {
+void TokenStream::pushback()
+{
 	reuse = true;
 }
 
-void TokenStream::rewind() {
+void TokenStream::rewind()
+{
 	buf.rewind();
 	reuse = false;
 	ctx = line_start;
@@ -454,11 +457,6 @@ void TokenStream::set_mode(token_mode a_mode)
 {
 	mode = a_mode;
 }
-
-/*string TokenStream::get_line_text()
-{
-	return buf.get_line_text();
-}*/
 
 SrcText &TokenStream::get_current()
 {
