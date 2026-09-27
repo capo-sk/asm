@@ -1,12 +1,12 @@
 assemble.o: assemble.cpp error.hpp buffer.hpp srcstack.hpp source.hpp \
  emit.hpp parse.hpp tkstream.hpp symtable.hpp macro.hpp version.h
 buffer.o: buffer.cpp buffer.hpp srcstack.hpp source.hpp
-emit.o: emit.cpp emit.hpp error.hpp buffer.hpp srcstack.hpp source.hpp \
- opcodes.hpp
+emit.o: emit.cpp emit.hpp opcodes.hpp error.hpp buffer.hpp srcstack.hpp \
+ source.hpp
 error.o: error.cpp error.hpp buffer.hpp srcstack.hpp source.hpp
 opcodes.o: opcodes.cpp opcodes.hpp
-parse.o: parse.cpp parse.hpp error.hpp buffer.hpp srcstack.hpp source.hpp \
- tkstream.hpp symtable.hpp emit.hpp macro.hpp opcodes.hpp
+parse.o: parse.cpp parse.hpp buffer.hpp srcstack.hpp source.hpp \
+ tkstream.hpp symtable.hpp emit.hpp macro.hpp opcodes.hpp error.hpp
 srcfile.o: srcfile.cpp srcfile.hpp source.hpp error.hpp buffer.hpp \
  srcstack.hpp
 symtable.o: symtable.cpp symtable.hpp error.hpp buffer.hpp srcstack.hpp \
@@ -14,5 +14,5 @@ symtable.o: symtable.cpp symtable.hpp error.hpp buffer.hpp srcstack.hpp \
 tkstream.o: tkstream.cpp tkstream.hpp buffer.hpp srcstack.hpp source.hpp \
  srcfile.hpp opcodes.hpp
 source.o: source.cpp source.hpp
-macro.o: macro.cpp macro.hpp source.hpp
+macro.o: macro.cpp macro.hpp source.hpp error.hpp buffer.hpp srcstack.hpp
 srcstack.o: srcstack.cpp srcstack.hpp source.hpp srcfile.hpp

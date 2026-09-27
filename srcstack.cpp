@@ -13,15 +13,16 @@
 SrcStack::SrcStack(string const &fname)
 : SrcText(fname)
 {
-	new_source_once(new SrcFile(fname));
+	auto source = make_unique<SrcFile>(fname);
+	new_source_once(std::move(source));
 }
 
-void SrcStack::new_source(SrcText *source)
+void SrcStack::new_source(std::unique_ptr<SrcText> source)
 {
-	sources.push(source);
+	sources.push(std::move(source));
 }
 
-void SrcStack::new_source_once(SrcText *source)
+void SrcStack::new_source_once(std::unique_ptr<SrcText> source)
 {
 	std::string name = source->get_name();
 
@@ -30,7 +31,7 @@ void SrcStack::new_source_once(SrcText *source)
 			first = name;
 		names.insert(name);
 
-		new_source(source);
+		new_source(std::move(source));
 	}
 }
 

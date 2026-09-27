@@ -87,7 +87,7 @@ public:
 	string get_location();
 //	string get_line_text();
 	void nested_file(string const &name);
-	void nested_source(SrcText &source);
+	void nested_source(std::unique_ptr<SrcText> source);
 	SrcText &get_current();
 };
 

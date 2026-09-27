@@ -263,7 +263,8 @@ int Parser::p2_pseudo_instruction()
 			return 1;  // already consumed newline
 		case 1: /* ENDM */
 			stream.set_mode(assembly);
-			current_macro = NULL;
+			if (pass == 1)
+				macros.add(std::move(current_macro_name), std::move(current_macro_def));
 			return 1;
 		case 2: /* .BYTE */
 			p3_pseudo_byte();
@@ -286,16 +287,14 @@ int Parser::p2_pseudo_instruction()
 void Parser::p3_macro_header()
 {
 	Token tk;
-	std::unique_ptr<MacroText> macrop;
 
 	stream.read(tk);
 	if (tk.type != macro_def)
 		error("Expected macro name");
 
 	if (pass == 1) {
-		macrop = std::make_unique<MacroText>(tk.value);
-		// we are transferring the resource to MacroTable but still need to refer to it while recording the text
-		current_macro = macrop.get();  
+		current_macro_name = tk.value;
+		current_macro_def = std::make_unique<MacroDefinition>();
 	}
 
 	unsigned parct = 0;
@@ -303,16 +302,16 @@ void Parser::p3_macro_header()
 	stream.read(tk2);
 	while (tk2.type == macro_par) {
 		if (pass == 1) {
-			macrop->add_param(tk2.value);
+			current_macro_def->add_param(tk2.value);
 			parct++;
 		}
 		stream.read(tk2);
 	}
 
-	if (pass == 1) {
-		sym.add_unique(tk.value, sym_macro, parct);
-		macros.add(std::move(macrop));
-	}
+//	if (pass == 1) {
+//		sym.add_unique(tk.value, sym_macro, parct);
+//		macros.add(std::move(macrop));
+//	}
 
 	pushback_and_newline();
 
@@ -323,11 +322,12 @@ void Parser::p3_macro_header()
 int Parser::p2_macro_line()
 {
 	if (pass == 1)
-		current_macro->add_line(first.value);
+		current_macro_def->add_line(first.value);
 	return 1;
 }
 
-int Parser::p3_include() {
+int Parser::p3_include()
+{
 	Token tk;
 	int result;
 
@@ -342,7 +342,8 @@ int Parser::p3_include() {
 	return result;
 }
 
-int Parser::expect_newline() {
+int Parser::expect_newline()
+{
 	Token tk;
 
 	do {
@@ -357,33 +358,34 @@ int Parser::expect_newline() {
 	return 1;
 }
 
-int Parser::pushback_and_newline() {
+int Parser::pushback_and_newline() 
+{
 	stream.pushback();
 	return expect_newline();
 }
 
-int Parser::p2_invoke_macro(void) {
+int Parser::p2_invoke_macro()
+{
 	// increase uniq counter
 	++uniq;
 
 	// find macro by name
-	auto macro_it = macros.find(first.value);
-	if (macro_it == macros.end())
+	auto macro_def = macros.find(first.value);
+	if (macro_def == macros.end())
 		error(format("Unknown macro {}", first.value));
 
 	// prevent recursive macro
-	if (macro_it->first == stream.get_current().get_name())
+	if (macro_def->first == stream.get_current().get_name())
 		error("Macro may not invoke itself");
 
 	// parse parameters
-//	auto *values = new list<string>;
-	MacroText &macro = *(macro_it->second);
-	macro.new_invocation();
+	std::unique_ptr<MacroInvocation> macro_inv =
+		std::make_unique<MacroInvocation>(first.value, macro_def->second.get(), stream.get_current());
 	Token tk;
 	stream.set_mode(words);
 	stream.read(tk);
 	while (tk.type == word) {
-		macro.add_value(tk.value);
+		macro_inv->add_value(tk.value);
 //		values->push_back(tk.value);
 		stream.read(tk);
 	}
@@ -391,14 +393,11 @@ int Parser::p2_invoke_macro(void) {
 	pushback_and_newline();
 
 	// number of values must match number of parameters
-	if (macro.get_value_count() != macro.get_param_count())
+	if (macro_inv->get_value_count() != macro_def->second->get_param_count())
 		error("Argument count mismatch");
 
-	// invoke macro with parameters
-//	macro_it->second.invoke(stream.get_current(), *values);
-
 	// switch input to macro
-	stream.nested_source(macro);
+	stream.nested_source(std::move(macro_inv));
 
 	return 1;
 }
@@ -408,7 +407,7 @@ void Parser::localise_symbol(Token &tk)
 	string result;
 
 	if (tk.value.length() > 1 && tk.value[0] == '.') {
-		if (typeid(stream.get_current()) == typeid(MacroText) && tk.value.length() > 2 && tk.value[1] == '.') {
+		if (typeid(stream.get_current()) == typeid(MacroInvocation) && tk.value.length() > 2 && tk.value[1] == '.') {
 			// macro unique label
 			result = string(stream.get_current().get_name() + std::to_string(uniq) + string(&tk.value[1]));
 		} else {

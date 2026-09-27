@@ -15,27 +15,53 @@
 
 using std::string;
 
-class MacroText: public SrcText {
+// MacroDefinition's are instantiated and populated by Parser during pass 1
+// and accumulated into a MacroTable
+// Lifecycle is from definition to end of program
+
+// MacroInvocation's are instantiated during pass 2 and stored in SrcStack
+// Lifecycle is from invocation until popped from the stack
+
+// MacroInvocation realises SrcText
+// MacroDefinition does not
+
+class MacroInvocation;
+
+class MacroDefinition {
 private:
 	std::list<string> text;
-	std::list<string>::iterator current;
 	//std::string textname;
 	//unsigned linenum;
-	std::string filename;
-	unsigned fileline;
 	std::list<string> params;
-	std::list<string> values;
+
+	friend MacroInvocation;
 
 public:
-	MacroText(string const &mname);
-	virtual ~MacroText();
+	MacroDefinition() = default;
+//	virtual ~MacroDefinition();
 
 	void add_line(string const &tline);
 
 	void add_param(string const &param);
 	unsigned get_param_count() const;
-	
-	void new_invocation();
+};
+
+class MacroTable: public std::map<string, std::unique_ptr<MacroDefinition>> {
+public:
+	void add(string const &name, std::unique_ptr<MacroDefinition> macrop);
+};
+
+class MacroInvocation: public SrcText {
+	MacroDefinition const *definition;
+	std::string filename;
+	unsigned fileline;
+	std::list<string> values;
+	std::list<string>::const_iterator current;
+
+public:
+	MacroInvocation(string const &name, MacroDefinition const *def, SrcText const &callfrom);
+
+//	void new_invocation();
 	void add_value(string const &value);
 	unsigned get_value_count() const;
 
@@ -45,11 +71,6 @@ public:
 
 	virtual void advance_line();
 	virtual void rewind();
-};
-
-class MacroTable: public std::map<string, std::unique_ptr<MacroText>> {
-public:
-	void add(std::unique_ptr<MacroText> macrop);
 };
 
 #endif

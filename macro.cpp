@@ -10,15 +10,13 @@
 
 #include <format>
 
-MacroText::MacroText(string const &mname)
-: SrcText(mname)
+/*MacroDefinition::MacroDefinition(string const &mname)
 {
-	current = text.begin();
 }
 
-MacroText::~MacroText()
+MacroDefinition::~MacroDefinition()
 {
-}
+}*/
 
 /*void MacroText::invoke(SrcText const &callfrom, list<string> const &pvalues)
 {
@@ -28,26 +26,26 @@ MacroText::~MacroText()
 	current = text.begin();
 }*/
 
-void MacroText::add_line(string const &tline)
+void MacroDefinition::add_line(string const &tline)
 {
 	text.push_back(tline);
 }
 
-string MacroText::get_location() const
+string MacroInvocation::get_location() const
 {
 	return "&" + get_name() + ":" + std::to_string(get_linenum())
 		+ "@" + filename + ":" + std::to_string(fileline);
 }
 
-void MacroText::advance_line()
+void MacroInvocation::advance_line()
 {
 	++current;
 	SrcText::advance_line();
 }
 
-void MacroText::rewind()
+void MacroInvocation::rewind()
 {
-	current = text.begin();
+	current = definition->text.begin();
 	SrcText::rewind();
 }
 
@@ -103,10 +101,10 @@ static string _replace(string const &base, std::list<string> const &params, std:
 	return result;
 }
 
-bool MacroText::getline(string &buffer)
+bool MacroInvocation::getline(string &buffer)
 {
-	if (current != text.end()) {
-		buffer = _replace(current->data(), params, values);
+	if (current != definition->text.end()) {
+		buffer = _replace(current->data(), definition->params, values);
 		advance_line();
 		return true;
 	} else {
@@ -115,35 +113,42 @@ bool MacroText::getline(string &buffer)
 	}
 }
 
-void MacroText::add_param(string const &param)
+void MacroDefinition::add_param(string const &param)
 {
 	params.push_back(param);
 }
 
-unsigned MacroText::get_param_count() const
+unsigned MacroDefinition::get_param_count() const
 {
 	return params.size();
 }
 
-void MacroText::new_invocation()
+MacroInvocation::MacroInvocation(string const &name, MacroDefinition const *def, SrcText const &callfrom)
+: SrcText(name), definition(def)
 {
-	values.clear();
-	rewind();
+	filename = callfrom.get_name();
+	fileline = callfrom.get_linenum();
+	current = definition->text.begin();
 }
 
-void MacroText::add_value(string const &value)
+//void MacroDefinition::new_invocation()
+//{
+//	values.clear();
+//	rewind();
+//}
+
+void MacroInvocation::add_value(string const &value)
 {
 	values.push_back(value);
 }
 
-unsigned MacroText::get_value_count() const
+unsigned MacroInvocation::get_value_count() const
 {
 	return values.size();
 }
 
-void MacroTable::add(std::unique_ptr<MacroText> macrop)
+void MacroTable::add(string const &name, std::unique_ptr<MacroDefinition> macrop)
 {
-	string name = macrop->get_name();
 	auto [it, result] = try_emplace(name, std::move(macrop));
 
 	if (!result)

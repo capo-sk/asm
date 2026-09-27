@@ -21,7 +21,8 @@ private:
 	Token main_label;
 	SymbolTable &sym;
 	MacroTable macros;
-	MacroText *current_macro;
+	string current_macro_name;
+	std::unique_ptr<MacroDefinition> current_macro_def;
 	Emitter &emit;
 	unsigned pass;
 	unsigned uniq;

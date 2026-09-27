@@ -446,8 +446,8 @@ string TokenStream::get_location()
 void TokenStream::nested_file(string const &name)
 {
 	if (!buf.is_present(name)) {
-		SrcFile *f = new SrcFile(name);
-		buf.new_source_once(f);
+		std::unique_ptr<SrcFile> f = std::make_unique<SrcFile>(name);
+		buf.new_source_once(std::move(f));
 	}
 }
 
@@ -466,7 +466,7 @@ SrcText &TokenStream::get_current()
 	return buf.get_current();
 }
 
-void TokenStream::nested_source(SrcText &source)
+void TokenStream::nested_source(std::unique_ptr<SrcText> source)
 {
-	buf.new_source(&source);
+	buf.new_source(std::move(source));
 }
