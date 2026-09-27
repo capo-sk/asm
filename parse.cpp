@@ -75,8 +75,8 @@ int Parser::p1_line() {
 			return p2_location();
 		case macro_line:
 			return p2_macro_line();
-		case skip:
-			return p1_line();
+//		case skip:
+//			return p1_line();
 		default:
 			return -1;
 	}
@@ -346,9 +346,10 @@ int Parser::expect_newline()
 {
 	Token tk;
 
-	do {
+	stream.read(tk);
+
+	if (tk.type == skip)
 		stream.read(tk);
-	} while (tk.type == skip);
 
 	if (tk.type != endline) {
 		error("Expected end of line");
