@@ -1,5 +1,5 @@
 assemble.o: assemble.cpp error.hpp buffer.hpp srcstack.hpp source.hpp \
- emit.hpp parse.hpp tkstream.hpp symtable.hpp macro.hpp version.h
+ emit.hpp parse.hpp tkstream.hpp symtable.hpp macro.hpp
 buffer.o: buffer.cpp buffer.hpp srcstack.hpp source.hpp
 emit.o: emit.cpp emit.hpp opcodes.hpp error.hpp buffer.hpp srcstack.hpp \
  source.hpp

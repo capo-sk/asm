@@ -373,7 +373,7 @@ int Parser::p2_invoke_macro()
 	// find macro by name
 	auto macro_def = macros.find(first.value);
 	if (macro_def == macros.end())
-		error(format("Unknown macro {}", first.value));
+		error(std::format("Unknown macro {}", first.value));
 
 	// prevent recursive macro
 	if (macro_def->first == stream.get_current().get_name())
@@ -559,7 +559,7 @@ uint64_t Parser::p4_expr_element()
 				if (pass == 1)
 					return emit.get_loc();
 				else
-					error(format("Symbol {} not found", tk.value));
+					error(std::format("Symbol {} not found", tk.value));
 		case literal_chr:
 			return (unsigned char) tk.value[0];
 		case literal_dec:
