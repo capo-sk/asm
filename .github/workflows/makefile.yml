@@ -1,0 +1,27 @@
+name: Makefile CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-slim
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Pre-make cleanup
+      run: make deepclean
+
+    - name: Create dependencies
+      run: make deps
+
+    - name: Build
+      run: make
+
+    - name: Run test suite
+      run: make test
