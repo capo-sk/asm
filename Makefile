@@ -43,3 +43,6 @@ tests/helper/make_ref: tests/helper/make_ref.cpp
 
 test: uasm tests/helper/make_ref
 	cd tests && ./all_tests.sh
+
+install: test
+	sudo cp uasm /usr/local/bin

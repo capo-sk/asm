@@ -60,6 +60,7 @@ Expressions yield 16-bit unsigned integer results. They can include numeric lite
 * `*` can also be used as operand, in which case it takes the value of the current location
 * `<` and `>` (low-byte and high-byte)
 * `^` (shift left by 8 bits, i.e. takes a page number and makes it an address)
+* `~` bitwise negation
 * `!` (force the value to be 16-bit)
 Operands and intermediate results are computed as 64-bit unsigned integers (because it's 2026 not 1986) but the result must fit in 16 bits; values from (two-s complement of) -32768 to +65535 are allowed.
 Operations are left-associative and there is no precedence (e.g. of multiplication over addition); parentheses for precedence are not supported.

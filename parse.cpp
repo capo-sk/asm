@@ -559,6 +559,8 @@ uint64_t Parser::p4_expr_element()
 			return (p4_expr_element()) >> 8 & 0xFF;
 		case '^':
 			return (p4_expr_element() & 0xFF) << 8;
+		case '~':
+			return ~(p4_expr_element());
 		case '*':
 			return emit.get_loc();
 		default:
