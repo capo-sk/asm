@@ -19,4 +19,4 @@ var = 100
 	.byte	'a'					;-61
 	.byte	~$55					;-aa
 	.word	~$55aa					;-55 aa
-	
+	.byte	?					;-00

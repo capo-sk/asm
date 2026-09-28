@@ -563,6 +563,8 @@ uint64_t Parser::p4_expr_element()
 			return ~(p4_expr_element());
 		case '*':
 			return emit.get_loc();
+		case '?':
+			return 0;
 		default:
 			error("Invalid expression");
 			return (uint16_t) -1;
