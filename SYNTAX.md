@@ -55,13 +55,16 @@ Exampes:
 		.BYTE "null-terminated string",0
 ```
 
-Expressions yield 16-bit unsigned integer results. They can include numeric literals and symbols (variables and labels). The following operators are supported:
-* the four basic arithmetic operations `+`, `-`, `*` and `/`
-* `*` can also be used as operand, in which case it takes the value of the current location
+Expressions yield 16-bit unsigned integer results. They can include numeric literals and symbols (variables and labels).
+The following unary operators are supported:
 * `<` and `>` (low-byte and high-byte)
 * `^` (shift left by 8 bits, i.e. takes a page number and makes it an address)
 * `~` bitwise negation
 * `!` (force the value to be 16-bit)
+The following binary operators are supported:
+* the four basic arithmetic operations `+`, `-`, `*` and `/`
+* `<` and `>` (logical shift left and right)
+Also `*` can also be used as operand, in which case it takes the value of the current location. `?` can be used as a placeholder operand, and it takes value 0.
 Operands and intermediate results are computed as 64-bit unsigned integers (because it's 2026 not 1986) but the result must fit in 16 bits; values from (two-s complement of) -32768 to +65535 are allowed.
 Operations are left-associative and there is no precedence (e.g. of multiplication over addition); parentheses for precedence are not supported.
 

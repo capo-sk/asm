@@ -465,6 +465,7 @@ int Parser::p2_location(void)
 	return expect_newline();
 }
 
+#include <iostream>
 uint32_t Parser::p3_expression()
 {
 	Token tk;
@@ -489,6 +490,8 @@ uint32_t Parser::p3_expression()
 			case '-':
 			case '*':
 			case '/':
+			case '<':
+			case '>':
 				operation = tk.type;
 				break;
 			default:
@@ -508,6 +511,10 @@ uint32_t Parser::p3_expression()
 				if (operand == 0)
 					error("Division by zero");
 				result /= operand;
+			} else if (operation == '<') {
+				result <<= operand;
+			} else if (operation == '>') {
+				result >>= operand;
 			} else
 			 	;  // can't be here
 		}
