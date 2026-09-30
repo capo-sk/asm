@@ -560,6 +560,8 @@ uint64_t Parser::p4_expr_element()
 			return p5_hex(tk.value.c_str());
 		case literal_bin:
 			return p5_bin(tk.value.c_str());
+		case '-':
+			return -p4_expr_element();
 		case '<':
 			return p4_expr_element() & 0xFF;
 		case '>':

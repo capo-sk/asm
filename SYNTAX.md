@@ -60,6 +60,7 @@ The following unary operators are supported:
 * `<` and `>` (low-byte and high-byte)
 * `^` (shift left by 8 bits, i.e. takes a page number and makes it an address)
 * `~` bitwise negation
+* `-` negative (two's complement)
 * `!` (force the value to be 16-bit)
 The following binary operators are supported:
 * the four basic arithmetic operations `+`, `-`, `*` and `/`
